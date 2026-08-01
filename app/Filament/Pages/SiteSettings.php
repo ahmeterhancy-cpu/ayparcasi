@@ -2,11 +2,14 @@
 
 namespace App\Filament\Pages;
 
+use App\Mail\TestMail;
 use App\Models\Setting;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
@@ -16,6 +19,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Mail;
 use UnitEnum;
 
 /**
@@ -47,6 +51,7 @@ class SiteSettings extends Page implements HasSchemas
         'instagram', 'facebook',
         'same_day_cutoff_hour', 'bank_details',
         'low_stock_threshold', 'low_stock_email',
+        'order_emails_enabled', 'order_alert_email',
         'hero_eyebrow', 'hero_title', 'hero_subtitle', 'hero_image',
         'about_title', 'about_text', 'about_image',
         'footer_text',
@@ -163,6 +168,22 @@ class SiteSettings extends Page implements HasSchemas
                                     ->helperText('Havaleyle ödeme seçildiğinde sipariş sayfasında gösterilir.'),
                             ]),
 
+                            Section::make('E-posta bildirimleri')
+                                ->columns(2)
+                                ->description('Müşteriye sipariş özeti ve durum bildirimleri, ekibe yeni sipariş uyarısı gönderilir. Müşteri e-posta bırakmadıysa yalnızca ekip bildirimi gider.')
+                                ->schema([
+                                    Toggle::make('order_emails_enabled')
+                                        ->label('Sipariş e-postaları gönderilsin')
+                                        ->default(true)
+                                        ->columnSpanFull(),
+
+                                    TextInput::make('order_alert_email')
+                                        ->label('Yeni sipariş bildirimi gitsin')
+                                        ->email()
+                                        ->helperText('Boş bırakırsanız mağaza e-postasına gider.')
+                                        ->columnSpanFull(),
+                                ]),
+
                             Section::make('Stok uyarısı')->columns(2)->schema([
                                 TextInput::make('low_stock_threshold')
                                     ->label('Uyarı eşiği')
@@ -180,6 +201,44 @@ class SiteSettings extends Page implements HasSchemas
                         ]),
                 ]),
             ]);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('test_eposta')
+                ->label('Test e-postası gönder')
+                ->icon('heroicon-o-paper-airplane')
+                ->color('gray')
+                ->modalHeading('E-posta ayarlarını dene')
+                ->modalDescription('Gerçek bir sipariş e-postası şablonuyla deneme gönderimi yapar. SMTP ayarlarınızı doğrulamak için kullanın.')
+                ->modalSubmitActionLabel('Gönder')
+                ->schema([
+                    TextInput::make('to')
+                        ->label('Alıcı adresi')
+                        ->email()
+                        ->required()
+                        ->default(fn () => setting('order_alert_email') ?: setting('email')),
+                ])
+                ->action(function (array $data) {
+                    try {
+                        Mail::to($data['to'])->send(new TestMail);
+
+                        Notification::make()
+                            ->title('Test e-postası gönderildi')
+                            ->body($data['to'].' adresini kontrol edin. Yerel kurulumda posta storage/logs/laravel.log dosyasına yazılır.')
+                            ->success()
+                            ->send();
+                    } catch (\Throwable $e) {
+                        Notification::make()
+                            ->title('Gönderilemedi')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->persistent()
+                            ->send();
+                    }
+                }),
+        ];
     }
 
     public function save(): void

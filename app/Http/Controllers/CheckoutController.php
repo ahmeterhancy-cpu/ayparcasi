@@ -7,6 +7,7 @@ use App\Models\DeliveryZone;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\Cart;
+use App\Services\OrderMailer;
 use App\Services\Payments\TikoGateway;
 use App\Services\StockAlerts;
 use Illuminate\Http\Request;
@@ -191,6 +192,9 @@ class CheckoutController extends Controller
         // Stok eşiğin altına düştüyse ekibe haber ver (siparişi bloklamaz)
         app(StockAlerts::class)->checkOrder($order->load('items'));
 
+        // E-postalar yanıt döndükten sonra gider — müşteri beklemez
+        defer(fn () => app(OrderMailer::class)->placed($order));
+
         // "Bu adresi kaydet" işaretliyse adres defterine ekle
         if (Auth::check() && $request->boolean('save_address')) {
             $user = Auth::user();
@@ -212,6 +216,17 @@ class CheckoutController extends Controller
         if ($order->payment_method === 'whatsapp') {
             return redirect()->route('order.show', $order->number)->with('open_whatsapp', true);
         }
+
+        return redirect()->route('order.show', $order->number);
+    }
+
+    /**
+     * E-postadaki imzalı bağlantı. İmza doğrulandığı için siparişi
+     * oturuma ekleyip normal sipariş sayfasına yönlendiriyoruz.
+     */
+    public function magicLink(Request $request, Order $order)
+    {
+        $this->rememberOrder($order);
 
         return redirect()->route('order.show', $order->number);
     }

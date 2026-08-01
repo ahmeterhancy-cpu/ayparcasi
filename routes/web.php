@@ -46,6 +46,11 @@ Route::post('/odeme/bildirim', [PaymentController::class, 'callback'])->name('pa
 
 Route::get('/siparis/{order:number}', [CheckoutController::class, 'show'])->name('order.show');
 
+// E-postadaki imzalı bağlantı: hesap gerekmeden siparişi açar
+Route::get('/siparis/{order:number}/goruntule', [CheckoutController::class, 'magicLink'])
+    ->middleware('signed')
+    ->name('order.magic');
+
 // Hesabı olmayan müşteri için sipariş sorgulama
 Route::get('/siparis-sorgula', [OrderLookupController::class, 'show'])->name('order.lookup');
 Route::post('/siparis-sorgula', [OrderLookupController::class, 'find'])

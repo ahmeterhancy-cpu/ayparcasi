@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\OrderMailer;
 use App\Services\OrderStock;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -49,12 +50,21 @@ class Order extends Model
 
     protected static function booted(): void
     {
-        // Sipariş iptal edilince düşülen stok otomatik geri gelsin.
-        // Model olayında olduğu için panelden, toplu işlemden, koddan —
-        // hangi yoldan iptal edilirse edilsin çalışır.
         static::updated(function (Order $order) {
+            // Sipariş iptal edilince düşülen stok otomatik geri gelsin.
+            // Model olayında olduğu için panelden, toplu işlemden, koddan —
+            // hangi yoldan iptal edilirse edilsin çalışır.
             if ($order->wasChanged('status') && $order->status === 'cancelled') {
                 app(OrderStock::class)->restore($order->load('items'));
+            }
+
+            // Bildirimler yanıt döndükten sonra gönderilir; kimseyi bekletmez.
+            if ($order->wasChanged('status')) {
+                defer(fn () => app(OrderMailer::class)->statusChanged($order));
+            }
+
+            if ($order->wasChanged('payment_status') && $order->payment_status === 'paid') {
+                defer(fn () => app(OrderMailer::class)->paid($order));
             }
         });
     }

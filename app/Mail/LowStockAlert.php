@@ -2,6 +2,8 @@
 
 namespace App\Mail;
 
+use App\Filament\Resources\Products\ProductResource;
+use App\Mail\Concerns\FromShop;
 use App\Models\Product;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -11,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 
 class LowStockAlert extends Mailable
 {
-    use Queueable, SerializesModels;
+    use FromShop, Queueable, SerializesModels;
 
     public function __construct(
         public Product $product,
@@ -22,6 +24,7 @@ class LowStockAlert extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: $this->shopFrom(),
             subject: $this->remaining <= 0
                 ? 'Stok bitti: '.$this->product->name
                 : 'Stok azaldı: '.$this->product->name.' ('.$this->remaining.' adet)',
@@ -30,6 +33,11 @@ class LowStockAlert extends Mailable
 
     public function content(): Content
     {
-        return new Content(markdown: 'mail.low-stock');
+        return new Content(
+            view: 'emails.low-stock',
+            with: [
+                'productUrl' => ProductResource::getUrl('edit', ['record' => $this->product]),
+            ],
+        );
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Orders\Pages;
 use App\Filament\Resources\Orders\OrderResource;
 use App\Models\DeliveryZone;
 use App\Models\Order;
+use App\Services\OrderMailer;
 use App\Services\OrderStock;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
@@ -39,6 +40,9 @@ class CreateOrder extends CreateRecord
         $order = $this->record;
 
         $order->recalculate();
+
+        // Müşteri e-posta bıraktıysa sipariş özetini gönder
+        defer(fn () => app(OrderMailer::class)->placed($order->fresh('items')));
 
         $short = app(OrderStock::class)->reserve($order);
 

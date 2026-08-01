@@ -62,6 +62,10 @@ class DemoSeeder extends Seeder
             'same_day_cutoff_hour' => 15,
             'bank_details' => "Hesap bilgilerini sipariş sonrası WhatsApp'tan paylaşıyoruz.",
 
+            'order_emails_enabled' => true,
+            'order_alert_email' => 'merhaba@ayparcasicicekci.com',
+            'low_stock_threshold' => 3,
+
             'hero_eyebrow' => 'Kıbrıs · Aynı gün teslimat',
             'hero_title' => 'Bir çiçek, bir cümleden fazlasını söyler',
             'hero_subtitle' => 'Her buket dükkânımızda, siparişiniz geldikten sonra elde hazırlanır. Bugün sipariş verin, bugün kapısında olsun.',
