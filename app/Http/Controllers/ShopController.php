@@ -13,12 +13,7 @@ class ShopController extends Controller
     {
         $query = Product::query()->active()->with('variants', 'categories');
 
-        return view('shop.index', [
-            'category' => null,
-            'products' => $this->sorted($query, $request)->paginate(12)->withQueryString(),
-            'categories' => Category::active()->roots()->with('children')->orderBy('position')->get(),
-            'sort' => $request->string('sirala')->toString(),
-        ]);
+        return view('shop.index', $this->listing($query, $request, null));
     }
 
     public function category(Request $request, Category $category)
@@ -27,12 +22,87 @@ class ShopController extends Controller
 
         $query = $category->allProducts()->with('variants', 'categories');
 
-        return view('shop.index', [
+        return view('shop.index', $this->listing($query, $request, $category));
+    }
+
+    /**
+     * Liste sayfalarının ortak verisi: filtre + sıralama + sayfalama.
+     *
+     * @return array<string, mixed>
+     */
+    private function listing($query, Request $request, ?Category $category, ?string $term = null): array
+    {
+        $bounds = Product::active()->selectRaw('MIN(price) as lo, MAX(price) as hi')->first();
+
+        return [
             'category' => $category,
-            'products' => $this->sorted($query, $request)->paginate(12)->withQueryString(),
+            'term' => $term,
+            'products' => $this->sorted($this->filtered($query, $request), $request)
+                ->paginate(12)
+                ->withQueryString(),
             'categories' => Category::active()->roots()->with('children')->orderBy('position')->get(),
             'sort' => $request->string('sirala')->toString(),
-        ]);
+            'filters' => $this->activeFilters($request),
+            'priceBounds' => [
+                'lo' => (int) floor((float) ($bounds->lo ?? 0)),
+                'hi' => (int) ceil((float) ($bounds->hi ?? 0)),
+            ],
+        ];
+    }
+
+    private function filtered($query, Request $request)
+    {
+        if ($min = $request->integer('min')) {
+            $query->where('price', '>=', $min);
+        }
+
+        if ($max = $request->integer('max')) {
+            $query->where('price', '<=', $max);
+        }
+
+        if ($request->boolean('indirimli')) {
+            $query->onSale();
+        }
+
+        if ($request->boolean('ayni_gun')) {
+            $query->where('same_day', true);
+        }
+
+        if ($request->boolean('stokta')) {
+            $query->inStock();
+        }
+
+        return $query;
+    }
+
+    /**
+     * Vitrinde çip olarak gösterilecek aktif filtreler.
+     *
+     * @return array<int, array{label: string, key: string}>
+     */
+    private function activeFilters(Request $request): array
+    {
+        $out = [];
+
+        if ($min = $request->integer('min')) {
+            $out[] = ['label' => money($min).' ve üzeri', 'key' => 'min'];
+        }
+
+        if ($max = $request->integer('max')) {
+            $out[] = ['label' => money($max).' ve altı', 'key' => 'max'];
+        }
+
+        foreach ([
+            'indirimli' => 'İndirimdekiler',
+            'ayni_gun' => 'Aynı gün teslim',
+            'stokta' => 'Stokta olanlar',
+        ] as $key => $label) {
+            if ($request->boolean($key)) {
+                $out[] = ['label' => $label, 'key' => $key];
+            }
+        }
+
+        return $out;
     }
 
     public function search(Request $request)
@@ -49,13 +119,7 @@ class ShopController extends Controller
                 ->orWhere('contents', 'like', $like));
         }
 
-        return view('shop.index', [
-            'category' => null,
-            'term' => $term,
-            'products' => $this->sorted($query, $request)->paginate(12)->withQueryString(),
-            'categories' => Category::active()->roots()->with('children')->orderBy('position')->get(),
-            'sort' => $request->string('sirala')->toString(),
-        ]);
+        return view('shop.index', $this->listing($query, $request, null, $term));
     }
 
     public function product(Product $product)

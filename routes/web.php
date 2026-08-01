@@ -11,9 +11,12 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\OrderLookupController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PrintController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -43,6 +46,14 @@ Route::post('/odeme/bildirim', [PaymentController::class, 'callback'])->name('pa
 
 Route::get('/siparis/{order:number}', [CheckoutController::class, 'show'])->name('order.show');
 
+// Hesabı olmayan müşteri için sipariş sorgulama
+Route::get('/siparis-sorgula', [OrderLookupController::class, 'show'])->name('order.lookup');
+Route::post('/siparis-sorgula', [OrderLookupController::class, 'find'])
+    ->middleware('throttle:10,1')
+    ->name('order.lookup.find');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
 // --- İçerik sayfaları -----------------------------------------------------
 Route::get('/hakkimizda', [PageController::class, 'about'])->name('page.about');
 Route::get('/iletisim', [PageController::class, 'contact'])->name('page.contact');
@@ -54,6 +65,13 @@ Route::get('/blog/{post:slug}', [PageController::class, 'post'])->name('page.pos
 // --- Küçük etkileşimler ---------------------------------------------------
 Route::post('/stok-sor', [InquiryController::class, 'stock'])->name('inquiry.stock');
 Route::post('/bulten', [InquiryController::class, 'newsletter'])->name('inquiry.newsletter');
+
+// --- Yazdırılabilir belgeler (yalnızca ekip) -------------------------------
+Route::middleware('auth')->prefix('yazdir')->name('print.')->group(function () {
+    Route::get('/gunun-teslimatlari', [PrintController::class, 'daySheet'])->name('day');
+    Route::get('/siparis/{order:number}/fis', [PrintController::class, 'receipt'])->name('receipt');
+    Route::get('/siparis/{order:number}/teslim', [PrintController::class, 'slip'])->name('slip');
+});
 
 // --- Hesap: giriş / kayıt / parola ----------------------------------------
 Route::get('/giris', [LoginController::class, 'show'])->name('login');
@@ -79,6 +97,8 @@ Route::middleware('auth')->prefix('hesabim')->name('account.')->group(function (
     Route::get('/bilgilerim', [AccountController::class, 'profile'])->name('profile');
     Route::put('/bilgilerim', [AccountController::class, 'updateProfile'])->name('profile.update');
     Route::put('/parola', [AccountController::class, 'updatePassword'])->name('password.update');
+    Route::get('/verilerim', [AccountController::class, 'downloadData'])->name('data.download');
+    Route::delete('/hesabi-sil', [AccountController::class, 'destroyAccount'])->name('destroy');
 
     Route::get('/siparislerim', [AccountOrderController::class, 'index'])->name('orders');
     Route::get('/siparislerim/{order:number}', [AccountOrderController::class, 'show'])->name('order');

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -16,6 +17,8 @@ class Product extends Model
         'price' => 'decimal:2',
         'compare_at_price' => 'decimal:2',
         'rating' => 'decimal:2',
+        'sale_starts_at' => 'datetime',
+        'sale_ends_at' => 'datetime',
         'track_stock' => 'boolean',
         'is_active' => 'boolean',
         'is_featured' => 'boolean',
@@ -64,21 +67,82 @@ class Product extends Model
         return $query->where('is_featured', true);
     }
 
-    /** Varyantlı üründe gösterilecek "başlangıç" fiyatı. */
-    public function getDisplayPriceAttribute(): float
+    /** Şu an gerçekten indirimde olanlar (tarih penceresi dahil). */
+    public function scopeOnSale($query)
     {
-        $variants = $this->relationLoaded('variants') ? $this->variants : $this->variants()->where('is_active', true)->get();
+        return $query
+            ->whereNotNull('compare_at_price')
+            ->whereColumn('compare_at_price', '>', 'price')
+            ->where(fn ($q) => $q->whereNull('sale_starts_at')->orWhere('sale_starts_at', '<=', now()))
+            ->where(fn ($q) => $q->whereNull('sale_ends_at')->orWhere('sale_ends_at', '>=', now()));
+    }
 
-        if ($variants->isNotEmpty()) {
-            return (float) $variants->min('price');
+    /** Sipariş verilebilir olanlar. */
+    public function scopeInStock($query)
+    {
+        return $query->where(fn ($q) => $q
+            ->where('track_stock', false)
+            ->orWhere('stock', '>', 0)
+            ->orWhereHas('variants', fn ($v) => $v->where('is_active', true)->where('stock', '>', 0)));
+    }
+
+    /**
+     * İndirim şu an geçerli mi?
+     * Tarih verilmemişse indirim süresizdir; verilmişse yalnızca o aralıkta geçer.
+     */
+    public function getSaleActiveAttribute(): bool
+    {
+        if ($this->sale_starts_at && $this->sale_starts_at->isFuture()) {
+            return false;
+        }
+
+        if ($this->sale_ends_at && $this->sale_ends_at->isPast()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Kasada gerçekten tahsil edilecek fiyat.
+     * İndirim penceresi dışındaysa üstü çizili (normal) fiyattan satılır.
+     */
+    public function getEffectivePriceAttribute(): float
+    {
+        if (! $this->sale_active && $this->compare_at_price) {
+            return (float) $this->compare_at_price;
         }
 
         return (float) $this->price;
     }
 
+    /** @return Collection<int, ProductVariant> */
+    private function activeVariants()
+    {
+        return $this->relationLoaded('variants')
+            ? $this->variants->where('is_active', true)
+            : $this->variants()->where('is_active', true)->get();
+    }
+
+    /** Varyantlı üründe gösterilecek "başlangıç" fiyatı. */
+    public function getDisplayPriceAttribute(): float
+    {
+        $variants = $this->activeVariants();
+
+        if ($variants->isNotEmpty()) {
+            return (float) $variants->map(fn (ProductVariant $v) => $v->effectivePriceFor($this))->min();
+        }
+
+        return $this->effective_price;
+    }
+
     public function getDisplayCompareAtAttribute(): ?float
     {
-        $variants = $this->relationLoaded('variants') ? $this->variants : $this->variants()->where('is_active', true)->get();
+        if (! $this->sale_active) {
+            return null; // indirim penceresi dışında üstü çizili fiyat gösterilmez
+        }
+
+        $variants = $this->activeVariants();
 
         if ($variants->isNotEmpty()) {
             // display_price en ucuz boydan gelir; üstü çizili fiyat da AYNI boydan

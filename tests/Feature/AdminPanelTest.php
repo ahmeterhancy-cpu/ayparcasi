@@ -39,6 +39,8 @@ class AdminPanelTest extends TestCase
         $paths = [
             '/admin',
             '/admin/orders',
+            '/admin/orders/create',
+            '/admin/reports',
             '/admin/musteriler',
             '/admin/products',
             '/admin/products/create',

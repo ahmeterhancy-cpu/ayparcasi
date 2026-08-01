@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\OrderStock;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,6 +20,8 @@ class Order extends Model
         'discount' => 'decimal:2',
         'delivery_fee' => 'decimal:2',
         'total' => 'decimal:2',
+        'refunded_total' => 'decimal:2',
+        'stock_reserved' => 'boolean',
     ];
 
     public const STATUSES = [
@@ -44,6 +47,18 @@ class Order extends Model
         'whatsapp' => 'WhatsApp ile',
     ];
 
+    protected static function booted(): void
+    {
+        // Sipariş iptal edilince düşülen stok otomatik geri gelsin.
+        // Model olayında olduğu için panelden, toplu işlemden, koddan —
+        // hangi yoldan iptal edilirse edilsin çalışır.
+        static::updated(function (Order $order) {
+            if ($order->wasChanged('status') && $order->status === 'cancelled') {
+                app(OrderStock::class)->restore($order->load('items'));
+            }
+        });
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
@@ -63,6 +78,57 @@ class Order extends Model
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
+    }
+
+    public function refunds(): HasMany
+    {
+        return $this->hasMany(Refund::class)->latest('id');
+    }
+
+    /** Henüz iade edilmemiş tutar. */
+    public function getRefundableAttribute(): float
+    {
+        return max(0, round((float) $this->total - (float) $this->refunded_total, 2));
+    }
+
+    public function getIsFullyRefundedAttribute(): bool
+    {
+        return (float) $this->total > 0 && $this->refundable <= 0;
+    }
+
+    /**
+     * Kalemlerden tutarları yeniden hesapla.
+     * Panelden elle açılan/düzenlenen siparişlerde kullanılır.
+     */
+    public function recalculate(): void
+    {
+        $this->load('items.product');
+
+        foreach ($this->items as $item) {
+            $changed = [];
+
+            if (blank($item->name) && $item->product) {
+                $changed['name'] = $item->product->name;
+                $changed['image'] = $item->product->hero_image;
+            }
+
+            $lineTotal = round((float) $item->unit_price * max(1, (int) $item->quantity), 2);
+
+            if ((float) $item->line_total !== $lineTotal) {
+                $changed['line_total'] = $lineTotal;
+            }
+
+            if ($changed) {
+                $item->forceFill($changed)->save();
+            }
+        }
+
+        $subtotal = round((float) $this->items()->sum('line_total'), 2);
+
+        $this->forceFill([
+            'subtotal' => $subtotal,
+            'total' => max(0, round($subtotal - (float) $this->discount + (float) $this->delivery_fee, 2)),
+        ])->save();
     }
 
     public static function nextNumber(): string

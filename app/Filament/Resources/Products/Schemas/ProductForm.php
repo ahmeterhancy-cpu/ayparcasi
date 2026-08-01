@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -122,6 +123,19 @@ class ProductForm
                             ->numeric()
                             ->minValue(0)
                             ->suffix('TL'),
+
+                        DateTimePicker::make('sale_starts_at')
+                            ->label('İndirim başlangıcı')
+                            ->native(false)
+                            ->displayFormat('d.m.Y H:i')
+                            ->helperText('Boş bırakırsanız indirim hemen geçerlidir.'),
+
+                        DateTimePicker::make('sale_ends_at')
+                            ->label('İndirim bitişi')
+                            ->native(false)
+                            ->displayFormat('d.m.Y H:i')
+                            ->after('sale_starts_at')
+                            ->helperText('Bu tarihten sonra ürün üstü çizili fiyattan satılır.'),
                     ]),
 
                 Section::make('Stok')

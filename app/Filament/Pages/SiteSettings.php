@@ -46,6 +46,7 @@ class SiteSettings extends Page implements HasSchemas
         'phone', 'whatsapp', 'email', 'address', 'hours',
         'instagram', 'facebook',
         'same_day_cutoff_hour', 'bank_details',
+        'low_stock_threshold', 'low_stock_email',
         'hero_eyebrow', 'hero_title', 'hero_subtitle', 'hero_image',
         'about_title', 'about_text', 'about_image',
         'footer_text',
@@ -160,6 +161,21 @@ class SiteSettings extends Page implements HasSchemas
                                     ->label('Havale / EFT bilgileri')
                                     ->rows(4)
                                     ->helperText('Havaleyle ödeme seçildiğinde sipariş sayfasında gösterilir.'),
+                            ]),
+
+                            Section::make('Stok uyarısı')->columns(2)->schema([
+                                TextInput::make('low_stock_threshold')
+                                    ->label('Uyarı eşiği')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->default(3)
+                                    ->suffix('adet')
+                                    ->helperText('Stok bu sayıya inince e-posta gönderilir.'),
+
+                                TextInput::make('low_stock_email')
+                                    ->label('Uyarı e-postası')
+                                    ->email()
+                                    ->helperText('Boş bırakırsanız mağaza e-postasına gider.'),
                             ]),
                         ]),
                 ]),

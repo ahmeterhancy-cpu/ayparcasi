@@ -21,6 +21,26 @@ class ProductVariant extends Model
         return $this->belongsTo(Product::class);
     }
 
+    /**
+     * Kasada tahsil edilecek fiyat. İndirim penceresi ürün seviyesinde
+     * tanımlıdır; pencere dışındaysa boyun eski fiyatından satılır.
+     */
+    public function effectivePriceFor(?Product $product = null): float
+    {
+        $product ??= $this->product;
+
+        if ($product && ! $product->sale_active && $this->compare_at_price) {
+            return (float) $this->compare_at_price;
+        }
+
+        return (float) $this->price;
+    }
+
+    public function getEffectivePriceAttribute(): float
+    {
+        return $this->effectivePriceFor();
+    }
+
     public function getIsOrderableAttribute(): bool
     {
         if (! $this->product?->track_stock) {

@@ -4,13 +4,18 @@ namespace App\Filament\Resources\Orders\Schemas;
 
 use App\Filament\Resources\Customers\CustomerResource;
 use App\Models\Order;
+use App\Models\Product;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
 
@@ -59,52 +64,123 @@ class OrderForm
 
                 Section::make('Sipariş kalemleri')
                     ->columnSpan(2)
+                    ->description('Ürün seçtiğinizde fiyat otomatik gelir; pazarlık yaptıysanız elle değiştirebilirsiniz. Toplamlar kaydettiğinizde hesaplanır.')
                     ->schema([
-                        Placeholder::make('items_view')
+                        Repeater::make('items')
                             ->hiddenLabel()
+                            ->relationship()
+                            ->addActionLabel('Ürün ekle')
+                            ->reorderable(false)
+                            ->columns(12)
+                            ->minItems(1)
+                            ->itemLabel(fn (array $state) => $state['name'] ?? null)
+                            ->schema([
+                                Select::make('product_id')
+                                    ->label('Ürün')
+                                    ->columnSpan(5)
+                                    ->options(fn () => Product::query()->orderBy('name')->pluck('name', 'id'))
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Set $set) {
+                                        $product = Product::with('variants')->find($state);
+
+                                        if (! $product) {
+                                            return;
+                                        }
+
+                                        $set('name', $product->name);
+                                        $set('image', $product->hero_image);
+                                        $set('variant_name', null);
+                                        $set('unit_price', $product->effective_price);
+                                    }),
+
+                                Select::make('variant_name')
+                                    ->label('Boy')
+                                    ->columnSpan(3)
+                                    ->options(fn (Get $get) => Product::find($get('product_id'))
+                                        ?->variants()
+                                        ->where('is_active', true)
+                                        ->orderBy('position')
+                                        ->pluck('name', 'name') ?? [])
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Get $get, Set $set) {
+                                        $product = Product::with('variants')->find($get('product_id'));
+                                        $variant = $product?->variants->firstWhere('name', $state);
+
+                                        if ($variant) {
+                                            $set('unit_price', $variant->effectivePriceFor($product));
+                                        }
+                                    })
+                                    ->placeholder('—'),
+
+                                TextInput::make('quantity')
+                                    ->label('Adet')
+                                    ->columnSpan(2)
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->default(1)
+                                    ->required(),
+
+                                TextInput::make('unit_price')
+                                    ->label('Birim fiyat')
+                                    ->columnSpan(2)
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->required()
+                                    ->suffix('TL'),
+
+                                Hidden::make('name')->default(''),
+                                Hidden::make('image'),
+                                Hidden::make('line_total')->default(0),
+                            ]),
+
+                        Placeholder::make('totals_view')
+                            ->label('Tutarlar')
                             ->content(function (?Order $record) {
                                 if (! $record) {
-                                    return new HtmlString('<p class="text-sm">Sipariş kaydedildikten sonra görünür.</p>');
+                                    return 'Kaydettiğinizde hesaplanır.';
                                 }
 
-                                $rows = $record->items->map(function ($item) {
-                                    $addons = $item->addons
-                                        ? '<div style="opacity:.65;font-size:.85em">+ '.e(collect($item->addons)->pluck('name')->implode(', ')).'</div>'
-                                        : '';
-
-                                    return '<tr>'
-                                        .'<td style="padding:.5rem 0">'
-                                        .'<strong>'.e($item->name).'</strong>'
-                                        .($item->variant_name ? ' <span style="opacity:.65">('.e($item->variant_name).')</span>' : '')
-                                        .$addons
-                                        .'</td>'
-                                        .'<td style="text-align:center;white-space:nowrap">'.$item->quantity.' adet</td>'
-                                        .'<td style="text-align:right;white-space:nowrap">'.money($item->line_total).'</td>'
-                                        .'</tr>';
-                                })->implode('');
-
-                                $totals = '<tr><td colspan="2" style="padding-top:.75rem">Ara toplam</td>'
-                                    .'<td style="text-align:right;padding-top:.75rem">'.money($record->subtotal).'</td></tr>';
+                                $rows = '<tr><td>Ara toplam</td><td style="text-align:right">'.money($record->subtotal).'</td></tr>';
 
                                 if ((float) $record->discount > 0) {
-                                    $totals .= '<tr><td colspan="2">İndirim'
-                                        .($record->coupon_code ? ' ('.e($record->coupon_code).')' : '')
+                                    $rows .= '<tr><td>İndirim'.($record->coupon_code ? ' ('.e($record->coupon_code).')' : '')
                                         .'</td><td style="text-align:right">-'.money($record->discount).'</td></tr>';
                                 }
 
-                                $totals .= '<tr><td colspan="2">Teslimat</td><td style="text-align:right">'
+                                $rows .= '<tr><td>Teslimat</td><td style="text-align:right">'
                                     .((float) $record->delivery_fee > 0 ? money($record->delivery_fee) : 'Ücretsiz').'</td></tr>'
-                                    .'<tr style="font-weight:700;font-size:1.1em"><td colspan="2" style="padding-top:.5rem">Toplam</td>'
-                                    .'<td style="text-align:right;padding-top:.5rem">'.money($record->total).'</td></tr>';
+                                    .'<tr style="font-weight:700;font-size:1.1em"><td style="padding-top:.4rem">Toplam</td>'
+                                    .'<td style="text-align:right;padding-top:.4rem">'.money($record->total).'</td></tr>';
 
-                                return new HtmlString(
-                                    '<table style="width:100%;border-collapse:collapse;font-size:.92em">'
-                                    .$rows
-                                    .'<tr><td colspan="3"><hr style="border:0;border-top:1px solid currentColor;opacity:.15;margin:.5rem 0"></td></tr>'
-                                    .$totals
-                                    .'</table>'
-                                );
+                                if ((float) $record->refunded_total > 0) {
+                                    $rows .= '<tr style="color:#b03826"><td>İade edilen</td>'
+                                        .'<td style="text-align:right">-'.money($record->refunded_total).'</td></tr>';
+                                }
+
+                                return new HtmlString('<table style="width:100%;max-width:22rem;border-collapse:collapse;font-size:.95em">'.$rows.'</table>');
                             }),
+                    ]),
+
+                Section::make('Tutar ayarları')
+                    ->columnSpanFull()
+                    ->columns(3)
+                    ->collapsed()
+                    ->description('Elle sipariş açarken teslimat ücretini ve varsa indirimi buradan girin.')
+                    ->schema([
+                        TextInput::make('delivery_fee')
+                            ->label('Teslimat ücreti')
+                            ->numeric()->minValue(0)->default(0)->suffix('TL'),
+
+                        TextInput::make('discount')
+                            ->label('İndirim')
+                            ->numeric()->minValue(0)->default(0)->suffix('TL'),
+
+                        TextInput::make('coupon_code')
+                            ->label('Kupon kodu (bilgi)')
+                            ->maxLength(60),
                     ]),
 
                 Section::make('Sipariş veren')

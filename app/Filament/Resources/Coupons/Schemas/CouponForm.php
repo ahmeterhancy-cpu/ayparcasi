@@ -4,8 +4,10 @@ namespace App\Filament\Resources\Coupons\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
@@ -65,16 +67,70 @@ class CouponForm
                     ->after('starts_at'),
 
                 TextInput::make('usage_limit')
-                    ->label('Kullanım sınırı')
+                    ->label('Toplam kullanım sınırı')
                     ->numeric()
                     ->minValue(1)
                     ->helperText('Boş bırakırsanız sınırsız.'),
+
+                TextInput::make('per_user_limit')
+                    ->label('Kişi başı kullanım sınırı')
+                    ->numeric()
+                    ->minValue(1)
+                    ->helperText('Aynı hesap ya da aynı e-posta kaç kez kullanabilir.'),
 
                 TextInput::make('used_count')
                     ->label('Kullanıldı')
                     ->numeric()
                     ->disabled()
                     ->dehydrated(false),
+
+                Section::make('Nerede geçerli')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
+                        Select::make('applies_to')
+                            ->label('Kapsam')
+                            ->options([
+                                'all' => 'Tüm ürünler',
+                                'products' => 'Yalnızca seçili ürünler',
+                                'categories' => 'Yalnızca seçili kategoriler',
+                            ])
+                            ->default('all')
+                            ->required()
+                            ->live()
+                            ->native(false),
+
+                        Toggle::make('exclude_sale_items')
+                            ->label('İndirimli ürünlerde geçmesin')
+                            ->helperText('Üstü çizili fiyatı olan ürünler indirim hesabına katılmaz.'),
+
+                        Select::make('products')
+                            ->label('Ürünler')
+                            ->relationship('products', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->columnSpanFull()
+                            ->visible(fn (Get $get) => $get('applies_to') === 'products')
+                            ->required(fn (Get $get) => $get('applies_to') === 'products'),
+
+                        Select::make('categories')
+                            ->label('Kategoriler')
+                            ->relationship('categories', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->columnSpanFull()
+                            ->visible(fn (Get $get) => $get('applies_to') === 'categories')
+                            ->required(fn (Get $get) => $get('applies_to') === 'categories'),
+
+                        Textarea::make('allowed_emails')
+                            ->label('Yalnızca bu e-postalar')
+                            ->rows(2)
+                            ->columnSpanFull()
+                            ->placeholder('ayse@ornek.com, mehmet@ornek.com')
+                            ->helperText('Boş bırakırsanız herkes kullanabilir. Virgülle ayırın.'),
+                    ]),
             ]);
     }
 }

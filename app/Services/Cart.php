@@ -135,7 +135,8 @@ class Cart
                 continue;
             }
 
-            $unit = (float) ($variant?->price ?? $product->price);
+            // İndirim penceresi dışındaysa normal fiyattan tahsil edilir
+            $unit = $variant ? $variant->effectivePriceFor($product) : $product->effective_price;
 
             $lineAddons = collect($item['addons'] ?? [])
                 ->map(fn ($id) => $addons->get($id))
@@ -187,19 +188,32 @@ class Cart
 
     public function applyCoupon(string $code): ?string
     {
-        $coupon = Coupon::whereRaw('LOWER(code) = ?', [mb_strtolower(trim($code))])->first();
+        $coupon = Coupon::with('products', 'categories')
+            ->whereRaw('LOWER(code) = ?', [mb_strtolower(trim($code))])
+            ->first();
 
         if (! $coupon) {
             return 'Böyle bir kupon bulamadık.';
         }
 
-        if ($error = $coupon->validationError($this->subtotal())) {
+        if ($error = $this->couponError($coupon)) {
             return $error;
         }
 
         $this->session->put(self::COUPON_KEY, $coupon->id);
 
         return null;
+    }
+
+    /** Kuponu güncel sepete ve müşteriye göre doğrular. */
+    private function couponError(Coupon $coupon): ?string
+    {
+        return $coupon->validationError(
+            $this->subtotal(),
+            $coupon->eligibleSubtotal($this->lines()),
+            auth()->id(),
+            auth()->user()?->email,
+        );
     }
 
     public function removeCoupon(): void
@@ -215,9 +229,10 @@ class Cart
             return null;
         }
 
-        $coupon = Coupon::find($id);
+        $coupon = Coupon::with('products', 'categories')->find($id);
 
-        if (! $coupon || $coupon->validationError($this->subtotal())) {
+        // Sepet değiştiyse kupon geçersizleşmiş olabilir — sessizce düşür
+        if (! $coupon || $this->couponError($coupon)) {
             $this->removeCoupon();
 
             return null;
@@ -228,7 +243,13 @@ class Cart
 
     public function discount(): float
     {
-        return $this->coupon()?->discountFor($this->subtotal()) ?? 0.0;
+        $coupon = $this->coupon();
+
+        if (! $coupon) {
+            return 0.0;
+        }
+
+        return $coupon->discountFor($coupon->eligibleSubtotal($this->lines()));
     }
 
     public function deliveryFee(?DeliveryZone $zone): float

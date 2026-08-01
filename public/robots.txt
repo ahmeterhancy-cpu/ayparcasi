@@ -1,2 +1,14 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Kişisel ya da tekil sayfalar dizine girmesin
+Disallow: /hesabim
+Disallow: /sepet
+Disallow: /kasa
+Disallow: /siparis/
+Disallow: /siparis-sorgula
+Disallow: /yazdir/
+Disallow: /odeme/
+Disallow: /admin
+
+Sitemap: /sitemap.xml

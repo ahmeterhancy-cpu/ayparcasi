@@ -102,6 +102,13 @@ class OrdersTable
                     ->query(fn ($query) => $query->whereNotIn('status', ['delivered', 'cancelled'])),
             ])
             ->recordActions([
+                Action::make('teslim_fisi')
+                    ->label('Teslim fişi')
+                    ->icon('heroicon-o-printer')
+                    ->color('gray')
+                    ->url(fn (Order $r) => route('print.slip', $r->number))
+                    ->openUrlInNewTab(),
+
                 Action::make('whatsapp')
                     ->label('WhatsApp')
                     ->icon('heroicon-o-chat-bubble-left-right')

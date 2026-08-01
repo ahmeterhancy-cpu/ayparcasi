@@ -41,6 +41,7 @@
                 <li><a href="{{ route('page.delivery') }}">Teslimat & Bölgeler</a></li>
                 <li><a href="{{ route('page.faq') }}">Sıkça Sorulan Sorular</a></li>
                 <li><a href="{{ route('page.blog') }}">Günlük</a></li>
+                <li><a href="{{ route('order.lookup') }}">Sipariş Sorgula</a></li>
                 <li><a href="{{ route('page.contact') }}">İletişim</a></li>
             </ul>
         </div>

@@ -62,6 +62,54 @@
                 </div>
             </div>
 
+            {{-- Filtreler --}}
+            <form method="GET" class="filters">
+                @if ($sort)
+                    <input type="hidden" name="sirala" value="{{ $sort }}">
+                @endif
+                @if ($term)
+                    <input type="hidden" name="q" value="{{ $term }}">
+                @endif
+
+                <h2 class="filter__title">Fiyat aralığı</h2>
+                <div class="filters__price">
+                    <label class="sr-only" for="min">En az</label>
+                    <input class="input" type="number" name="min" id="min" inputmode="numeric"
+                           min="{{ $priceBounds['lo'] }}" max="{{ $priceBounds['hi'] }}"
+                           placeholder="{{ $priceBounds['lo'] }}" value="{{ request('min') }}">
+                    <span aria-hidden="true">–</span>
+                    <label class="sr-only" for="max">En çok</label>
+                    <input class="input" type="number" name="max" id="max" inputmode="numeric"
+                           min="{{ $priceBounds['lo'] }}" max="{{ $priceBounds['hi'] }}"
+                           placeholder="{{ $priceBounds['hi'] }}" value="{{ request('max') }}">
+                </div>
+
+                <h2 class="filter__title" style="margin-top:1.25rem">Filtrele</h2>
+                <div class="filters__checks">
+                    @foreach ([
+                        'indirimli' => 'İndirimdekiler',
+                        'ayni_gun' => 'Aynı gün teslim',
+                        'stokta' => 'Stokta olanlar',
+                    ] as $key => $label)
+                        <label class="filters__check">
+                            <input type="checkbox" name="{{ $key }}" value="1" @checked(request()->boolean($key))>
+                            <span>{{ $label }}</span>
+                        </label>
+                    @endforeach
+                </div>
+
+                <button class="btn btn--rect btn--sm btn--block" type="submit" style="margin-top:.9rem">
+                    Filtreleri uygula
+                </button>
+
+                @if ($filters)
+                    <a class="link-u" style="display:inline-flex;margin-top:.75rem"
+                       href="{{ $category ? route('shop.category', $category->slug) : route('shop.index') }}">
+                        Filtreleri temizle
+                    </a>
+                @endif
+            </form>
+
             <div style="padding:1.2rem;border-radius:var(--radius-lg);background:var(--turq-3)">
                 <h2 class="filter__title" style="color:var(--sea)">Ne alacağınıza karar veremediniz mi?</h2>
                 <p style="font-size:.88rem;color:var(--ink-2);margin-bottom:1rem">
@@ -76,6 +124,18 @@
         </aside>
 
         <div>
+            @if ($filters)
+                <div class="filter-chips">
+                    @foreach ($filters as $filter)
+                        <a class="filter-chip" href="{{ request()->fullUrlWithQuery([$filter['key'] => null]) }}">
+                            {{ $filter['label'] }}
+                            <span aria-hidden="true">×</span>
+                            <span class="sr-only">filtresini kaldır</span>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+
             <div class="shop__bar">
                 <p class="shop__count">
                     <strong>{{ $products->total() }}</strong> ürün

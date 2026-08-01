@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Services\Cart;
 use App\Services\Payments\TikoGateway;
+use App\Services\StockAlerts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -160,6 +161,9 @@ class CheckoutController extends Controller
                 'coupon_id' => $coupon?->id,
                 'coupon_code' => $coupon?->code,
 
+                // Stok yukarıda bu işlem içinde düşüldü — iptal/iade geri yükleyebilsin
+                'stock_reserved' => true,
+
                 'ip' => $request->ip(),
             ]);
 
@@ -183,6 +187,9 @@ class CheckoutController extends Controller
 
         $this->cart->clear();
         $this->rememberOrder($order);
+
+        // Stok eşiğin altına düştüyse ekibe haber ver (siparişi bloklamaz)
+        app(StockAlerts::class)->checkOrder($order->load('items'));
 
         // "Bu adresi kaydet" işaretliyse adres defterine ekle
         if (Auth::check() && $request->boolean('save_address')) {
