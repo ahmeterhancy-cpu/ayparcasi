@@ -5,12 +5,18 @@
 
     // Teslimat rotası düğüm konumları (SVG koordinatı)
     $nodeMap = [
+        'Alsancak – Çatalköy arası' => [268, 52],
         'Lefke' => [70, 128],
-        'Güzelyurt' => [190, 104],
-        'Girne' => [372, 62],
+        'Güzelyurt' => [190, 118],
+        'Girne' => [400, 66],
         'Lefkoşa' => [468, 122],
         'İskele' => [672, 84],
         'Mağusa' => [742, 140],
+    ];
+
+    // Haritada tam ad çok uzun kalanlar için kısa etiket
+    $nodeLabels = [
+        'Alsancak – Çatalköy arası' => 'Alsancak – Çatalköy',
     ];
 @endphp
 
@@ -180,21 +186,31 @@
                         @foreach ($zones as $i => $zone)
                             @php
                                 $pos = $nodeMap[$zone->name] ?? [80 + $i * (700 / max(1, $zones->count())), 110];
+                                // İlk bölge dükkânın ana teslimat şeridi — öne çıkar
+                                $isPrimary = $i === 0;
                             @endphp
                             <g>
-                                <circle cx="{{ $pos[0] }}" cy="{{ $pos[1] }}" r="6"
+                                @if ($isPrimary)
+                                    <circle cx="{{ $pos[0] }}" cy="{{ $pos[1] }}" r="13"
+                                            fill="var(--sun)" opacity=".25" />
+                                @endif
+                                <circle cx="{{ $pos[0] }}" cy="{{ $pos[1] }}" r="{{ $isPrimary ? 8 : 6 }}"
                                         fill="{{ $zone->same_day ? 'var(--sun)' : 'var(--ink-3)' }}" />
-                                <text x="{{ $pos[0] }}" y="{{ $pos[1] - 14 }}" text-anchor="middle"
-                                      font-size="13" font-weight="700" fill="var(--ink)"
-                                      font-family="Manrope, sans-serif">{{ $zone->name }}</text>
+                                <text x="{{ $pos[0] }}" y="{{ $pos[1] - ($isPrimary ? 19 : 14) }}" text-anchor="middle"
+                                      font-size="{{ $isPrimary ? 15 : 13 }}" font-weight="{{ $isPrimary ? 800 : 700 }}"
+                                      fill="var(--ink)"
+                                      font-family="Manrope, sans-serif">{{ $nodeLabels[$zone->name] ?? $zone->name }}</text>
                             </g>
                         @endforeach
                     </svg>
                 </div>
 
                 <div class="route__zones" data-stagger="70">
-                    @foreach ($zones as $zone)
-                        <div class="zone-card">
+                    @foreach ($zones as $i => $zone)
+                        <div class="zone-card {{ $i === 0 ? 'zone-card--primary' : '' }}">
+                            @if ($i === 0)
+                                <span class="zone-card__badge">Ana bölgemiz</span>
+                            @endif
                             <span class="zone-card__name">{{ $zone->name }}</span>
                             <span class="zone-card__fee">
                                 {{ (float) $zone->fee > 0 ? money($zone->fee) : 'Ücretsiz' }}
