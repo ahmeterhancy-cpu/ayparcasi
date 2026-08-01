@@ -60,7 +60,15 @@ function initOverlays() {
 
     addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
-        document.querySelectorAll('.overlay.is-open').forEach((p) => p.classList.remove('is-open'));
+        // .overlay dışında, data-escapable ile işaretlenmiş açılır panelleri de
+        // kapatır (ör. mağaza filtre çekmecesi — kendisi .overlay değil, çünkü
+        // masaüstünde normal yan sütun olarak duruyor).
+        document
+            .querySelectorAll('.overlay.is-open, [data-escapable].is-open')
+            .forEach((p) => p.classList.remove('is-open'));
+        document
+            .querySelectorAll('[data-toggle][aria-expanded="true"]')
+            .forEach((t) => t.setAttribute('aria-expanded', 'false'));
         lock(false);
     });
 }

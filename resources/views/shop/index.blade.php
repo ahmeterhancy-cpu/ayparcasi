@@ -23,18 +23,28 @@
         <div class="page-head__text">
             <span class="eyebrow">{{ $term !== null ? 'Arama' : 'Koleksiyon' }}</span>
             <h1 data-reveal="up" data-split="words">{{ $term ? '“'.$term.'”' : $heading }}</h1>
+            {{-- Kategori kendi açıklamasını gösterir; "Tüm Ürünler" sayfasında
+                 genel bir tanıtım metni yok, ürünler doğrudan başlasın. --}}
             @if ($category?->description)
                 <p class="lead" data-reveal="up">{{ $category->description }}</p>
-            @elseif ($term === null)
-                <p class="lead" data-reveal="up">
-                    Hepsi dükkânımızda, siparişten sonra elde hazırlanıyor. Beğendiğinizi seçin, kart notunu yazın, gerisini biz halledelim.
-                </p>
             @endif
         </div>
     </header>
 
     <div class="wrap shop">
-        <aside class="shop__side">
+        {{-- Mobilde bu panel sağdan açılan bir çekmeceye dönüşür; masaüstünde
+             normal yan sütundur. Aynı işaretleme iki yerde tekrarlanmaz ki
+             form alanlarının id'leri çakışmasın. --}}
+        <aside class="shop__side" id="shop-filtreler" data-escapable
+               aria-label="Kategoriler ve filtreler">
+            <div class="shop__side-head">
+                <h2>Kategoriler ve filtreler</h2>
+                <button type="button" class="shop__side-close"
+                        data-toggle="#shop-filtreler" aria-label="Kapat">
+                    <x-ay-icon name="close" />
+                </button>
+            </div>
+
             <div>
                 <h2 class="filter__title">Kategoriler</h2>
                 <div class="filter__list">
@@ -123,7 +133,20 @@
             </div>
         </aside>
 
+        {{-- Çekmece perdesi — yalnız mobilde ve panel açıkken görünür.
+             Kardeş seçiciyle bağlı olduğu için panelin hemen ardında durmalı. --}}
+        <div class="shop__scrim" data-toggle="#shop-filtreler" aria-hidden="true"></div>
+
         <div>
+            <button type="button" class="btn btn--rect btn--block shop__filter-btn"
+                    data-toggle="#shop-filtreler"
+                    aria-expanded="false" aria-controls="shop-filtreler">
+                <x-ay-icon name="menu" /> Kategoriler ve filtreler
+                @if ($filters)
+                    <span class="shop__filter-count">{{ count($filters) }}</span>
+                @endif
+            </button>
+
             @if ($filters)
                 <div class="filter-chips">
                     @foreach ($filters as $filter)
