@@ -2,12 +2,8 @@
 
 <x-layouts.app :title="$title">
     <div class="auth">
+        {{-- Logo üst barda zaten var, burada tekrarlanmaz --}}
         <div class="auth__panel" data-reveal="up">
-            <a class="auth__brand" href="{{ route('home') }}">
-                <x-logo class="brand__mark" />
-                <span class="brand__name">{{ setting('shop_name', 'Ay Parçası') }}</span>
-            </a>
-
             <h1 class="auth__title">{{ $heading }}</h1>
 
             @if ($lead)
