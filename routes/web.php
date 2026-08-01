@@ -16,6 +16,7 @@ Route::get('/magaza', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/arama', [ShopController::class, 'search'])->name('shop.search');
 Route::get('/kategori/{category:slug}', [ShopController::class, 'category'])->name('shop.category');
 Route::get('/urun/{product:slug}', [ShopController::class, 'product'])->name('shop.product');
+Route::get('/urun/{product:slug}/hizli-bakis', [ShopController::class, 'quickView'])->name('shop.quickview');
 
 // --- Sepet ----------------------------------------------------------------
 Route::get('/sepet', [CartController::class, 'index'])->name('cart.index');

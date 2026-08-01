@@ -41,6 +41,36 @@ if (! function_exists('wa_link')) {
     }
 }
 
+if (! function_exists('ship_countdown')) {
+    /**
+     * Aynı gün gönderime ne kadar kaldığı. Ürün kartlarındaki
+     * "Bugün teslim için 16 saat 38 dakika" satırını besler.
+     *
+     * @return array{open: bool, minutes: int, label: ?string}
+     */
+    function ship_countdown(): array
+    {
+        $cutoffHour = (int) setting('same_day_cutoff_hour', 15);
+
+        $now = now();
+        $cutoff = $now->copy()->startOfDay()->addHours($cutoffHour);
+        $minutes = $now->lt($cutoff) ? (int) $now->diffInMinutes($cutoff) : 0;
+
+        if ($minutes <= 0) {
+            return ['open' => false, 'minutes' => 0, 'label' => null];
+        }
+
+        $hours = intdiv($minutes, 60);
+        $rest = $minutes % 60;
+
+        return [
+            'open' => true,
+            'minutes' => $minutes,
+            'label' => $hours > 0 ? $hours.' saat '.$rest.' dakika' : $rest.' dakika',
+        ];
+    }
+}
+
 if (! function_exists('img_url')) {
     /**
      * Görsel alanı hem tam URL (seed'lenmiş uzak görseller) hem de

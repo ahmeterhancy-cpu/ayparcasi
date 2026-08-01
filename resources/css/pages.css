@@ -727,6 +727,141 @@
     object-fit: cover;
 }
 
+/* --------------------------------------------------------------------------
+   Hızlı bakış penceresi
+   -------------------------------------------------------------------------- */
+
+.quick-dialog {
+    position: fixed;
+    inset: 0;
+    margin: auto; /* ekranın ortasına yerleştir */
+    width: min(58rem, calc(100vw - 2rem));
+    max-height: min(46rem, calc(100vh - 3rem));
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: var(--shadow-lg);
+    overflow: visible;
+}
+
+.quick-dialog::backdrop {
+    background: color-mix(in srgb, var(--ink) 62%, transparent);
+    backdrop-filter: blur(3px);
+}
+
+.quick-dialog[open] {
+    animation: quick-in 420ms var(--ease) both;
+}
+
+@keyframes quick-in {
+    from {
+        opacity: 0;
+        transform: translateY(1.5rem) scale(0.98);
+    }
+}
+
+.quick-dialog__close {
+    position: absolute;
+    top: -0.9rem;
+    right: -0.9rem;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #ffffff;
+    box-shadow: var(--shadow);
+    transition: transform 320ms var(--ease);
+}
+
+.quick-dialog__close:hover {
+    transform: rotate(90deg);
+}
+
+.quick-dialog__close svg {
+    width: 18px;
+    height: 18px;
+}
+
+.quick-dialog__body {
+    max-height: inherit;
+    overflow-y: auto;
+    border-radius: inherit;
+}
+
+.quick-dialog__loading {
+    display: grid;
+    place-items: center;
+    min-height: 20rem;
+}
+
+.quick {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 760px) {
+    .quick {
+        grid-template-columns: 1fr;
+    }
+}
+
+.quick__media {
+    position: relative;
+    aspect-ratio: 1;
+    background: var(--sand);
+    overflow: hidden;
+}
+
+@media (max-width: 760px) {
+    .quick__media {
+        aspect-ratio: 16 / 10;
+    }
+}
+
+.quick__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.quick__info {
+    padding: clamp(1.25rem, 3vw, 2.25rem);
+    display: grid;
+    gap: 0.8rem;
+    align-content: start;
+}
+
+.quick__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.018em;
+}
+
+.quick__buy {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.quick__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+}
+
 /* Ödeme yönlendirme ekranı */
 .paywait {
     min-height: 70vh;

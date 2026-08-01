@@ -4,76 +4,119 @@
     $images = $product->images;
     $main = img_url($images[0] ?? null, 'https://images.unsplash.com/photo-1487070183336-b863922373d4?auto=format&fit=crop&w=800&q=70');
     $alt = isset($images[1]) ? img_url($images[1]) : null;
-    $cat = $product->relationLoaded('categories') ? $product->categories->first() : null;
+    $cat = $product->relationLoaded('categories') ? $product->categories->first() : $product->categories()->first();
     $discount = $product->discount_percent;
+    $rating = $product->rating ? (float) $product->rating : null;
+    $ship = ship_countdown();
 @endphp
 
 <article class="card {{ $product->is_orderable ? '' : 'is-out' }}" data-reveal="{{ $reveal }}">
-    <a class="card__media" href="{{ $product->url }}" tabindex="-1" aria-hidden="true">
-        <img class="card__img" src="{{ $main }}" alt="" loading="lazy" decoding="async" width="640" height="800">
-        @if ($alt)
-            <img class="card__img card__img--alt" src="{{ $alt }}" alt="" loading="lazy" decoding="async" width="640" height="800">
+
+    {{-- Görsel --}}
+    <div class="card__media">
+        <a class="card__link" href="{{ $product->url }}" tabindex="-1" aria-hidden="true">
+            <img class="card__img" src="{{ $main }}" alt="" loading="lazy" decoding="async" width="640" height="640">
+            @if ($alt)
+                <img class="card__img card__img--alt" src="{{ $alt }}" alt="" loading="lazy" decoding="async" width="640" height="640">
+            @endif
+        </a>
+
+        @if ($discount)
+            <span class="card__badge">%{{ $discount }}</span>
         @endif
 
         @unless ($product->is_orderable)
             <span class="card__sold"><span class="badge">Tükendi</span></span>
         @endunless
-    </a>
 
-    <div class="card__actions">
-        @if ($product->is_orderable && ! $product->has_variants)
-            <form method="POST" action="{{ route('cart.store') }}">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn--light btn--sm btn--block">
-                    <x-ay-icon name="cart" /> Sepete ekle
-                </button>
-            </form>
-        @else
-            <a href="{{ $product->url }}" class="btn btn--light btn--sm btn--block">
-                {{ $product->is_orderable ? 'Boy seç' : 'Ürünü incele' }}
-            </a>
-        @endif
+        {{-- Hızlı işlemler: favori her zaman görünür, diğerleri üzerine gelince --}}
+        <div class="card__tools">
+            <button
+                type="button"
+                class="card__tool"
+                data-fav="{{ $product->id }}"
+                data-fav-name="{{ $product->name }}"
+                aria-pressed="false"
+                aria-label="Favorilere ekle"
+                title="Favorilere ekle"
+            >
+                <x-ay-icon name="heart" />
+            </button>
 
-        <button
-            type="button"
-            class="btn btn--wa btn--sm btn--block"
-            data-stock-ask="{{ route('inquiry.stock') }}"
-            data-product-id="{{ $product->id }}"
-            data-source="listing"
-            data-fallback="{{ wa_link('Merhaba, "'.$product->name.'" ürününün stok durumunu öğrenebilir miyim?') }}"
-        >
-            <x-ay-icon name="whatsapp" :filled="true" /> Stok bilgisi al
-        </button>
+            <button
+                type="button"
+                class="card__tool card__tool--extra"
+                style="--i:0"
+                data-quickview="{{ route('shop.quickview', $product->slug) }}"
+                aria-label="Hızlı bakış"
+                title="Hızlı bakış"
+            >
+                <x-ay-icon name="eye" />
+            </button>
+
+            <button
+                type="button"
+                class="card__tool card__tool--extra"
+                style="--i:1"
+                data-stock-ask="{{ route('inquiry.stock') }}"
+                data-product-id="{{ $product->id }}"
+                data-source="listing"
+                data-fallback="{{ wa_link('Merhaba, "'.$product->name.'" ürününün stok durumunu öğrenebilir miyim?') }}"
+                aria-label="WhatsApp'tan stok sor"
+                title="WhatsApp'tan stok sor"
+            >
+                <x-ay-icon name="whatsapp" :filled="true" />
+            </button>
+        </div>
     </div>
 
+    {{-- Bilgi --}}
     <div class="card__body">
-        @if ($discount || $product->badge)
-            <div class="card__flags">
-                @if ($discount)
-                    <span class="badge badge--coral">%{{ $discount }} indirim</span>
-                @endif
-                @if ($product->badge)
-                    <span class="badge badge--sun">{{ $product->badge }}</span>
-                @endif
-            </div>
-        @endif
-
         @if ($cat)
-            <span class="card__cat">{{ $cat->name }}</span>
+            <a class="card__cat" href="{{ route('shop.category', $cat->slug) }}">{{ $cat->name }}</a>
         @endif
 
         <h3 class="card__title"><a href="{{ $product->url }}">{{ $product->name }}</a></h3>
 
+        @if ($rating)
+            <p class="card__rating">
+                <span class="stars-rate" style="--rate:{{ round($rating / 5 * 100) }}%"
+                      role="img" aria-label="5 üzerinden {{ number_format($rating, 1, ',', '') }}">
+                    <span class="stars-rate__bg" aria-hidden="true">★★★★★</span>
+                    <span class="stars-rate__fg" aria-hidden="true">★★★★★</span>
+                </span>
+                <strong>{{ number_format($rating, 1, ',', '') }}</strong>
+                <span class="muted">({{ $product->review_count }})</span>
+            </p>
+        @endif
+
         <p class="card__price">
-            @if ($product->has_variants)
-                <span class="card__from">Başlangıç</span>
-            @endif
-            <span>{{ money($product->display_price) }}</span>
+            <strong>{{ money($product->display_price) }}</strong>
             @if ($product->display_compare_at)
                 <del>{{ money($product->display_compare_at) }}</del>
             @endif
         </p>
+
+        @if (! $product->is_orderable)
+            <a class="btn btn--rect btn--ghost btn--block" href="{{ $product->url }}">Ürünü incele</a>
+        @elseif ($product->has_variants)
+            <a class="btn btn--rect btn--block" href="{{ $product->url }}">Boy Seçin</a>
+        @else
+            <form method="POST" action="{{ route('cart.store') }}">
+                @csrf
+                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn--rect btn--block">Sepete Ekle</button>
+            </form>
+        @endif
+
+        <p class="card__ship" data-ship data-ship-open="{{ $ship['open'] ? '1' : '0' }}">
+            <span class="card__ship-open">
+                Bugün teslim için <strong data-ship-out>{{ $ship['label'] }}</strong>
+            </span>
+            <span class="card__ship-closed">Yarın teslim edilir</span>
+        </p>
+
+        <p class="card__stock" data-state="{{ $product->stock_state }}">{{ $product->stock_label }}</p>
     </div>
 </article>

@@ -106,6 +106,38 @@
     width: 100%;
 }
 
+/* Ürün kartındaki dikdörtgen düğme */
+.btn--rect {
+    --btn-bg: var(--coral);
+    border-radius: 8px;
+    padding-block: 0.8rem;
+}
+
+.btn--rect::before {
+    background: var(--ink);
+    border-radius: inherit;
+}
+
+.btn--rect:hover,
+.btn--rect:focus-visible {
+    color: #ffffff;
+}
+
+.btn--rect.btn--ghost {
+    --btn-bg: transparent;
+    --btn-fg: var(--ink);
+}
+
+/* Renk veren diğer değişkenler btn--rect'ten sonra geldiği için
+   burada tekrar kazandırılıyor. */
+.btn--rect.btn--wa {
+    --btn-bg: #128c7e;
+}
+
+.btn--rect.btn--wa::before {
+    background: #0f7264;
+}
+
 .btn--sm {
     padding: 0.65rem 1.15rem;
     font-size: 0.82rem;
@@ -231,19 +263,21 @@
 }
 
 /* --------------------------------------------------------------------------
-   Ürün kartı — kemer formu markanın imzası
+   Ürün kartı
+   Çerçeveli kare görsel · indirim rozeti · üzerine gelince açılan ikon rayı ·
+   kategori · puan · fiyat · tam genişlik düğme · gönderim sayacı · stok
    -------------------------------------------------------------------------- */
 
 .grid-products {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
-    gap: clamp(1.25rem, 2.4vw, 2.25rem) clamp(1rem, 1.8vw, 1.75rem);
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: clamp(1.75rem, 3vw, 2.75rem) clamp(1rem, 1.8vw, 1.75rem);
 }
 
-@media (max-width: 520px) {
+@media (max-width: 560px) {
     .grid-products {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1.25rem 0.75rem;
+        gap: 1.5rem 0.75rem;
     }
 }
 
@@ -255,12 +289,26 @@
 
 .card__media {
     position: relative;
-    display: block;
-    aspect-ratio: 4 / 5;
-    border-radius: var(--arch);
+    /* Başlık bağlantısının kartı kaplayan katmanının ÜSTÜNDE kalmalı,
+       yoksa rozet ve ikon rayı tıklanamaz olur. */
+    z-index: 1;
+    aspect-ratio: 1;
+    border: 1px solid var(--line);
+    border-radius: 12px;
     overflow: hidden;
-    background: var(--sand);
+    background: var(--white);
     isolation: isolate;
+    transition: border-color 320ms var(--ease);
+}
+
+.card:hover .card__media {
+    border-color: var(--line-2);
+}
+
+.card__link {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .card__img {
@@ -284,18 +332,26 @@
 }
 
 .card:hover .card__img {
-    transform: scale(1.06);
+    transform: scale(1.05);
 }
 
-/* Rozetler gövdede durur — kemerin yuvarlak köşesi onları kırpardı */
-.card__flags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-    margin-bottom: 0.1rem;
+/* İndirim rozeti */
+.card__badge {
+    position: absolute;
+    top: 0.7rem;
+    left: 0.7rem;
+    z-index: 3;
+    padding: 0.24rem 0.6rem;
+    border-radius: 999px;
+    background: var(--coral);
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
 }
 
-/* Tükendi örtüsü — görselin ortasında */
+/* Tükendi örtüsü */
 .card__sold {
     position: absolute;
     inset: 0;
@@ -306,86 +362,244 @@
     backdrop-filter: blur(1px);
 }
 
-/* Üzerine gelince alttan çıkan aksiyon çubuğu */
-.card__actions {
+/* Sağ üstteki ikon rayı */
+.card__tools {
     position: absolute;
-    left: 0.7rem;
+    top: 0.7rem;
     right: 0.7rem;
-    bottom: 0.7rem;
-    z-index: 3;
+    z-index: 4;
     display: grid;
     gap: 0.4rem;
-    opacity: 0;
-    transform: translateY(0.9rem);
-    transition:
-        opacity 380ms var(--ease),
-        transform 460ms var(--ease);
 }
 
-.card:hover .card__actions,
-.card:focus-within .card__actions {
+.card__tool {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    box-shadow: var(--shadow-sm);
+    transition:
+        background-color 240ms var(--ease),
+        border-color 240ms var(--ease),
+        color 240ms var(--ease),
+        opacity 320ms var(--ease),
+        transform 380ms var(--ease);
+}
+
+.card__tool svg {
+    width: 17px;
+    height: 17px;
+}
+
+.card__tool:hover {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #ffffff;
+}
+
+/* Favoriye alınmış hâli */
+.card__tool[aria-pressed='true'] {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: #ffffff;
+}
+
+.card__tool[aria-pressed='true'] svg {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+/* Ek işlemler yalnızca üzerine gelince — sırayla */
+.card__tool--extra {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.9);
+    pointer-events: none;
+    transition-delay: calc(var(--i) * 60ms);
+}
+
+.card:hover .card__tool--extra,
+.card:focus-within .card__tool--extra {
     opacity: 1;
     transform: none;
+    pointer-events: auto;
 }
 
+/* Dokunmatikte hover yok — hepsi görünür kalsın */
 @media (hover: none) {
-    .card__actions {
+    .card__tool--extra {
         opacity: 1;
         transform: none;
-        position: static;
-        margin-top: 0.65rem;
+        pointer-events: auto;
     }
 }
 
+.card__tool.is-busy {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Gövde */
 .card__body {
     padding-top: 0.95rem;
     display: grid;
-    gap: 0.3rem;
+    gap: 0.45rem;
+    align-content: start;
 }
 
 .card__cat {
-    font-size: var(--t-micro);
+    /* Başlık bağlantısının tüm kartı kaplayan katmanının üstünde kalsın */
+    position: relative;
+    z-index: 2;
+    justify-self: start;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: var(--ink-3);
+    transition: color 220ms var(--ease);
+}
+
+.card__cat:hover {
     color: var(--sea);
 }
 
 .card__title {
     font-family: var(--font-display);
-    font-size: 1.1rem;
+    font-size: 1.08rem;
     font-weight: 500;
-    line-height: 1.22;
+    line-height: 1.25;
     letter-spacing: -0.012em;
+    /* İki satırda sabitle — ızgara hizası bozulmasın */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.5em;
 }
 
+/* Kartın tamamını tıklanabilir yapan görünmez katman.
+   z-index 0 — görselin ve düğmelerin altında kalır. */
 .card__title a::after {
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 0;
 }
 
+/* Puan */
+.card__rating {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.stars-rate {
+    position: relative;
+    display: inline-block;
+    font-size: 0.95rem;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.stars-rate__bg {
+    color: color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.stars-rate__fg {
+    position: absolute;
+    inset: 0;
+    width: var(--rate, 0%);
+    overflow: hidden;
+    color: var(--sun);
+}
+
+/* Fiyat */
 .card__price {
     display: flex;
     align-items: baseline;
-    gap: 0.55rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.card__price strong {
+    font-size: 1.42rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    color: var(--ok);
+}
+
+.card__price del {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ink-3);
+}
+
+/* Dar kartta iki fiyat tek satırda kalsın */
+@media (max-width: 560px) {
+    .card__price strong {
+        font-size: 1.18rem;
+    }
+
+    .card__price del {
+        font-size: 0.85rem;
+    }
+
+    .card__title {
+        font-size: 1rem;
+    }
+}
+
+/* Düğme kartın tam genişliğinde ve dikdörtgen */
+.card .btn {
+    margin-top: 0.25rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Gönderim sayacı */
+.card__ship {
+    font-size: 0.82rem;
+    color: var(--ink-2);
+}
+
+.card__ship strong {
     font-weight: 700;
     font-variant-numeric: tabular-nums;
 }
 
-.card__price del {
-    font-weight: 500;
-    font-size: 0.86em;
-    color: var(--ink-3);
+.card__ship[data-ship-open='1'] .card__ship-closed,
+.card__ship[data-ship-open='0'] .card__ship-open {
+    display: none;
 }
 
-.card__from {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--ink-3);
+/* Stok satırı */
+.card__stock {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    color: var(--ok);
+}
+
+.card__stock[data-state='low'] {
+    color: var(--warn);
+}
+
+.card__stock[data-state='out_of_stock'] {
+    color: var(--bad);
+}
+
+.card__stock[data-state='made_to_order'] {
+    color: var(--sea);
 }
 
 /* Tükendi durumunda görseli soldur */

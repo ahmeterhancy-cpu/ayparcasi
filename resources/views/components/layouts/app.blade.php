@@ -11,6 +11,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- Aynı gün gönderim kapanışı (gün içi dakika) — kart sayaçlarını besler --}}
+    <meta name="ship-cutoff" content="{{ (int) setting('same_day_cutoff_hour', 15) * 60 }}">
 
     <title>{{ $title ? $title.' — '.setting('shop_name', 'Ay Parçası') : setting('shop_name', 'Ay Parçası').' — '.setting('tagline', 'Hediyelik Tasarımlar & Çiçekçi Dükkanı') }}</title>
     <meta name="description" content="{{ $description ?: setting('meta_description', 'Kıbrıs\'ta el yapımı buketler, orkideler ve hediyelik tasarımlar. Aynı gün teslimat.') }}">
@@ -54,6 +56,16 @@
         <x-ay-icon name="whatsapp" :filled="true" />
         <span>WhatsApp'tan yaz</span>
     </a>
+
+    {{-- Hızlı bakış penceresi — içeriği karttaki göz düğmesi doldurur --}}
+    <dialog class="quick-dialog" id="hizli-bakis" aria-label="Hızlı bakış">
+        <button type="button" class="quick-dialog__close" data-quick-close aria-label="Kapat">
+            <x-ay-icon name="close" />
+        </button>
+        <div class="quick-dialog__body" data-quick-body>
+            <div class="quick-dialog__loading"><span class="spinner"></span></div>
+        </div>
+    </dialog>
 
     @stack('scripts')
 </body>

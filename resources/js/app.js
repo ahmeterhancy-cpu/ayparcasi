@@ -146,42 +146,47 @@ function initPanels() {
 /* -------------------------------------------------------------------------
  * Ürün galerisi + boy seçimi + canlı fiyat
  * ---------------------------------------------------------------------- */
-function initProduct() {
+function initGallery() {
     const gallery = document.querySelector('[data-gallery]');
+    if (!gallery) return;
 
-    if (gallery) {
-        const main = gallery.querySelector('[data-gallery-main]');
-        const thumbs = [...gallery.querySelectorAll('[data-gallery-thumb]')];
+    const main = gallery.querySelector('[data-gallery-main]');
+    const thumbs = [...gallery.querySelectorAll('[data-gallery-thumb]')];
 
-        thumbs.forEach((thumb) => {
-            thumb.addEventListener('click', () => {
-                thumbs.forEach((t) => t.classList.remove('is-active'));
-                thumb.classList.add('is-active');
+    thumbs.forEach((thumb) => {
+        thumb.addEventListener('click', () => {
+            thumbs.forEach((t) => t.classList.remove('is-active'));
+            thumb.classList.add('is-active');
 
-                const src = thumb.dataset.galleryThumb;
-                if (!main || main.src === src) return;
+            const src = thumb.dataset.galleryThumb;
+            if (!main || main.src === src) return;
 
-                main.classList.add('is-swapping');
-                const img = new Image();
-                img.onload = () => {
-                    main.src = src;
-                    requestAnimationFrame(() => main.classList.remove('is-swapping'));
-                };
-                img.src = src;
-            });
+            main.classList.add('is-swapping');
+            const img = new Image();
+            img.onload = () => {
+                main.src = src;
+                requestAnimationFrame(() => main.classList.remove('is-swapping'));
+            };
+            img.src = src;
         });
-    }
+    });
+}
 
-    const form = document.querySelector('[data-product-form]');
+/**
+ * Boy seçimi + adet + canlı fiyat.
+ * `root` verilebilir; hızlı bakış penceresi kendi kökünü geçirir.
+ */
+function initProduct(root = document) {
+    const form = root.querySelector('[data-product-form]');
     if (!form) return;
 
     // Fiyat ve stok göstergeleri formun dışında (başlık bloğunda) duruyor
-    const priceOut = document.querySelector('[data-price-out]');
-    const compareOut = document.querySelector('[data-compare-out]');
+    const priceOut = root.querySelector('[data-price-out]');
+    const compareOut = root.querySelector('[data-compare-out]');
     const variantInputs = [...form.querySelectorAll('input[name="variant_id"]')];
     const addonInputs = [...form.querySelectorAll('input[name="addons[]"]')];
     const qtyInput = form.querySelector('input[name="quantity"]');
-    const stockOut = document.querySelector('[data-stock-out]');
+    const stockOut = root.querySelector('[data-stock-out]');
 
     const fmt = (n) =>
         (Number.isInteger(n) ? n.toLocaleString('tr-TR') : n.toLocaleString('tr-TR', { minimumFractionDigits: 2 })) +
@@ -225,14 +230,19 @@ function initProduct() {
 /* -------------------------------------------------------------------------
  * WhatsApp'tan stok sor — tıklamayı kaydet, hazır mesajla aç
  * ---------------------------------------------------------------------- */
-function initStockInquiry() {
-    document.querySelectorAll('[data-stock-ask]').forEach((btn) => {
+function initStockInquiry(root = document) {
+    root.querySelectorAll('[data-stock-ask]').forEach((btn) => {
+        if (btn.dataset.askBound) return;
+        btn.dataset.askBound = '1';
+
         btn.addEventListener('click', async (e) => {
             e.preventDefault();
 
             const token = document.querySelector('meta[name="csrf-token"]')?.content;
+            // Ürün sayfasında/pencerede seçili boyu da ilet
+            const scope = btn.closest('[data-quick-body]') || document;
             const variantName =
-                document.querySelector('input[name="variant_id"]:checked')?.dataset.name ||
+                scope.querySelector('input[name="variant_id"]:checked')?.dataset.name ||
                 btn.dataset.variantName ||
                 '';
 
@@ -293,14 +303,22 @@ function initCardPreview() {
 }
 
 /* -------------------------------------------------------------------------
- * Aynı gün teslimat geri sayımı (KKTC saati)
+ * Aynı gün gönderim geri sayımı (KKTC saati)
+ * Hem üstteki şeridi hem her ürün kartındaki satırı besler.
+ * Sunucu ilk değeri basar; burası yalnızca tazeler — JS kapalıysa da doğru.
  * ---------------------------------------------------------------------- */
-function initCutoff() {
-    const el = document.querySelector('[data-cutoff]');
-    if (!el) return;
+function initCountdowns() {
+    const strip = document.querySelector('[data-cutoff]');
+    const cutoffMinutes = parseInt(
+        strip?.dataset.cutoff || document.querySelector('meta[name="ship-cutoff"]')?.content || '900',
+        10
+    );
 
-    const out = el.querySelector('[data-cutoff-out]');
-    const cutoffMinutes = parseInt(el.dataset.cutoff, 10); // gün içi dakika (15:00 → 900)
+    const label = (mins) => {
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return h > 0 ? `${h} saat ${m} dakika` : `${m} dakika`;
+    };
 
     const tick = () => {
         const parts = new Intl.DateTimeFormat('tr-TR', {
@@ -313,19 +331,163 @@ function initCutoff() {
         const h = parseInt(parts.find((p) => p.type === 'hour').value, 10);
         const m = parseInt(parts.find((p) => p.type === 'minute').value, 10);
         const remaining = cutoffMinutes - (h * 60 + m);
+        const open = remaining > 0;
 
-        if (remaining > 0 && out) {
-            const hrs = Math.floor(remaining / 60);
-            const mins = remaining % 60;
-            out.textContent = hrs > 0 ? `${hrs} saat ${mins} dakika` : `${mins} dakika`;
-            el.dataset.state = remaining < 60 ? 'urgent' : 'open';
-        } else {
-            el.dataset.state = 'closed';
+        if (strip) {
+            strip.dataset.state = open ? (remaining < 60 ? 'urgent' : 'open') : 'closed';
+            const out = strip.querySelector('[data-cutoff-out]');
+            if (out && open) out.textContent = label(remaining);
         }
+
+        document.querySelectorAll('[data-ship]').forEach((el) => {
+            el.dataset.shipOpen = open ? '1' : '0';
+            const out = el.querySelector('[data-ship-out]');
+            if (out && open) out.textContent = label(remaining);
+        });
     };
 
     tick();
     setInterval(tick, 30000);
+}
+
+/* -------------------------------------------------------------------------
+ * Favoriler — hesap gerekmez, tarayıcıda saklanır
+ * ---------------------------------------------------------------------- */
+const FAV_KEY = 'ayparcasi.favoriler';
+
+function readFavs() {
+    try {
+        const raw = JSON.parse(localStorage.getItem(FAV_KEY));
+        return Array.isArray(raw) ? raw.map(String) : [];
+    } catch {
+        return [];
+    }
+}
+
+function writeFavs(list) {
+    try {
+        localStorage.setItem(FAV_KEY, JSON.stringify(list));
+    } catch {
+        /* özel sekmede yazılamayabilir — sessizce geç */
+    }
+}
+
+function initFavs(root = document) {
+    const favs = readFavs();
+
+    root.querySelectorAll('[data-fav]').forEach((btn) => {
+        const id = String(btn.dataset.fav);
+
+        const paint = (on) => {
+            btn.setAttribute('aria-pressed', String(on));
+            btn.setAttribute('aria-label', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
+            btn.setAttribute('title', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
+        };
+
+        paint(favs.includes(id));
+
+        if (btn.dataset.favBound) return;
+        btn.dataset.favBound = '1';
+
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const list = readFavs();
+            const at = list.indexOf(id);
+            const on = at === -1;
+
+            if (on) list.push(id);
+            else list.splice(at, 1);
+
+            writeFavs(list);
+
+            // Aynı ürün sayfada birden çok yerde olabilir
+            document.querySelectorAll(`[data-fav="${id}"]`).forEach((other) => {
+                other.setAttribute('aria-pressed', String(on));
+            });
+
+            paint(on);
+            toast(on ? `${btn.dataset.favName} favorilere eklendi.` : 'Favorilerden çıkarıldı.');
+        });
+    });
+}
+
+/* -------------------------------------------------------------------------
+ * Hızlı bakış — ürün sayfasına gitmeden sepete ekle
+ * ---------------------------------------------------------------------- */
+function initQuickView() {
+    const dialog = document.querySelector('.quick-dialog');
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+
+    const body = dialog.querySelector('[data-quick-body]');
+    const loading = '<div class="quick-dialog__loading"><span class="spinner"></span></div>';
+
+    const open = async (url) => {
+        body.innerHTML = loading;
+        dialog.showModal();
+        document.body.classList.add('is-locked');
+
+        try {
+            const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+            if (!res.ok) throw new Error(res.status);
+
+            body.innerHTML = await res.text();
+
+            // Pencere içeriği yeni geldi — etkileşimleri bağla
+            initProduct(body);
+            initStockInquiry(body);
+            initFavs(body);
+        } catch {
+            // Açılamazsa müşteriyi ürün sayfasına gönder
+            dialog.close();
+            window.location.href = url.replace(/\/hizli-bakis$/, '');
+        }
+    };
+
+    document.querySelectorAll('[data-quickview]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            open(btn.dataset.quickview);
+        });
+    });
+
+    const close = () => dialog.close();
+    dialog.querySelector('[data-quick-close]')?.addEventListener('click', close);
+
+    // Dış alana tıklayınca kapan
+    dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) close();
+    });
+
+    dialog.addEventListener('close', () => {
+        document.body.classList.remove('is-locked');
+        body.innerHTML = loading;
+    });
+}
+
+/* -------------------------------------------------------------------------
+ * Anlık bildirim (JS ile oluşturulanlar için)
+ * ---------------------------------------------------------------------- */
+function toast(message) {
+    let host = document.querySelector('.toasts');
+
+    if (!host) {
+        host = document.createElement('div');
+        host.className = 'toasts';
+        host.setAttribute('role', 'status');
+        host.setAttribute('aria-live', 'polite');
+        document.body.appendChild(host);
+    }
+
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = message;
+    host.appendChild(el);
+
+    setTimeout(() => {
+        el.classList.add('is-out');
+        el.addEventListener('transitionend', () => el.remove(), { once: true });
+    }, 3200);
 }
 
 /* -------------------------------------------------------------------------
@@ -436,10 +598,13 @@ function boot() {
     initAccordions();
     initPanels();
     initSpot();
+    initGallery();
     initProduct();
     initStockInquiry();
+    initFavs();
+    initQuickView();
     initCardPreview();
-    initCutoff();
+    initCountdowns();
     initToasts();
     initCartForms();
     initCheckout();

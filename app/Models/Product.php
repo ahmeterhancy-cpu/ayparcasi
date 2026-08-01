@@ -81,9 +81,11 @@ class Product extends Model
         $variants = $this->relationLoaded('variants') ? $this->variants : $this->variants()->where('is_active', true)->get();
 
         if ($variants->isNotEmpty()) {
-            $default = $variants->firstWhere('is_default', true) ?? $variants->sortBy('price')->first();
+            // display_price en ucuz boydan gelir; üstü çizili fiyat da AYNI boydan
+            // gelmeli, yoksa indirim yüzdesi olduğundan büyük çıkar.
+            $cheapest = $variants->sortBy('price')->first();
 
-            return $default?->compare_at_price ? (float) $default->compare_at_price : null;
+            return $cheapest?->compare_at_price ? (float) $cheapest->compare_at_price : null;
         }
 
         return $this->compare_at_price ? (float) $this->compare_at_price : null;

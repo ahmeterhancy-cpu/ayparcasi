@@ -83,6 +83,22 @@ class ShopController extends Controller
         ]);
     }
 
+    /**
+     * Hızlı bakış — düzen olmadan yalnızca içerik parçası döner,
+     * kart üzerindeki göz düğmesi bunu pencereye yükler.
+     */
+    public function quickView(Product $product)
+    {
+        abort_unless($product->is_active, 404);
+
+        $product->load('variants', 'categories');
+
+        return view('shop.quickview', [
+            'product' => $product,
+            'addons' => Addon::active()->orderBy('position')->get(),
+        ]);
+    }
+
     private function sorted($query, Request $request)
     {
         return match ($request->string('sirala')->toString()) {

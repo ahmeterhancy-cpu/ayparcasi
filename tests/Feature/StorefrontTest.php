@@ -51,6 +51,26 @@ class StorefrontTest extends TestCase
         }
     }
 
+    public function test_hizli_bakis_parcasi_doner(): void
+    {
+        $product = Product::active()->whereHas('variants')->firstOrFail();
+
+        $this->get('/urun/'.$product->slug.'/hizli-bakis')
+            ->assertOk()
+            ->assertSee($product->name)
+            ->assertSee('Boy seçin')
+            // Düzen olmadan yalnızca parça dönmeli
+            ->assertDontSee('<!DOCTYPE html>', false);
+    }
+
+    public function test_pasif_urun_hizli_bakista_da_404_verir(): void
+    {
+        $product = Product::first();
+        $product->update(['is_active' => false]);
+
+        $this->get('/urun/'.$product->slug.'/hizli-bakis')->assertNotFound();
+    }
+
     public function test_pasif_urun_404_verir(): void
     {
         $product = Product::first();
