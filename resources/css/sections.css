@@ -804,3 +804,109 @@
     font-size: 0.87rem;
     color: var(--ink-3);
 }
+
+/* --------------------------------------------------------------------------
+   11. Kampanya şeritleri — panelden yönetilen görsel bloklar
+   -------------------------------------------------------------------------- */
+
+.promos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: clamp(0.9rem, 1.8vw, 1.5rem);
+}
+
+.promo {
+    position: relative;
+    display: block;
+    min-height: clamp(15rem, 26vw, 20rem);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--sand);
+    text-decoration: none;
+    isolation: isolate;
+}
+
+.promo__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.04);
+    transition: transform 1100ms var(--ease);
+}
+
+.promo:hover .promo__img {
+    transform: scale(1);
+}
+
+/* Yazının okunması için karartma — soldan sağa açılır */
+.promo__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        100deg,
+        rgba(14, 44, 52, 0.86) 0%,
+        rgba(14, 44, 52, 0.62) 42%,
+        rgba(14, 44, 52, 0.12) 100%
+    );
+}
+
+.promo__body {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: 0.45rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    max-width: 32ch;
+}
+
+.promo__eyebrow {
+    font-size: var(--t-micro);
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    /* Koyu zemin — beyaz doğrudan yazılır, tema eşlemesine bırakılmaz */
+    color: #ffffff;
+    opacity: 0.75;
+}
+
+.promo__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+    line-height: 1.15;
+    color: #ffffff;
+    text-wrap: balance;
+}
+
+.promo__sub {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.promo__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.6rem;
+    padding: 0.62rem 1.15rem;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--ink);
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition:
+        background-color 260ms var(--ease),
+        transform 260ms var(--ease);
+}
+
+.promo__cta svg {
+    width: 16px;
+    height: 16px;
+}
+
+.promo:hover .promo__cta {
+    background: var(--sun);
+    transform: translateX(3px);
+}

@@ -196,7 +196,43 @@
     @endif
 
     {{-- ===================================================================
-         5. TESLİMAT ROTASI — SVG kaydırdıkça çizilir
+         5. KAMPANYA ŞERİTLERİ — panelden yönetilir (Duyurular › yerleşim: promo)
+         =================================================================== --}}
+    @if ($promos->isNotEmpty())
+        <section class="section section--tight">
+            <div class="wrap promos">
+                @foreach ($promos as $promo)
+                    @php $url = $promo->link ?: route('shop.index'); @endphp
+                    <a class="promo" href="{{ $url }}" data-reveal="up">
+                        @if ($promo->image)
+                            <img class="promo__img" src="{{ img_url($promo->image) }}" alt=""
+                                 loading="lazy" decoding="async">
+                        @endif
+                        <span class="promo__shade"></span>
+
+                        <span class="promo__body">
+                            @if ($promo->eyebrow)
+                                <span class="promo__eyebrow">{{ $promo->eyebrow }}</span>
+                            @endif
+                            @if ($promo->title)
+                                <span class="promo__title">{{ $promo->title }}</span>
+                            @endif
+                            @if ($promo->subtitle)
+                                <span class="promo__sub">{{ $promo->subtitle }}</span>
+                            @endif
+                            <span class="promo__cta">
+                                {{ $promo->cta_label ?: 'Koleksiyonu gör' }}
+                                <x-ay-icon name="arrow-right" />
+                            </span>
+                        </span>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    {{-- ===================================================================
+         6. TESLİMAT ROTASI — SVG kaydırdıkça çizilir
          =================================================================== --}}
     @if ($zones->isNotEmpty())
         <section class="section route" data-scrub data-scrub-range="enter">
@@ -285,7 +321,7 @@
     @endif
 
     {{-- ===================================================================
-         6. YENİ GELENLER
+         7. YENİ GELENLER
          =================================================================== --}}
     @if ($newest->isNotEmpty())
         <section class="section section--tight">
@@ -310,7 +346,7 @@
     @endif
 
     {{-- ===================================================================
-         7. GALERİ KOLONLARI — farklı hızlarda kayar
+         8. GALERİ KOLONLARI — farklı hızlarda kayar
          =================================================================== --}}
     @if ($gallery->count() >= 6)
         @php $chunks = $gallery->chunk(ceil($gallery->count() / 3)); @endphp
@@ -343,7 +379,7 @@
     @endif
 
     {{-- ===================================================================
-         8. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
+         9. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
          =================================================================== --}}
     @if ($testimonials->isNotEmpty())
         <section class="section section--sand quotes" data-scrub data-scrub-range="cover" data-swap
@@ -387,7 +423,7 @@
     @endif
 
     {{-- ===================================================================
-         9. SSS
+         10. SSS
          =================================================================== --}}
     @if ($faqs->isNotEmpty())
         <section class="section">
@@ -421,7 +457,7 @@
     @endif
 
     {{-- ===================================================================
-         10. GÜNLÜK
+         11. GÜNLÜK
          =================================================================== --}}
     @if ($posts->isNotEmpty())
         <section class="section section--tight">
@@ -454,7 +490,7 @@
     @endif
 
     {{-- ===================================================================
-         11. BÜLTEN
+         12. BÜLTEN
          =================================================================== --}}
     <section class="section section--tight">
         <div class="wrap">

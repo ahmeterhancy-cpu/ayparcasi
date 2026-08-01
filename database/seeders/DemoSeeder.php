@@ -431,6 +431,34 @@ class DemoSeeder extends Seeder
             'position' => 0,
         ]);
 
+        // Ana sayfadaki kampanya şeritleri. Panelden yönetilir; buradakiler
+        // yalnızca vitrinin boş görünmemesi için.
+        $promos = [
+            [
+                'eyebrow' => 'Orkide koleksiyonu',
+                'title' => 'Aylarca çiçekte kalan tasarımlar',
+                'subtitle' => 'Bakımı kolay, ofise ve eve yakışır. Kesme çiçeğe göre çok daha uzun ömürlü.',
+                'image' => $this->img('orchid-3'),
+                'link' => '/kategori/orkideler',
+                'cta_label' => 'Orkideleri gör',
+            ],
+            [
+                'eyebrow' => 'Mevsim buketleri',
+                'title' => 'Sabah gelen taze çiçeklerle',
+                'subtitle' => 'Her buket siparişten sonra elde bağlanır; kâğıdı ve kurdelesi o an seçilir.',
+                'image' => $this->img('bouquet-cream'),
+                'link' => '/kategori/buketler',
+                'cta_label' => 'Buketlere bak',
+            ],
+        ];
+
+        foreach ($promos as $i => $promo) {
+            Banner::updateOrCreate(
+                ['placement' => 'promo', 'title' => $promo['title']],
+                $promo + ['placement' => 'promo', 'is_active' => true, 'position' => $i]
+            );
+        }
+
         Coupon::updateOrCreate(['code' => 'HOSGELDIN'], [
             'type' => 'percent',
             'value' => 10,
