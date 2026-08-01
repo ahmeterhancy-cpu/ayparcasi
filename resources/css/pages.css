@@ -271,12 +271,16 @@
     }
 }
 
+/* Görsel çerçevesi ürün kartıyla (anasayfa) aynı: kare, 12px köşe,
+   ince çerçeve, beyaz zemin. Kemer formu burada kullanılmıyor —
+   kubbe kırpması çiçeğin üst kısmını yiyordu. */
 .gallery__main {
     position: relative;
-    aspect-ratio: 4 / 5;
-    border-radius: var(--arch);
+    aspect-ratio: 1;
+    border: 1px solid var(--line);
+    border-radius: 12px;
     overflow: hidden;
-    background: var(--sand);
+    background: var(--white);
 }
 
 .gallery__main img {
@@ -301,9 +305,10 @@
 
 .gallery__thumb {
     aspect-ratio: 1;
+    border: 1px solid var(--line);
     border-radius: 10px;
     overflow: hidden;
-    background: var(--sand);
+    background: var(--white);
     box-shadow: inset 0 0 0 1.5px transparent;
     transition: box-shadow 260ms var(--ease);
 }
