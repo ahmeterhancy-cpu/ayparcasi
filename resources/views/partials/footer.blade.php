@@ -65,16 +65,14 @@
         </div>
     </div>
 
-    {{-- Sayfanın sonunda dolan dev marka adı.
-         "in" kipi: eleman tamamen göründüğünde dolum biter. --}}
-    <div class="wrap" data-scrub data-scrub-range="in" style="padding-bottom:1rem">
-        <span class="footer__wordmark">{{ setting('shop_name', 'Ay Parçası') }}</span>
-    </div>
-
     <div class="wrap">
         <div class="footer__bottom">
             <span>© {{ date('Y') }} {{ setting('shop_name', 'Ay Parçası') }}. Tüm hakları saklıdır.</span>
             <span>Kıbrıs · Aynı gün teslimat</span>
+            <span class="footer__credit">
+                Web Site by
+                <a href="https://www.amesis.com.tr" target="_blank" rel="noopener">Amesis Dijital Ajans</a>
+            </span>
         </div>
     </div>
 </footer>

@@ -490,29 +490,24 @@
     gap: 1rem 2rem;
     align-items: center;
     justify-content: space-between;
-    padding-block: 1.6rem;
+    /* Alt boşluk, sabit duran WhatsApp düğmesinin altına gizlenmesini önler */
+    padding: 1.6rem 0 clamp(4.5rem, 8vw, 5.5rem);
     border-top: 1px solid color-mix(in srgb, var(--paper) 14%, transparent);
     font-size: var(--t-small);
     color: color-mix(in srgb, var(--paper) 62%, transparent);
 }
 
-/* Alt bilgideki dev marka adı — sayfanın sonunda dolar */
-.footer__wordmark {
-    display: block;
-    font-family: var(--font-display);
-    font-size: clamp(3.4rem, 15vw, 13rem);
-    line-height: 0.82;
-    letter-spacing: -0.04em;
-    white-space: nowrap;
-    padding-bottom: 0.08em;
-    color: transparent;
-    -webkit-text-stroke: 1px color-mix(in srgb, var(--paper) 30%, transparent);
-    background:
-        linear-gradient(90deg, var(--sun) 0 50%, transparent 50% 100%) no-repeat;
-    background-size: 200% 100%;
-    background-position: calc(100% - var(--p, 0) * 100%) 0;
-    -webkit-background-clip: text;
-    background-clip: text;
+/* Ajans imzası */
+.footer__credit a {
+    color: color-mix(in srgb, var(--paper) 80%, transparent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, var(--paper) 30%, transparent);
+}
+
+.footer__credit a:hover {
+    color: var(--sun);
+    text-decoration-color: var(--sun);
 }
 
 .footer__social {
