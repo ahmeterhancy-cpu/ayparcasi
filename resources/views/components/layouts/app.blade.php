@@ -24,7 +24,11 @@
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="theme-color" content="#0e2c34">
     <link rel="canonical" href="{{ url()->current() }}">
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    {{-- Simgeler gerçek logonun işaretinden üretildi (public/img/mark.png).
+         apple-touch-icon saydam değil krem zeminli — iOS saydamlığı siyaha çevirir. --}}
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="32x32">
+    <link rel="icon" href="{{ asset('favicon-32.png') }}" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
     {{-- Hareket başlamadan önce .js işaretle — açılışta yanıp sönmeyi önler --}}
     <script>document.documentElement.classList.replace('no-js','js')</script>

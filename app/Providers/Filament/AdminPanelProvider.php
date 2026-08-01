@@ -36,7 +36,7 @@ class AdminPanelProvider extends PanelProvider
             // Gerçek logo. Görünüm bağlama göre değişir — bkz. filament/brand.
             ->brandLogo(fn () => view('filament.brand'))
             ->brandLogoHeight('2.1rem')
-            ->favicon(asset('favicon.svg'))
+            ->favicon(asset('favicon-32.png'))
             ->font('Manrope', provider: LocalFontProvider::class)
             /*
              * Renkler elle yazılmış ton merdivenleri — `Color::hex()` KULLANMA:

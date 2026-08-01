@@ -50,12 +50,27 @@
 
                     <tr>
                         <td class="pad" style="padding-bottom:0">
-                            <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#0e2c34">
-                                {{ setting('shop_name', 'Ay Parçası') }}
-                            </div>
-                            <div style="font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#16697f;padding-top:4px">
-                                {{ setting('tagline', 'Hediyelik Tasarımlar & Çiçekçi Dükkanı') }}
-                            </div>
+                            {{-- İşaret + yazı, sitedeki başlıkla aynı düzen.
+                                 Posta istemcileri görselleri varsayılan olarak
+                                 engeller; bu yüzden marka adı METİN olarak kalıyor,
+                                 görsel yüklenmese de başlık okunur oluyor. --}}
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td valign="middle" style="padding-right:12px">
+                                        <img src="{{ asset('img/mark.png') }}"
+                                             width="48" height="44" alt=""
+                                             style="display:block;width:48px;height:44px;border:0">
+                                    </td>
+                                    <td valign="middle">
+                                        <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;color:#0e2c34">
+                                            {{ setting('shop_name', 'Ay Parçası') }}
+                                        </div>
+                                        <div style="font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#16697f;padding-top:4px">
+                                            {{ setting('tagline', 'Hediyelik Tasarımlar & Çiçekçi Dükkanı') }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
