@@ -115,7 +115,9 @@
 
             <div class="wrap wrap--wide">
                 <div class="panels" data-panels data-swap data-reveal="fade">
-                    @foreach ($occasions->take(6) as $i => $cat)
+                    {{-- Akordeon 8'e kadar rahat taşır; fazlasında kapalı
+                         şeritler daralıp dikey başlıklar sıkışır. --}}
+                    @foreach ($occasions->take(8) as $i => $cat)
                         @php
                             $count = $cat->allProducts()->count();
                             $img = img_url($cat->image, 'https://images.unsplash.com/photo-1563241527-3004b7be0ffd?auto=format&fit=crop&w=1000&q=70');
