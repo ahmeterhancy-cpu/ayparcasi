@@ -104,12 +104,10 @@
         @elseif ($product->has_variants)
             <a class="btn btn--rect btn--block" href="{{ $product->url }}">Boy Seçin</a>
         @else
-            <form method="POST" action="{{ route('cart.store') }}">
-                @csrf
-                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn--rect btn--block">Sepete Ekle</button>
-            </form>
+            {{-- Listeden doğrudan sepete atılmaz; müşteri önce ürün sayfasına
+                 gider. Hızlı eklemek isteyen kart üzerindeki göz düğmesinden
+                 hızlı bakışı açıp oradan ekleyebilir. --}}
+            <a class="btn btn--rect btn--block" href="{{ $product->url }}">Ürünü incele</a>
         @endif
 
         <p class="card__ship" data-ship data-ship-open="{{ $ship['open'] ? '1' : '0' }}">
@@ -119,6 +117,11 @@
             <span class="card__ship-closed">Yarın teslim edilir</span>
         </p>
 
-        <p class="card__stock" data-state="{{ $product->stock_state }}">{{ $product->stock_label }}</p>
+        {{-- "Stokta" her kartta yazınca gürültü oluyor ve hiçbir şey söylemiyor.
+             Yalnızca bilgi veren durumlar gösterilir: azalan stok, tükenmiş,
+             siparişe özel. --}}
+        @unless ($product->stock_state === 'in_stock')
+            <p class="card__stock" data-state="{{ $product->stock_state }}">{{ $product->stock_label }}</p>
+        @endunless
     </div>
 </article>
