@@ -79,11 +79,19 @@ class DemoSeeder extends Seeder
 
     private function delivery(): void
     {
+        /*
+         * Sıra ana sayfadaki teslimat hattıyla aynı: önce dükkânın günlük
+         * güzergâhı (batıdan doğuya), sonra ada geneli.
+         * ÜCRETLER PLACEHOLDER — gerçek rakamlar panelden girilmeli.
+         */
         $zones = [
-            // Dükkânın ana teslimat şeridi — listede ve haritada ilk sırada.
-            // ÜCRET PLACEHOLDER: gerçek rakam panelden girilmeli.
-            ['Alsancak – Çatalköy arası', 100, 2000, true, 'Ana teslimat bölgemiz — sahil şeridi.'],
-            ['Girne', 150, 2500, true, 'Merkez ve çevre köyler.'],
+            ['Alsancak', 100, 2000, true, null],
+            ['Karaoğlanoğlu', 100, 2000, true, null],
+            ['Zeytinlik', 100, 2000, true, null],
+            ['Girne', 150, 2500, true, 'Merkez.'],
+            ['Karakum', 100, 2000, true, null],
+            ['Ozanköy', 100, 2000, true, null],
+            ['Çatalköy', 100, 2000, true, null],
             ['Lefkoşa', 200, 3000, true, 'Surlariçi dahil.'],
             ['Mağusa', 250, 3500, true, null],
             ['İskele', 300, 4000, false, 'Long Beach bölgesi dahil.'],

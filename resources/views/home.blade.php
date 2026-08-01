@@ -259,11 +259,12 @@
                 </div>
 
                 <div class="route__zones" data-stagger="70">
-                    @foreach ($zones as $i => $zone)
-                        <div class="zone-card {{ $i === 0 ? 'zone-card--primary' : '' }}">
-                            @if ($i === 0)
-                                <span class="zone-card__badge">Ana bölgemiz</span>
-                            @endif
+                    {{-- Sıra hattakiyle aynı: önce güzergâh durakları, sonra
+                         ada geneli. "Ana bölge" rozeti kaldırıldı — ana bölge
+                         tek bir köy değil, güzergâhın tamamı; rozet ilk kartı
+                         (Alsancak) yanlış biçimde öne çıkarıyordu. --}}
+                    @foreach ($zones as $zone)
+                        <div class="zone-card">
                             <span class="zone-card__name">{{ $zone->name }}</span>
                             <span class="zone-card__fee">
                                 {{ (float) $zone->fee > 0 ? money($zone->fee) : 'Ücretsiz' }}
