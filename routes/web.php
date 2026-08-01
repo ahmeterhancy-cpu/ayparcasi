@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\Account\AccountController;
+use App\Http\Controllers\Account\AddressController;
+use App\Http\Controllers\Account\FavoriteController;
+use App\Http\Controllers\Account\OrderController as AccountOrderController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
@@ -47,3 +54,43 @@ Route::get('/blog/{post:slug}', [PageController::class, 'post'])->name('page.pos
 // --- Küçük etkileşimler ---------------------------------------------------
 Route::post('/stok-sor', [InquiryController::class, 'stock'])->name('inquiry.stock');
 Route::post('/bulten', [InquiryController::class, 'newsletter'])->name('inquiry.newsletter');
+
+// --- Hesap: giriş / kayıt / parola ----------------------------------------
+Route::get('/giris', [LoginController::class, 'show'])->name('login');
+Route::post('/giris', [LoginController::class, 'login'])->middleware('throttle:8,1');
+Route::post('/cikis', [LoginController::class, 'logout'])->name('logout');
+
+Route::get('/kayit', [RegisterController::class, 'show'])->name('register');
+Route::post('/kayit', [RegisterController::class, 'store'])->middleware('throttle:8,1');
+
+Route::get('/sifremi-unuttum', [PasswordResetController::class, 'request'])->name('password.request');
+Route::post('/sifremi-unuttum', [PasswordResetController::class, 'sendLink'])
+    ->middleware('throttle:5,1')
+    ->name('password.email');
+Route::get('/sifre-sifirla/{token}', [PasswordResetController::class, 'reset'])->name('password.reset');
+Route::post('/sifre-sifirla', [PasswordResetController::class, 'update'])
+    ->middleware('throttle:8,1')
+    ->name('password.update');
+
+// --- Hesabım --------------------------------------------------------------
+Route::middleware('auth')->prefix('hesabim')->name('account.')->group(function () {
+    Route::get('/', [AccountController::class, 'index'])->name('index');
+
+    Route::get('/bilgilerim', [AccountController::class, 'profile'])->name('profile');
+    Route::put('/bilgilerim', [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/parola', [AccountController::class, 'updatePassword'])->name('password.update');
+
+    Route::get('/siparislerim', [AccountOrderController::class, 'index'])->name('orders');
+    Route::get('/siparislerim/{order:number}', [AccountOrderController::class, 'show'])->name('order');
+    Route::post('/siparislerim/{order:number}/tekrarla', [AccountOrderController::class, 'reorder'])->name('order.reorder');
+
+    Route::get('/adreslerim', [AddressController::class, 'index'])->name('addresses');
+    Route::post('/adreslerim', [AddressController::class, 'store'])->name('addresses.store');
+    Route::put('/adreslerim/{address}', [AddressController::class, 'update'])->name('addresses.update');
+    Route::delete('/adreslerim/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+    Route::post('/adreslerim/{address}/varsayilan', [AddressController::class, 'makeDefault'])->name('addresses.default');
+
+    Route::get('/favorilerim', [FavoriteController::class, 'index'])->name('favorites');
+    Route::post('/favorilerim/{product}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+    Route::post('/favori-birlestir', [FavoriteController::class, 'merge'])->name('favorites.merge');
+});

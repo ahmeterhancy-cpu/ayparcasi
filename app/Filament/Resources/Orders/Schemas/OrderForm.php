@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Orders\Schemas;
 
+use App\Filament\Resources\Customers\CustomerResource;
 use App\Models\Order;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
@@ -12,6 +13,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
+
+// (Placeholder ve Section yukarıda içe aktarıldı)
 
 class OrderForm
 {
@@ -109,6 +112,12 @@ class OrderForm
                 Section::make('Sipariş veren')
                     ->columnSpan(1)
                     ->schema([
+                        Placeholder::make('account_view')
+                            ->label('Hesap')
+                            ->content(fn (?Order $record) => $record?->user
+                                ? new HtmlString('<a href="'.CustomerResource::getUrl('view', ['record' => $record->user]).'" style="text-decoration:underline">'.e($record->user->name).'</a>')
+                                : 'Misafir sipariş'),
+
                         TextInput::make('customer_name')->label('Ad soyad')->required(),
                         TextInput::make('customer_phone')->label('Telefon')->required()->tel(),
                         TextInput::make('customer_email')->label('E-posta')->email(),

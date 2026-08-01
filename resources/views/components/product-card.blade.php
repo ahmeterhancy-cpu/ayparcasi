@@ -8,6 +8,8 @@
     $discount = $product->discount_percent;
     $rating = $product->rating ? (float) $product->rating : null;
     $ship = ship_countdown();
+    // Girişliyse sunucudan, misafirde tarayıcıdan (JS) işaretlenir
+    $isFav = in_array($product->id, favorite_ids(), true);
 @endphp
 
 <article class="card {{ $product->is_orderable ? '' : 'is-out' }}" data-reveal="{{ $reveal }}">
@@ -36,9 +38,9 @@
                 class="card__tool"
                 data-fav="{{ $product->id }}"
                 data-fav-name="{{ $product->name }}"
-                aria-pressed="false"
-                aria-label="Favorilere ekle"
-                title="Favorilere ekle"
+                aria-pressed="{{ $isFav ? 'true' : 'false' }}"
+                aria-label="{{ $isFav ? 'Favorilerden çıkar' : 'Favorilere ekle' }}"
+                title="{{ $isFav ? 'Favorilerden çıkar' : 'Favorilere ekle' }}"
             >
                 <x-ay-icon name="heart" />
             </button>

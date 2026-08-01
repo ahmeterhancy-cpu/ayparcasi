@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class UserResource extends Resource
@@ -26,11 +27,17 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationLabel = 'Kullanıcılar';
+    protected static ?string $navigationLabel = 'Ekip';
 
-    protected static ?string $modelLabel = 'kullanıcı';
+    protected static ?string $modelLabel = 'ekip üyesi';
 
-    protected static ?string $pluralModelLabel = 'kullanıcılar';
+    protected static ?string $pluralModelLabel = 'ekip';
+
+    /** Bu kaynak yalnızca panele giren ekibi listeler; müşteriler ayrı. */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->whereIn('role', ['admin', 'staff']);
+    }
 
     protected static ?string $recordTitleAttribute = 'name';
 

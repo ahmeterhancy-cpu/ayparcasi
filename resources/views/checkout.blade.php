@@ -23,6 +23,18 @@
         </div>
     </header>
 
+    @guest
+        <div class="wrap">
+            <div class="checkout-login">
+                <span><strong>Hesabınız var mı?</strong> Giriş yaparsanız bilgileriniz ve adresiniz hazır gelir.</span>
+                <span class="checkout-login__actions">
+                    <a class="btn btn--rect btn--sm" href="{{ route('login') }}">Giriş yap</a>
+                    <a class="link-u" href="{{ route('register') }}">Hesap oluştur</a>
+                </span>
+            </div>
+        </div>
+    @endguest
+
     @if ($errors->any())
         <div class="wrap">
             <div class="alert">
@@ -57,7 +69,7 @@
                             <label for="customer_name">Adınız soyadınız *</label>
                             <input class="input @error('customer_name') is-error @enderror" type="text"
                                    name="customer_name" id="customer_name" required autocomplete="name"
-                                   value="{{ old('customer_name') }}">
+                                   value="{{ old('customer_name', $user?->name) }}">
                             @error('customer_name')<span class="field__error">{{ $message }}</span>@enderror
                         </div>
 
@@ -65,7 +77,7 @@
                             <label for="customer_phone">Telefonunuz *</label>
                             <input class="input @error('customer_phone') is-error @enderror" type="tel"
                                    name="customer_phone" id="customer_phone" required autocomplete="tel"
-                                   placeholder="0533 000 00 00" value="{{ old('customer_phone') }}">
+                                   placeholder="0533 000 00 00" value="{{ old('customer_phone', $user?->phone) }}">
                             @error('customer_phone')<span class="field__error">{{ $message }}</span>@enderror
                         </div>
                     </div>
@@ -73,7 +85,7 @@
                     <div class="field" style="margin-top:.9rem">
                         <label for="customer_email">E-posta (isteğe bağlı)</label>
                         <input class="input" type="email" name="customer_email" id="customer_email"
-                               autocomplete="email" value="{{ old('customer_email') }}">
+                               autocomplete="email" value="{{ old('customer_email', $user?->email) }}">
                         <span class="field__hint">Sipariş özetini e-postayla da gönderelim.</span>
                     </div>
                 </section>
@@ -84,6 +96,37 @@
                         <span class="step__no">02</span>
                         <h2>Nereye gidecek?</h2>
                     </div>
+
+                    @if ($savedAddresses->isNotEmpty())
+                        <div class="saved-addresses" data-saved-addresses>
+                            <span class="label" style="display:block;margin-bottom:.55rem">Kayıtlı adreslerinizden seçin</span>
+
+                            <div class="saved-addresses__list">
+                                @foreach ($savedAddresses as $saved)
+                                    @php
+                                        // NOT: @json'a çok satırlı dizi yazılmaz — değer burada hazırlanır
+                                        $fill = [
+                                            'recipient_name' => $saved->recipient_name,
+                                            'recipient_phone' => $saved->recipient_phone,
+                                            'delivery_zone_id' => $saved->delivery_zone_id,
+                                            'delivery_address' => $saved->address,
+                                        ];
+                                    @endphp
+                                    <button type="button" class="saved-address" data-fill="{{ json_encode($fill, JSON_UNESCAPED_UNICODE) }}">
+                                        <strong>{{ $saved->title }}</strong>
+                                        @if ($saved->is_default)
+                                            <span class="badge badge--turq">Varsayılan</span>
+                                        @endif
+                                        <span class="muted">{{ Str::limit($saved->summary, 60) }}</span>
+                                    </button>
+                                @endforeach
+                            </div>
+
+                            <p class="field__hint" style="margin-top:.5rem">
+                                Seçtiğinizde aşağıdaki alanlar dolar; dilerseniz düzenleyebilirsiniz.
+                            </p>
+                        </div>
+                    @endif
 
                     <div class="grid-2">
                         <div class="field">
@@ -135,6 +178,27 @@
                                   placeholder="Sokak, bina, daire, tarif…">{{ old('delivery_address') }}</textarea>
                         @error('delivery_address')<span class="field__error">{{ $message }}</span>@enderror
                     </div>
+
+                    @auth
+                        <div style="margin-top:.9rem">
+                            <label class="choice choice--check">
+                                <input type="checkbox" name="save_address" value="1" data-save-address
+                                       @checked(old('save_address'))>
+                                <span class="choice__dot" aria-hidden="true"></span>
+                                <span class="choice__text">
+                                    <span class="choice__title">Bu adresi defterime kaydet</span>
+                                    <span class="choice__meta">Bir dahaki sefere tek tıkla seçebilirsiniz.</span>
+                                </span>
+                            </label>
+
+                            <div class="field" data-address-title hidden style="margin-top:.6rem;max-width:22rem">
+                                <label for="address_title">Adres başlığı</label>
+                                <input class="input" type="text" name="address_title" id="address_title"
+                                       maxlength="60" placeholder="Ev, Ofis, Annem…"
+                                       value="{{ old('address_title') }}">
+                            </div>
+                        </div>
+                    @endauth
 
                     <div class="grid-2" style="margin-top:.9rem">
                         <div class="field">

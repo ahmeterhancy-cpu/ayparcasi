@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Services\Cart;
 use App\Services\Payments\TikoGateway;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -23,12 +24,17 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index');
         }
 
+        $user = Auth::user();
+
         return view('checkout', [
             'lines' => $this->cart->lines(),
             'summary' => $this->cart->summary(),
             'zones' => DeliveryZone::active()->orderBy('position')->get(),
             'slots' => DeliverySlot::active()->orderBy('position')->get(),
             'tikoEnabled' => app(TikoGateway::class)->isConfigured(),
+            // Giriş yapmışsa kayıtlı adresleri ve bilgileri hazır gelsin
+            'savedAddresses' => $user?->addresses()->with('zone')->get() ?? collect(),
+            'user' => $user,
         ]);
     }
 
@@ -124,6 +130,7 @@ class CheckoutController extends Controller
 
             $order = Order::create([
                 'number' => Order::nextNumber(),
+                'user_id' => Auth::id(),
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
                 'payment_method' => $data['payment_method'],
@@ -177,6 +184,20 @@ class CheckoutController extends Controller
         $this->cart->clear();
         $this->rememberOrder($order);
 
+        // "Bu adresi kaydet" işaretliyse adres defterine ekle
+        if (Auth::check() && $request->boolean('save_address')) {
+            $user = Auth::user();
+
+            $user->addresses()->create([
+                'title' => trim((string) $request->input('address_title')) ?: $zone->name,
+                'recipient_name' => $order->recipient_name,
+                'recipient_phone' => $order->recipient_phone,
+                'delivery_zone_id' => $zone->id,
+                'address' => $order->delivery_address,
+                'is_default' => $user->addresses()->count() === 0,
+            ]);
+        }
+
         if ($order->payment_method === 'tiko') {
             return redirect()->route('payment.redirect', $order->number);
         }
@@ -201,9 +222,15 @@ class CheckoutController extends Controller
         ]);
     }
 
-    /** Misafir müşteri yalnızca kendi oluşturduğu siparişi görebilir. */
+    /**
+     * Siparişi ya oluşturan oturum ya da sahibi olan hesap görebilir.
+     */
     private function canView(Order $order): bool
     {
+        if ($order->user_id && $order->user_id === Auth::id()) {
+            return true;
+        }
+
         return in_array($order->number, (array) session('my_orders', []), true);
     }
 

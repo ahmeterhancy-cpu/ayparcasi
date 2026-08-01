@@ -50,6 +50,11 @@ video {
     max-width: 100%;
 }
 
+/* display veren sınıflar hidden'ı ezmesin */
+[hidden] {
+    display: none !important;
+}
+
 img {
     height: auto;
 }

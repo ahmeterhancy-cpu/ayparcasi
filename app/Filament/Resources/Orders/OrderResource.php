@@ -45,7 +45,7 @@ class OrderResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with('items', 'zone');
+        return parent::getEloquentQuery()->with('items', 'zone', 'user');
     }
 
     /** Bekleyen sipariş sayısı — menüde rozet olarak görünür. */

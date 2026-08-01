@@ -372,44 +372,107 @@ function writeFavs(list) {
     }
 }
 
+const isAuthed = () => document.body.dataset.auth === '1';
+
+function paintFav(id, on) {
+    document.querySelectorAll(`[data-fav="${id}"]`).forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(on));
+        btn.setAttribute('aria-label', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
+        btn.setAttribute('title', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
+    });
+}
+
 function initFavs(root = document) {
-    const favs = readFavs();
+    const authed = isAuthed();
+
+    // Misafirde işaretleri tarayıcıdan boya; girişliyse sunucu zaten bastı
+    if (!authed) {
+        const favs = readFavs();
+        root.querySelectorAll('[data-fav]').forEach((btn) => paintFav(btn.dataset.fav, favs.includes(String(btn.dataset.fav))));
+    }
 
     root.querySelectorAll('[data-fav]').forEach((btn) => {
-        const id = String(btn.dataset.fav);
-
-        const paint = (on) => {
-            btn.setAttribute('aria-pressed', String(on));
-            btn.setAttribute('aria-label', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
-            btn.setAttribute('title', on ? 'Favorilerden çıkar' : 'Favorilere ekle');
-        };
-
-        paint(favs.includes(id));
-
         if (btn.dataset.favBound) return;
         btn.dataset.favBound = '1';
 
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', async (e) => {
             e.preventDefault();
 
+            const id = String(btn.dataset.fav);
+            const willBeOn = btn.getAttribute('aria-pressed') !== 'true';
+
+            // Girişliyse sunucu kalıcı kaydeder
+            if (isAuthed()) {
+                paintFav(id, willBeOn); // iyimser boyama
+                btn.classList.add('is-busy');
+
+                try {
+                    const res = await fetch(`${document.body.dataset.favUrl}/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                            Accept: 'application/json',
+                        },
+                    });
+
+                    if (!res.ok) throw new Error(res.status);
+
+                    const data = await res.json();
+                    paintFav(id, data.favorited);
+                    toast(data.favorited ? `${btn.dataset.favName} favorilere eklendi.` : 'Favorilerden çıkarıldı.');
+                } catch {
+                    paintFav(id, !willBeOn); // geri al
+                    toast('Kaydedemedik, bağlantınızı kontrol edin.');
+                } finally {
+                    btn.classList.remove('is-busy');
+                }
+
+                return;
+            }
+
+            // Misafir: tarayıcıda tut, giriş yapınca hesaba taşınır
             const list = readFavs();
             const at = list.indexOf(id);
-            const on = at === -1;
 
-            if (on) list.push(id);
-            else list.splice(at, 1);
+            if (willBeOn) list.push(id);
+            else if (at !== -1) list.splice(at, 1);
 
             writeFavs(list);
-
-            // Aynı ürün sayfada birden çok yerde olabilir
-            document.querySelectorAll(`[data-fav="${id}"]`).forEach((other) => {
-                other.setAttribute('aria-pressed', String(on));
-            });
-
-            paint(on);
-            toast(on ? `${btn.dataset.favName} favorilere eklendi.` : 'Favorilerden çıkarıldı.');
+            paintFav(id, willBeOn);
+            toast(willBeOn ? `${btn.dataset.favName} favorilere eklendi.` : 'Favorilerden çıkarıldı.');
         });
     });
+}
+
+/**
+ * Giriş yapıldığında tarayıcıda biriken favorileri hesaba taşı.
+ * Tekrar çalışsa da sonuç değişmez; taşındıktan sonra yerel liste silinir.
+ */
+async function syncFavs() {
+    if (!isAuthed()) return;
+
+    const local = readFavs();
+    if (!local.length) return;
+
+    try {
+        const res = await fetch(document.body.dataset.favMerge, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({ ids: local.map(Number) }),
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        writeFavs([]);
+        data.ids.forEach((id) => paintFav(String(id), true));
+    } catch {
+        /* bir dahaki açılışta tekrar denenir */
+    }
 }
 
 /* -------------------------------------------------------------------------
@@ -568,6 +631,47 @@ function initCheckout() {
     zoneInputs.forEach((i) => i.addEventListener('change', recalc));
     recalc();
 
+    // Kayıtlı adresi seçince formu doldur
+    document.querySelectorAll('[data-fill]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            let fill;
+            try {
+                fill = JSON.parse(btn.dataset.fill);
+            } catch {
+                return;
+            }
+
+            document.querySelectorAll('.saved-address').forEach((b) => b.classList.remove('is-on'));
+            btn.classList.add('is-on');
+
+            for (const [name, value] of Object.entries(fill)) {
+                if (name === 'delivery_zone_id') {
+                    const zone = form.querySelector(`input[name="delivery_zone_id"][value="${value}"]`);
+                    if (zone) {
+                        zone.checked = true;
+                        zone.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    continue;
+                }
+
+                const field = form.querySelector(`[name="${name}"]`);
+                if (field) field.value = value ?? '';
+            }
+        });
+    });
+
+    // "Bu adresi kaydet" işaretlenince başlık alanı açılsın
+    const saveBox = form.querySelector('[data-save-address]');
+    const titleField = document.querySelector('[data-address-title]');
+
+    if (saveBox && titleField) {
+        const sync = () => {
+            titleField.hidden = !saveBox.checked;
+        };
+        saveBox.addEventListener('change', sync);
+        sync();
+    }
+
     form.querySelectorAll('input[name="payment_method"]').forEach((input) => {
         input.addEventListener('change', () => {
             form.querySelectorAll('[data-method-note]').forEach((note) => {
@@ -602,6 +706,7 @@ function boot() {
     initProduct();
     initStockInquiry();
     initFavs();
+    syncFavs();
     initQuickView();
     initCardPreview();
     initCountdowns();

@@ -17,6 +17,16 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(Cart::class, fn ($app) => new Cart($app['session.store']));
+
+        // Giriş yapmış müşterinin favori ürün kimlikleri — istek başına tek sorgu.
+        // Ürün kartları bunu okuyup kalbi dolu gösterir (N+1 olmaz).
+        $this->app->scoped('favorites.ids', function () {
+            if (! Schema::hasTable('favorites') || ! auth()->check()) {
+                return [];
+            }
+
+            return auth()->user()->favorites()->pluck('products.id')->all();
+        });
     }
 
     public function boot(): void

@@ -17,6 +17,14 @@ class DatabaseSeeder extends Seeder
             'email_verified_at' => now(),
         ]);
 
+        // Hesabım bölümünü denemek için örnek müşteri
+        User::updateOrCreate(['email' => 'musteri@ornek.com'], [
+            'name' => 'Selin Yılmaz',
+            'phone' => '0533 111 22 33',
+            'password' => Hash::make('musteri2026'),
+            'role' => 'customer',
+        ]);
+
         $this->call(DemoSeeder::class);
     }
 }

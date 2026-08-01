@@ -41,6 +41,19 @@ if (! function_exists('wa_link')) {
     }
 }
 
+if (! function_exists('favorite_ids')) {
+    /**
+     * Giriş yapmış müşterinin favori ürün kimlikleri.
+     * Misafirde boş döner — favoriler tarayıcıda tutulur.
+     *
+     * @return array<int>
+     */
+    function favorite_ids(): array
+    {
+        return app('favorites.ids');
+    }
+}
+
 if (! function_exists('ship_countdown')) {
     /**
      * Aynı gün gönderime ne kadar kaldığı. Ürün kartlarındaki

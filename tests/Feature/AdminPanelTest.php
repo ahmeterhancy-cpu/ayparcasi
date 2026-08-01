@@ -39,6 +39,7 @@ class AdminPanelTest extends TestCase
         $paths = [
             '/admin',
             '/admin/orders',
+            '/admin/musteriler',
             '/admin/products',
             '/admin/products/create',
             '/admin/categories',
@@ -62,6 +63,36 @@ class AdminPanelTest extends TestCase
         foreach ($paths as $path) {
             $this->actingAs($this->admin)->get($path)->assertOk();
         }
+    }
+
+    public function test_musteri_detayi_acilir(): void
+    {
+        $customer = User::create([
+            'name' => 'Selin Yılmaz',
+            'email' => 'selin.detay@ornek.com',
+            'password' => 'parola-12345',
+            'role' => 'customer',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->get('/admin/musteriler/'.$customer->id)
+            ->assertOk()
+            ->assertSee('Selin Yılmaz');
+    }
+
+    public function test_ekip_listesinde_musteriler_gorunmez(): void
+    {
+        User::create([
+            'name' => 'Gizli Müşteri',
+            'email' => 'gizli@ornek.com',
+            'password' => 'parola-12345',
+            'role' => 'customer',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->get('/admin/users')
+            ->assertOk()
+            ->assertDontSee('Gizli Müşteri');
     }
 
     public function test_urun_duzenleme_sayfasi_acilir(): void

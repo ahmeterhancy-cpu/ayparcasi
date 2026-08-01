@@ -565,6 +565,73 @@
     color: var(--warn);
 }
 
+/* Kasadaki giriş daveti */
+.checkout-login {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.95rem 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--turq-3);
+    font-size: 0.92rem;
+}
+
+.checkout-login__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Kayıtlı adres seçici */
+.saved-addresses {
+    padding: 1rem;
+    margin-bottom: 1.4rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--paper-2);
+}
+
+.saved-addresses__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 0.5rem;
+}
+
+.saved-address {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: var(--white);
+    font-size: 0.88rem;
+    transition:
+        border-color 220ms var(--ease),
+        box-shadow 220ms var(--ease);
+}
+
+.saved-address:hover {
+    border-color: var(--sea);
+}
+
+.saved-address.is-on {
+    border-color: var(--sea);
+    box-shadow: 0 0 0 1px var(--sea);
+}
+
+.saved-address .badge {
+    justify-self: start;
+}
+
+.saved-address .muted {
+    font-size: 0.8rem;
+}
+
 .alert {
     padding: 0.9rem 1.1rem;
     border-radius: var(--radius-lg);
@@ -725,6 +792,688 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* --------------------------------------------------------------------------
+   Giriş / kayıt
+   -------------------------------------------------------------------------- */
+
+.auth {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: calc(100svh - var(--header-h));
+    align-items: stretch;
+}
+
+@media (max-width: 900px) {
+    .auth {
+        grid-template-columns: 1fr;
+    }
+}
+
+.auth__panel {
+    display: grid;
+    align-content: center;
+    gap: 1.1rem;
+    padding: clamp(2rem, 6vw, 4.5rem) var(--gutter);
+    max-width: 34rem;
+    margin-inline: auto;
+    width: 100%;
+}
+
+.auth__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth__brand .brand__mark {
+    width: 34px;
+    height: 34px;
+}
+
+.auth__title {
+    font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+}
+
+.auth__form {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 0.6rem;
+}
+
+.auth__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.auth__remember {
+    border: 0;
+    background: transparent;
+    padding: 0;
+}
+
+.auth__remember:hover,
+.auth__remember:has(input:checked) {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.auth__foot {
+    font-size: 0.92rem;
+}
+
+.auth__note {
+    font-size: 0.85rem;
+    color: var(--ink-3);
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+}
+
+.auth__aside {
+    position: relative;
+    overflow: hidden;
+}
+
+@media (max-width: 900px) {
+    .auth__aside {
+        display: none;
+    }
+}
+
+.auth__aside img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.auth__aside-text {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    background: linear-gradient(180deg, transparent, rgba(14, 44, 52, 0.85));
+    color: #ffffff;
+}
+
+.auth__aside-text p {
+    font-size: clamp(1.2rem, 2vw, 1.75rem);
+    line-height: 1.3;
+    max-width: 22ch;
+}
+
+/* --------------------------------------------------------------------------
+   Hesabım
+   -------------------------------------------------------------------------- */
+
+.account {
+    display: grid;
+    grid-template-columns: 16.5rem 1fr;
+    gap: clamp(1.75rem, 4vw, 3.25rem);
+    align-items: start;
+    padding-bottom: var(--sec);
+}
+
+@media (max-width: 900px) {
+    .account {
+        grid-template-columns: 1fr;
+    }
+}
+
+.account__side {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    display: grid;
+    gap: 1rem;
+}
+
+@media (max-width: 900px) {
+    .account__side {
+        position: static;
+    }
+}
+
+.account__card {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+}
+
+.account__avatar {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--sun);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.account__who {
+    display: grid;
+    min-width: 0;
+    font-size: 0.9rem;
+}
+
+.account__who span {
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account__nav {
+    display: grid;
+    gap: 0.15rem;
+}
+
+.account__nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.94rem;
+    font-weight: 600;
+    transition:
+        background-color 220ms var(--ease),
+        color 220ms var(--ease);
+}
+
+.account__nav svg {
+    width: 18px;
+    height: 18px;
+    color: var(--ink-3);
+    flex: none;
+}
+
+.account__nav a:hover {
+    background: var(--paper-2);
+}
+
+.account__nav a.is-on {
+    background: var(--ink);
+    color: #ffffff;
+}
+
+.account__nav a.is-on svg {
+    color: var(--sun);
+}
+
+.account__logout {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-3);
+    border-radius: 10px;
+    transition: color 220ms var(--ease);
+}
+
+.account__logout:hover {
+    color: var(--bad);
+}
+
+.account__main {
+    display: grid;
+    gap: 1.75rem;
+    align-content: start;
+    min-width: 0;
+}
+
+.acc-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+}
+
+.acc-head h2,
+.acc-box h2 {
+    font-size: 1.3rem;
+}
+
+.acc-box {
+    padding: clamp(1.15rem, 2.5vw, 1.75rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+}
+
+.acc-box h2 {
+    margin-bottom: 1.1rem;
+}
+
+.acc-empty {
+    display: grid;
+    justify-items: center;
+    gap: 0.8rem;
+    text-align: center;
+    padding: clamp(2.5rem, 6vw, 4rem) 1.5rem;
+    border: 1px dashed var(--line-2);
+    border-radius: var(--radius-lg);
+}
+
+/* Devam eden sipariş şeridi */
+.acc-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: clamp(1.15rem, 2.5vw, 1.6rem);
+    border-radius: var(--radius-lg);
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.acc-panel .muted {
+    color: color-mix(in srgb, var(--paper) 66%, transparent);
+}
+
+.acc-panel__side {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+/* Sayaç kutuları */
+.acc-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+
+@media (max-width: 520px) {
+    .acc-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+.acc-stat {
+    display: grid;
+    gap: 0.2rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    transition:
+        border-color 300ms var(--ease),
+        transform 300ms var(--ease);
+}
+
+.acc-stat:hover {
+    border-color: var(--turq);
+    transform: translateY(-3px);
+}
+
+.acc-stat__num {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.acc-stat__label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+}
+
+/* Sipariş listesi */
+.order-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.order-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    transition: border-color 260ms var(--ease);
+}
+
+.order-row:hover {
+    border-color: var(--line-2);
+}
+
+@media (max-width: 620px) {
+    .order-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.order-row__thumbs {
+    display: flex;
+    align-items: center;
+}
+
+.order-row__thumbs img {
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--white);
+    margin-left: -12px;
+}
+
+.order-row__thumbs img:first-child {
+    margin-left: 0;
+}
+
+.order-row__more {
+    margin-left: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-3);
+}
+
+.order-row__body {
+    min-width: 0;
+}
+
+.order-row__no {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.order-row__meta {
+    font-size: 0.84rem;
+    color: var(--ink-3);
+}
+
+.order-row__side {
+    display: grid;
+    justify-items: end;
+    gap: 0.35rem;
+    text-align: right;
+}
+
+@media (max-width: 620px) {
+    .order-row__side {
+        justify-items: start;
+        text-align: left;
+    }
+}
+
+.order-row__total {
+    font-size: 1.05rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.order-row__unpaid {
+    font-size: 0.76rem;
+    color: var(--warn);
+    font-weight: 600;
+}
+
+/* Durum rozeti */
+.order-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.26rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: color-mix(in srgb, var(--sea) 14%, transparent);
+    color: var(--sea);
+}
+
+.order-status[data-status='pending'] {
+    background: color-mix(in srgb, var(--warn) 16%, transparent);
+    color: var(--warn);
+}
+
+.order-status[data-status='on_the_way'] {
+    background: color-mix(in srgb, var(--turq) 22%, transparent);
+    color: var(--sea);
+}
+
+.order-status[data-status='delivered'] {
+    background: color-mix(in srgb, var(--ok) 14%, transparent);
+    color: var(--ok);
+}
+
+.order-status[data-status='cancelled'] {
+    background: color-mix(in srgb, var(--bad) 12%, transparent);
+    color: var(--bad);
+}
+
+/* Sipariş durum çizgisi */
+.order-flow {
+    display: flex;
+    gap: 0.5rem;
+    counter-reset: step;
+}
+
+@media (max-width: 700px) {
+    .order-flow {
+        flex-direction: column;
+        gap: 0.9rem;
+    }
+}
+
+.order-flow li {
+    position: relative;
+    flex: 1;
+    display: grid;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink-3);
+}
+
+.order-flow__dot {
+    display: block;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--line-2);
+    transition: background-color 420ms var(--ease);
+}
+
+@media (max-width: 700px) {
+    .order-flow__dot {
+        width: 4px;
+        height: 18px;
+    }
+
+    .order-flow li {
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 0.75rem;
+    }
+}
+
+.order-flow li.is-done .order-flow__dot {
+    background: var(--sun);
+}
+
+.order-flow li.is-done {
+    color: var(--ink);
+}
+
+.order-flow li.is-now .order-flow__label {
+    font-weight: 800;
+}
+
+/* Sipariş detay ızgarası */
+.order-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 1.25rem;
+    margin-top: 1.75rem;
+    align-items: start;
+}
+
+@media (max-width: 860px) {
+    .order-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.order-items {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.order-item {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 0.85rem;
+    align-items: center;
+    font-size: 0.92rem;
+}
+
+.order-item img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.order-totals {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.92rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.order-totals > div,
+.order-facts > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.order-totals dt,
+.order-facts dt {
+    color: var(--ink-3);
+}
+
+.order-totals dd,
+.order-facts dd {
+    font-weight: 600;
+    text-align: right;
+}
+
+.order-totals__sum {
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+}
+
+.order-facts {
+    display: grid;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+}
+
+.order-facts dd {
+    max-width: 60%;
+}
+
+/* Adres kartları */
+.address-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 0.85rem;
+}
+
+.address-card {
+    display: grid;
+    gap: 0.45rem;
+    align-content: start;
+    padding: 1.15rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    font-size: 0.92rem;
+}
+
+.address-card.is-default {
+    border-color: var(--sea);
+    box-shadow: 0 0 0 1px var(--sea);
+}
+
+.address-card header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.address-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+}
+
+.address-card__text {
+    color: var(--ink-2);
+    line-height: 1.5;
+}
+
+.address-card footer {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.85rem;
+}
+
+.address-card__edit summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.address-card__edit summary::-webkit-details-marker {
+    display: none;
+}
+
+.address-card__edit[open] {
+    width: 100%;
+}
+
+.address-form {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 0.85rem;
+}
+
+.address-form .btn {
+    justify-self: start;
 }
 
 /* --------------------------------------------------------------------------

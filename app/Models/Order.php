@@ -49,6 +49,12 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    /** Misafir siparişlerinde boştur. */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function zone(): BelongsTo
     {
         return $this->belongsTo(DeliveryZone::class, 'delivery_zone_id');

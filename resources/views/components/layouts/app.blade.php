@@ -34,7 +34,14 @@
 
     @stack('head')
 </head>
-<body class="{{ $bodyClass }}">
+<body
+    class="{{ $bodyClass }}"
+    @auth
+        data-auth="1"
+        data-fav-url="{{ url('/hesabim/favorilerim') }}"
+        data-fav-merge="{{ route('account.favorites.merge') }}"
+    @endauth
+>
     <a class="skip-link" href="#icerik">İçeriğe geç</a>
 
     @include('partials.header', ['transparent' => $transparentHeader])

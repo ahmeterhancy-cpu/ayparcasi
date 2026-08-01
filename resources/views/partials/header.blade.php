@@ -47,6 +47,30 @@
                 <x-ay-icon name="search" />
             </button>
 
+            @auth
+                <div class="nav__item">
+                    <a class="icon-btn" href="{{ route('account.index') }}" aria-label="Hesabım">
+                        <x-ay-icon name="user" />
+                    </a>
+
+                    <div class="nav__menu nav__menu--right">
+                        <span class="nav__menu-head">{{ auth()->user()->first_name }}</span>
+                        <a href="{{ route('account.index') }}">Hesabım</a>
+                        <a href="{{ route('account.orders') }}">Siparişlerim</a>
+                        <a href="{{ route('account.favorites') }}">Favorilerim</a>
+                        <a href="{{ route('account.addresses') }}">Adreslerim</a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit">Çıkış yap</button>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <a class="icon-btn" href="{{ route('login') }}" aria-label="Giriş yap">
+                    <x-ay-icon name="user" />
+                </a>
+            @endauth
+
             <a class="icon-btn" href="{{ route('cart.index') }}" aria-label="Sepet ({{ $cartCount }} ürün)">
                 <x-ay-icon name="cart" />
                 @if ($cartCount > 0)
@@ -119,6 +143,23 @@
                 <li><a href="{{ route('page.blog') }}">Günlük</a></li>
                 <li><a href="{{ route('page.contact') }}">İletişim</a></li>
             </ul>
+
+            @auth
+                <ul class="mobile-nav" style="margin-top:1.25rem;border-top:1px solid var(--line);padding-top:1.25rem">
+                    <li><a href="{{ route('account.index') }}">Hesabım</a></li>
+                    <li><a href="{{ route('account.orders') }}">Siparişlerim</a></li>
+                    <li><a href="{{ route('account.favorites') }}">Favorilerim</a></li>
+                </ul>
+                <form method="POST" action="{{ route('logout') }}" style="margin-top:1rem">
+                    @csrf
+                    <button type="submit" class="btn btn--rect btn--ghost btn--block">Çıkış yap</button>
+                </form>
+            @else
+                <div style="display:grid;gap:.6rem;margin-top:1.25rem;border-top:1px solid var(--line);padding-top:1.25rem">
+                    <a class="btn btn--rect btn--block" href="{{ route('login') }}">Giriş yap</a>
+                    <a class="btn btn--rect btn--ghost btn--block" href="{{ route('register') }}">Hesap oluştur</a>
+                </div>
+            @endauth
 
             <a class="btn btn--wa btn--block" style="margin-top:1.5rem"
                href="{{ wa_link('Merhaba, sipariş vermek istiyorum.') }}" target="_blank" rel="noopener">

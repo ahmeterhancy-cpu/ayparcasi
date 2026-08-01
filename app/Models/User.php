@@ -8,10 +8,12 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -31,6 +33,7 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    /** Yönetim paneline yalnızca ekip girer; müşteriler giremez. */
     public function canAccessPanel(Panel $panel): bool
     {
         return in_array($this->role, ['admin', 'staff'], true);
@@ -39,5 +42,38 @@ class User extends Authenticatable implements FilamentUser
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role === 'customer';
+    }
+
+    // --- İlişkiler --------------------------------------------------------
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class)->latest('id');
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class)->orderByDesc('is_default')->orderBy('title');
+    }
+
+    public function favorites(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'favorites')->withTimestamps();
+    }
+
+    /** Sipariş formunu ön-doldurmak için kullanılan varsayılan adres. */
+    public function defaultAddress(): ?Address
+    {
+        return $this->addresses()->first();
+    }
+
+    public function getFirstNameAttribute(): string
+    {
+        return explode(' ', trim($this->name))[0] ?? $this->name;
     }
 }
