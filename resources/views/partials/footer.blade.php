@@ -65,8 +65,9 @@
         </div>
     </div>
 
-    {{-- Sayfanın sonunda dolan dev marka adı --}}
-    <div class="wrap" data-scrub data-scrub-range="enter" style="padding-bottom:1rem">
+    {{-- Sayfanın sonunda dolan dev marka adı.
+         "in" kipi: eleman tamamen göründüğünde dolum biter. --}}
+    <div class="wrap" data-scrub data-scrub-range="in" style="padding-bottom:1rem">
         <span class="footer__wordmark">{{ setting('shop_name', 'Ay Parçası') }}</span>
     </div>
 

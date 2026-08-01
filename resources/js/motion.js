@@ -126,6 +126,9 @@ function absoluteTop(el) {
 /**
  * Aralık modları:
  *   'enter'  → eleman alt kenardan girerken 0, üst kenardan çıkarken 1
+ *   'in'     → eleman tamamen göründüğünde 1 (sayfa sonundaki öğeler için;
+ *              'enter' orada asla 1'e ulaşamaz çünkü eleman ekranın
+ *              üstünden hiç çıkmaz)
  *   'cover'  → eleman ekranı kapladığı sürece 0→1 (sticky bölümler için)
  *   'self'   → eleman viewport'un ortasından geçerken 0→1
  */
@@ -157,6 +160,12 @@ class Scrub {
             // Sticky bölüm: bölümün kaydırılabilir yüksekliği boyunca 0→1
             const span = Math.max(1, this.height - f.vh);
             return clamp((f.y - start) / span);
+        }
+
+        if (this.mode === 'in') {
+            // Üst kenar ekrana girerken 0, alt kenar ekranın altına
+            // hizalandığında 1 — yani eleman tamamen göründüğünde dolar.
+            return clamp((f.y + f.vh - start) / Math.max(1, this.height));
         }
 
         if (this.mode === 'self') {
