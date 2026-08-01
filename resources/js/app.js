@@ -579,6 +579,7 @@ function initCheckout() {
     const totalOut = document.querySelector('[data-total-out]');
     const dateInput = form.querySelector('input[name="delivery_date"]');
     const sameDayNote = document.querySelector('[data-sameday-note]');
+    const freeNote = document.querySelector('[data-free-note]');
 
     const subtotal = parseFloat(form.dataset.subtotal || '0');
     const discount = parseFloat(form.dataset.discount || '0');
@@ -600,6 +601,29 @@ function initCheckout() {
 
         if (feeOut) feeOut.textContent = fee === 0 ? 'Ücretsiz' : fmt(fee);
         if (totalOut) totalOut.textContent = fmt(Math.max(0, subtotal - discount) + fee);
+
+        // Ücretsiz teslimat eşiği — eşiğe ne kadar kaldığını söyler.
+        // Eşik ARA TOPLAM üzerinden karşılaştırılır (kupon indirimi düşülmeden),
+        // sunucudaki DeliveryZone::feeFor ile birebir aynı kural.
+        if (freeNote) {
+            const freeOver = zone && zone.dataset.freeOver ? parseFloat(zone.dataset.freeOver) : null;
+            const base = zone ? parseFloat(zone.dataset.fee || '0') : 0;
+            let text = '';
+
+            if (freeDelivery) {
+                text = 'Kuponunuz teslimatı ücretsiz yapıyor.';
+            } else if (freeOver !== null && base > 0) {
+                const kalan = freeOver - subtotal;
+                text =
+                    kalan > 0
+                        ? fmt(kalan) + ' daha ekleyin, teslimat ücretsiz olsun.'
+                        : 'Sepetiniz eşiği geçti — teslimat ücretsiz.';
+            }
+
+            freeNote.textContent = text;
+            freeNote.hidden = text === '';
+            freeNote.dataset.state = freeDelivery || (freeOver !== null && subtotal >= freeOver) ? 'ok' : 'info';
+        }
 
         if (sameDayNote && zone) {
             const same = zone.dataset.sameDay === '1';

@@ -781,6 +781,28 @@
     color: var(--warn);
 }
 
+/* Ücretsiz teslimat eşiği bilgisi — bölge seçiminin hemen altında */
+.free-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.45rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+
+.free-note[data-state='info'] {
+    background: color-mix(in srgb, var(--sun) 20%, var(--white));
+    color: var(--ink);
+}
+
+.free-note[data-state='ok'] {
+    background: color-mix(in srgb, var(--ok) 12%, var(--white));
+    color: var(--ok);
+}
+
 /* Kasadaki giriş daveti */
 .checkout-login {
     display: flex;

@@ -162,12 +162,19 @@
                                         <span class="choice__meta">
                                             {{ (float) $zone->fee > 0 ? money($zone->fee) : 'Ücretsiz' }}
                                             @if ($zone->same_day) · aynı gün @endif
+                                            @if ($zone->free_over && (float) $zone->fee > 0)
+                                                · {{ money($zone->free_over) }} üzeri ücretsiz
+                                            @endif
                                         </span>
                                     </span>
                                 </label>
                             @endforeach
                         </div>
                         <p class="sameday-note" data-sameday-note data-state="ok"></p>
+
+                        {{-- Ücretsiz teslimat eşiğine ne kadar kaldığını söyler.
+                             İçeriği JS dolduruyor (initCheckout). --}}
+                        <p class="free-note" data-free-note hidden></p>
                         @error('delivery_zone_id')<span class="field__error">{{ $message }}</span>@enderror
                     </div>
 
