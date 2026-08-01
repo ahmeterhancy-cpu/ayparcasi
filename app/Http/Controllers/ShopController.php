@@ -122,7 +122,7 @@ class ShopController extends Controller
         return view('shop.index', $this->listing($query, $request, null, $term));
     }
 
-    public function product(Product $product)
+    public function product(Request $request, Product $product)
     {
         abort_unless($product->is_active, 404);
 
@@ -140,10 +140,18 @@ class ShopController extends Controller
             ->limit(4)
             ->get();
 
+        $user = $request->user();
+
         return view('shop.product', [
             'product' => $product,
             'related' => $related,
             'addons' => Addon::active()->orderBy('position')->get(),
+            'reviews' => $product->approvedReviews()->get(),
+            'breakdown' => $product->ratingBreakdown(),
+            // Yorum formu yalnızca hakkı olana gösterilir; asıl kontrol
+            // ReviewController'da tekrar yapılır.
+            'canReview' => (bool) $product->reviewableOrderFor($user),
+            'myReview' => $product->reviewBy($user),
         ]);
     }
 

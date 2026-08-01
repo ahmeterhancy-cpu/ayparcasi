@@ -15,6 +15,7 @@ use App\Http\Controllers\OrderLookupController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PrintController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,10 @@ Route::get('/arama', [ShopController::class, 'search'])->name('shop.search');
 Route::get('/kategori/{category:slug}', [ShopController::class, 'category'])->name('shop.category');
 Route::get('/urun/{product:slug}', [ShopController::class, 'product'])->name('shop.product');
 Route::get('/urun/{product:slug}/hizli-bakis', [ShopController::class, 'quickView'])->name('shop.quickview');
+
+Route::post('/urun/{product:slug}/yorum', [ReviewController::class, 'store'])
+    ->middleware(['auth', 'throttle:10,1'])
+    ->name('shop.review.store');
 
 // --- Sepet ----------------------------------------------------------------
 Route::get('/sepet', [CartController::class, 'index'])->name('cart.index');

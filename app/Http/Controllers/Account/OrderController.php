@@ -21,7 +21,7 @@ class OrderController extends Controller
         // Yalnızca kendi siparişi
         abort_unless($order->user_id === Auth::id(), 404);
 
-        $order->load('items');
+        $order->load('items.product');
 
         return view('account.order', [
             'order' => $order,

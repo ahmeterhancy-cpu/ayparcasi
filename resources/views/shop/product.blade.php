@@ -6,28 +6,45 @@
     $variants = $product->variants->where('is_active', true)->values();
     $default = $variants->firstWhere('is_default', true) ?? $variants->sortBy('price')->first();
     $cutoffHour = (int) setting('same_day_cutoff_hour', 15);
+
+    $reviewCount = (int) $product->review_count;
+    $avgRating = $reviewCount > 0 && $product->rating ? (float) $product->rating : null;
+
+    // @json içine parantezli/çok satırlı ifade yazılmaz — değer burada hazırlanır.
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Product',
+        'name' => $product->name,
+        'description' => $product->short_description,
+        'image' => array_map(fn ($i) => img_url($i), array_slice($images, 0, 4)),
+        'offers' => [
+            '@type' => 'Offer',
+            'price' => (float) $product->display_price,
+            'priceCurrency' => 'TRY',
+            'availability' => $product->is_orderable
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+            'url' => $product->url,
+        ],
+    ];
+
+    // Yalnızca gerçekten onaylı yorum varsa bildirilir.
+    if ($avgRating) {
+        $schema['aggregateRating'] = [
+            '@type' => 'AggregateRating',
+            'ratingValue' => round($avgRating, 1),
+            'reviewCount' => $reviewCount,
+            'bestRating' => 5,
+            'worstRating' => 1,
+        ];
+    }
 @endphp
 
 <x-layouts.app :title="$product->name" :description="$product->short_description">
 
     @push('head')
         <script type="application/ld+json">
-        {!! json_encode([
-            '@context' => 'https://schema.org',
-            '@type' => 'Product',
-            'name' => $product->name,
-            'description' => $product->short_description,
-            'image' => array_map(fn ($i) => img_url($i), array_slice($images, 0, 4)),
-            'offers' => [
-                '@type' => 'Offer',
-                'price' => (float) $product->display_price,
-                'priceCurrency' => 'TRY',
-                'availability' => $product->is_orderable
-                    ? 'https://schema.org/InStock'
-                    : 'https://schema.org/OutOfStock',
-                'url' => $product->url,
-            ],
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+        {!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
         </script>
     @endpush
 
@@ -75,6 +92,18 @@
             @endif
 
             <h1 data-reveal="up" data-split="words">{{ $product->name }}</h1>
+
+            @if ($avgRating)
+                <a class="product__rating" href="#yorumlar">
+                    <span class="stars-rate" style="--rate:{{ round($avgRating / 5 * 100) }}%"
+                          role="img" aria-label="5 üzerinden {{ number_format($avgRating, 1, ',', '') }}">
+                        <span class="stars-rate__bg" aria-hidden="true">★★★★★</span>
+                        <span class="stars-rate__fg" aria-hidden="true">★★★★★</span>
+                    </span>
+                    <strong>{{ number_format($avgRating, 1, ',', '') }}</strong>
+                    <span class="muted">{{ $reviewCount }} yorum</span>
+                </a>
+            @endif
 
             @if ($product->short_description)
                 <p class="lead">{{ $product->short_description }}</p>
@@ -254,6 +283,176 @@
             </div>
         </section>
     @endif
+
+    {{-- Yorumlar --}}
+    <section class="section section--tight" id="yorumlar">
+        <div class="wrap">
+            <div class="section-head">
+                <div class="section-head__text">
+                    <span class="eyebrow">Müşteri yorumları</span>
+                    <h2 data-reveal="up">
+                        {{ $reviewCount > 0 ? 'Bu tasarımı alanlar ne dedi?' : 'Henüz yorum yok' }}
+                    </h2>
+                </div>
+            </div>
+
+            <div class="reviews">
+                {{-- Sol sütun: özet + yazma alanı --}}
+                <aside class="reviews__aside">
+                    @if ($avgRating)
+                        <div class="reviews__score">
+                            <strong>{{ number_format($avgRating, 1, ',', '') }}</strong>
+                            <span class="stars-rate" style="--rate:{{ round($avgRating / 5 * 100) }}%"
+                                  role="img" aria-label="5 üzerinden {{ number_format($avgRating, 1, ',', '') }}">
+                                <span class="stars-rate__bg" aria-hidden="true">★★★★★</span>
+                                <span class="stars-rate__fg" aria-hidden="true">★★★★★</span>
+                            </span>
+                            <span class="muted">{{ $reviewCount }} onaylı yorum</span>
+                        </div>
+
+                        <ul class="reviews__bars">
+                            @foreach ($breakdown as $star => $count)
+                                <li>
+                                    <span class="reviews__bar-label">{{ $star }}★</span>
+                                    <span class="reviews__bar">
+                                        <span class="reviews__bar-fill"
+                                              style="--w:{{ $reviewCount > 0 ? round($count / $reviewCount * 100) : 0 }}%"></span>
+                                    </span>
+                                    <span class="reviews__bar-count">{{ $count }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="muted">
+                            Bu tasarım için henüz onaylanmış bir yorum yok. Yorumları yalnızca ürünü
+                            sipariş edip teslim almış müşteriler yazabilir.
+                        </p>
+                    @endif
+
+                    {{-- Yazma alanı: duruma göre form ya da açıklama --}}
+                    <div class="reviews__write">
+                        @guest
+                            <p class="muted" style="font-size:.9rem">
+                                Bu ürünü sipariş ettiyseniz
+                                <a class="link-u" href="{{ route('login') }}">giriş yaparak</a>
+                                yorum yazabilirsiniz.
+                            </p>
+                        @else
+                            @if ($myReview)
+                                <div class="reviews__mine" data-status="{{ $myReview->status }}">
+                                    @if ($myReview->status === 'pending')
+                                        <strong>Yorumunuz onay bekliyor.</strong>
+                                        <p class="muted" style="font-size:.9rem">
+                                            Ekibimiz kontrol ettikten sonra bu sayfada yayınlanacak.
+                                        </p>
+                                    @elseif ($myReview->status === 'approved')
+                                        <strong>Yorumunuz yayında.</strong>
+                                        <p class="muted" style="font-size:.9rem">Paylaştığınız için teşekkürler.</p>
+                                    @else
+                                        <strong>Yorumunuz yayınlanmadı.</strong>
+                                        <p class="muted" style="font-size:.9rem">
+                                            Sorunuz varsa WhatsApp'tan yazabilirsiniz.
+                                        </p>
+                                    @endif
+                                </div>
+                            @elseif ($canReview)
+                                <form method="POST" action="{{ route('shop.review.store', $product->slug) }}"
+                                      class="review-form">
+                                    @csrf
+
+                                    <h3>Yorumunuzu yazın</h3>
+
+                                    <fieldset class="field">
+                                        <legend class="label">Puanınız</legend>
+                                        <div class="rate-input">
+                                            @foreach ([5, 4, 3, 2, 1] as $star)
+                                                <input type="radio" name="rating" value="{{ $star }}"
+                                                       id="puan-{{ $star }}"
+                                                       @checked((int) old('rating') === $star)
+                                                       @if ($star === 5) required @endif>
+                                                <label for="puan-{{ $star }}">
+                                                    <span class="sr-only">{{ $star }} yıldız</span>
+                                                    <span aria-hidden="true">★</span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                        @error('rating')<span class="field__error">{{ $message }}</span>@enderror
+                                    </fieldset>
+
+                                    <div class="field">
+                                        <label for="review-title">Başlık <span class="muted">(isteğe bağlı)</span></label>
+                                        <input class="input @error('title') is-error @enderror" type="text"
+                                               name="title" id="review-title" maxlength="120"
+                                               value="{{ old('title') }}" placeholder="Örn. Tam istediğim gibiydi">
+                                        @error('title')<span class="field__error">{{ $message }}</span>@enderror
+                                    </div>
+
+                                    <div class="field">
+                                        <label for="review-body">Yorumunuz</label>
+                                        <textarea class="textarea @error('body') is-error @enderror"
+                                                  name="body" id="review-body" rows="4" minlength="10" maxlength="1000"
+                                                  required placeholder="Buket nasıl geldi, tazeliği nasıldı, teslimat nasıl gitti?">{{ old('body') }}</textarea>
+                                        <span class="field__hint">En az 10, en çok 1000 karakter.</span>
+                                        @error('body')<span class="field__error">{{ $message }}</span>@enderror
+                                    </div>
+
+                                    <button class="btn btn--rect btn--block" type="submit">Yorumu gönder</button>
+
+                                    <p class="field__hint" style="text-align:center">
+                                        Yorumunuz onaylandıktan sonra adınız
+                                        "{{ \App\Models\Review::shortName(auth()->user()->name) }}"
+                                        biçiminde gösterilir.
+                                    </p>
+                                </form>
+                            @else
+                                <p class="muted" style="font-size:.9rem">
+                                    Yorum yazabilmek için bu ürünü sipariş etmiş ve teslim almış olmanız gerekiyor.
+                                </p>
+                            @endif
+                        @endguest
+                    </div>
+                </aside>
+
+                {{-- Sağ sütun: yorum listesi --}}
+                <div class="reviews__list">
+                    @forelse ($reviews as $review)
+                        <article class="review">
+                            <header class="review__head">
+                                <span class="stars-rate" style="--rate:{{ $review->rating * 20 }}%"
+                                      role="img" aria-label="5 üzerinden {{ $review->rating }}">
+                                    <span class="stars-rate__bg" aria-hidden="true">★★★★★</span>
+                                    <span class="stars-rate__fg" aria-hidden="true">★★★★★</span>
+                                </span>
+                                <span class="review__verified">
+                                    <x-ay-icon name="check" /> Doğrulanmış alışveriş
+                                </span>
+                            </header>
+
+                            @if ($review->title)
+                                <h3 class="review__title">{{ $review->title }}</h3>
+                            @endif
+
+                            <p class="review__body">{{ $review->body }}</p>
+
+                            <p class="review__meta">
+                                {{ $review->display_name }} ·
+                                {{ $review->created_at?->translatedFormat('d F Y') }}
+                            </p>
+
+                            @if ($review->reply)
+                                <div class="review__reply">
+                                    <strong>Ay Parçası</strong>
+                                    <p>{{ $review->reply }}</p>
+                                </div>
+                            @endif
+                        </article>
+                    @empty
+                        <p class="muted">İlk yorumu siz yazabilirsiniz.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </section>
 
     {{-- Benzerleri --}}
     @if ($related->isNotEmpty())

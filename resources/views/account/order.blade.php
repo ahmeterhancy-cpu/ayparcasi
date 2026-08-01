@@ -46,6 +46,15 @@
                                 </p>
                             @endif
                             <p class="muted" style="font-size:.85rem">{{ $item->quantity }} adet × {{ money($item->unit_price) }}</p>
+
+                            {{-- Teslim edilmiş siparişte ürüne yorum yazma yolu --}}
+                            @if ($order->status === 'delivered' && $item->product?->is_active)
+                                <p style="font-size:.85rem;margin-top:.2rem">
+                                    <a class="link-u" href="{{ $item->product->url }}#yorumlar">
+                                        {{ $item->product->reviewBy(auth()->user()) ? 'Yorumunuzu görün' : 'Bu ürüne yorum yazın' }}
+                                    </a>
+                                </p>
+                            @endif
                         </div>
                         <strong style="white-space:nowrap">{{ money($item->line_total) }}</strong>
                     </div>

@@ -276,8 +276,8 @@ class DemoSeeder extends Seeder
                 'is_active' => true,
                 'is_featured' => $featured,
                 'same_day' => true,
-                'rating' => round(random_int(45, 50) / 10, 1),
-                'review_count' => random_int(4, 60),
+                // Puan uydurulmaz. rating/review_count yalnızca onaylanmış
+                // müşteri yorumlarından hesaplanır (App\Models\Review).
                 'position' => $pos,
             ]);
 

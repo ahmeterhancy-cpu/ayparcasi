@@ -57,6 +57,63 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class)->orderBy('position');
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /** Vitrinde gösterilen yorumlar — yalnızca onaylananlar. */
+    public function approvedReviews(): HasMany
+    {
+        return $this->reviews()->approved()->latest('id');
+    }
+
+    /**
+     * Puan dağılımı: 5 yıldızdan 1'e kadar kaç yorum var.
+     *
+     * @return array<int, int>
+     */
+    public function ratingBreakdown(): array
+    {
+        $counts = $this->reviews()
+            ->approved()
+            ->selectRaw('rating, COUNT(*) as c')
+            ->groupBy('rating')
+            ->pluck('c', 'rating');
+
+        return collect(range(5, 1))
+            ->mapWithKeys(fn (int $star) => [$star => (int) ($counts[$star] ?? 0)])
+            ->all();
+    }
+
+    /**
+     * Bu müşteriye yorum hakkı veren sipariş.
+     * Yalnızca teslim edilmiş ve bu ürünü içeren sipariş sayılır.
+     */
+    public function reviewableOrderFor(?User $user): ?Order
+    {
+        if (! $user) {
+            return null;
+        }
+
+        return Order::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'delivered')
+            ->whereHas('items', fn ($q) => $q->where('product_id', $this->id))
+            ->latest('id')
+            ->first();
+    }
+
+    /** Müşterinin bu ürüne daha önce yazdığı yorum (onay beklese de döner). */
+    public function reviewBy(?User $user): ?Review
+    {
+        if (! $user) {
+            return null;
+        }
+
+        return $this->reviews()->where('user_id', $user->id)->first();
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
