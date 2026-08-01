@@ -92,6 +92,15 @@
             </p>
         @endif
 
+        {{-- "Stokta" her kartta yazınca gürültü oluyor ve hiçbir şey söylemiyor.
+             Yalnızca bilgi veren durumlar gösterilir: azalan stok, tükenmiş,
+             siparişe özel.
+             Fiyatın ÜSTÜNDE duruyor — altında olsaydı yalnızca bazı kartlarda
+             çıktığı için o kartların düğmeleri komşularından yukarı kayardı. --}}
+        @unless ($product->stock_state === 'in_stock')
+            <p class="card__stock" data-state="{{ $product->stock_state }}">{{ $product->stock_label }}</p>
+        @endunless
+
         <p class="card__price">
             <strong>{{ money($product->display_price) }}</strong>
             @if ($product->display_compare_at)
@@ -116,12 +125,5 @@
             </span>
             <span class="card__ship-closed">Yarın teslim edilir</span>
         </p>
-
-        {{-- "Stokta" her kartta yazınca gürültü oluyor ve hiçbir şey söylemiyor.
-             Yalnızca bilgi veren durumlar gösterilir: azalan stok, tükenmiş,
-             siparişe özel. --}}
-        @unless ($product->stock_state === 'in_stock')
-            <p class="card__stock" data-state="{{ $product->stock_state }}">{{ $product->stock_label }}</p>
-        @endunless
     </div>
 </article>

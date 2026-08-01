@@ -27,6 +27,8 @@
     grid-template-columns: 15rem 1fr;
     gap: clamp(1.75rem, 4vw, 3.5rem);
     align-items: start;
+    /* Sayfalama footer'a yapışmasın — diğer sayfalarla aynı bölüm boşluğu */
+    padding-bottom: var(--sec);
 }
 
 @media (max-width: 900px) {

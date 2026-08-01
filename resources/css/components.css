@@ -442,19 +442,24 @@
     pointer-events: none;
 }
 
-/* Gövde */
+/* Gövde
+   Izgarada kartlar satırın en uzunu kadar uzar; gövde de kalan yüksekliği
+   doldurur. Böylece fiyattan aşağısı kartın dibine hizalanır ve yıldızı olan
+   kartla olmayan kartın düğmeleri aynı hizada durur. */
 .card__body {
     padding-top: 0.95rem;
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 0.45rem;
-    align-content: start;
+    flex: 1;
 }
 
 .card__cat {
     /* Başlık bağlantısının tüm kartı kaplayan katmanının üstünde kalsın */
     position: relative;
     z-index: 2;
-    justify-self: start;
+    /* flex sütunda justify-self işlemez — karşılığı align-self */
+    align-self: flex-start;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -521,8 +526,10 @@
     color: var(--sun);
 }
 
-/* Fiyat */
+/* Fiyat — alt bloğun başı. margin-top:auto boşluğu buranın ÜSTÜNE toplar,
+   yani fiyat/düğme/teslimat satırları kartın dibine yaslanır. */
 .card__price {
+    margin-top: auto;
     display: flex;
     align-items: baseline;
     flex-wrap: wrap;
