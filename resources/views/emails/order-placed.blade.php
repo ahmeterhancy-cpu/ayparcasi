@@ -1,5 +1,3 @@
-@php $cutoff = (int) setting('same_day_cutoff_hour', 15); @endphp
-
 <x-mail.shell :preview="'Sipariş no '.$order->number.' — '.money($order->total)">
     <h1 class="h1">Siparişiniz alındı</h1>
 
@@ -34,10 +32,4 @@
             Açıklamaya sipariş numaranızı (<strong>{{ $order->number }}</strong>) yazmayı unutmayın.
         </p>
     @endif
-
-    <p class="p small" style="margin-top:24px">
-        Buketiniz siparişinizden sonra dükkânımızda elde hazırlanır.
-        Değiştirmek istediğiniz bir şey varsa saat {{ sprintf('%02d:00', $cutoff) }}'den önce
-        <a href="{{ wa_link('Merhaba, '.$order->number.' numaralı siparişim hakkında…') }}">WhatsApp'tan</a> yazın.
-    </p>
 </x-mail.shell>
