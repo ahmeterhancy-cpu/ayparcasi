@@ -80,33 +80,35 @@ class DemoSeeder extends Seeder
     private function delivery(): void
     {
         /*
-         * Sıra ana sayfadaki teslimat hattıyla aynı: önce dükkânın günlük
-         * güzergâhı (batıdan doğuya), sonra ada geneli.
+         * Teslimat yalnızca dükkânın günlük güzergâhında: batıdan doğuya
+         * Alsancak → Çatalköy. Ada geneli bölgeler kayıtta duruyor ama
+         * PASİF — ileride açılmak istenirse panelden tek tık.
          * ÜCRETLER PLACEHOLDER — gerçek rakamlar panelden girilmeli.
          */
         $zones = [
-            ['Alsancak', 100, 2000, true, null],
-            ['Karaoğlanoğlu', 100, 2000, true, null],
-            ['Zeytinlik', 100, 2000, true, null],
-            ['Girne', 150, 2500, true, 'Merkez.'],
-            ['Karakum', 100, 2000, true, null],
-            ['Ozanköy', 100, 2000, true, null],
-            ['Çatalköy', 100, 2000, true, null],
-            ['Lefkoşa', 200, 3000, true, 'Surlariçi dahil.'],
-            ['Mağusa', 250, 3500, true, null],
-            ['İskele', 300, 4000, false, 'Long Beach bölgesi dahil.'],
-            ['Güzelyurt', 300, 4000, false, null],
-            ['Lefke', 350, 4500, false, null],
+            ['Alsancak', 100, 2000, true, null, true],
+            ['Karaoğlanoğlu', 100, 2000, true, null, true],
+            ['Zeytinlik', 100, 2000, true, null, true],
+            ['Girne', 150, 2500, true, 'Merkez.', true],
+            ['Karakum', 100, 2000, true, null, true],
+            ['Ozanköy', 100, 2000, true, null, true],
+            ['Çatalköy', 100, 2000, true, null, true],
+
+            ['Lefkoşa', 200, 3000, true, 'Surlariçi dahil.', false],
+            ['Mağusa', 250, 3500, true, null, false],
+            ['İskele', 300, 4000, false, 'Long Beach bölgesi dahil.', false],
+            ['Güzelyurt', 300, 4000, false, null, false],
+            ['Lefke', 350, 4500, false, null, false],
         ];
 
-        foreach ($zones as $i => [$name, $fee, $freeOver, $sameDay, $note]) {
+        foreach ($zones as $i => [$name, $fee, $freeOver, $sameDay, $note, $isActive]) {
             DeliveryZone::updateOrCreate(['name' => $name], [
                 'fee' => $fee,
                 'free_over' => $freeOver,
                 'same_day' => $sameDay,
                 'note' => $note,
                 'position' => $i,
-                'is_active' => true,
+                'is_active' => $isActive,
             ]);
         }
 
@@ -356,7 +358,7 @@ class DemoSeeder extends Seeder
     private function content(): void
     {
         $faqs = [
-            ['Aynı gün teslimat yapıyor musunuz?', "Evet. Saat 15:00'e kadar verilen siparişleri Girne, Lefkoşa ve Mağusa'ya aynı gün teslim ediyoruz. Diğer bölgelerde en erken ertesi gün."],
+            ['Aynı gün teslimat yapıyor musunuz?', "Evet. Saat 15:00'e kadar verilen siparişleri Alsancak ile Çatalköy arasındaki tüm bölgelere aynı gün teslim ediyoruz."],
             ['Görseldeki buketin aynısı mı gelecek?', 'Kompozisyon ve renk uyumu aynı olur; tek tek çiçekler o günkü tazeliğe göre değişebilir. Elimizde en iyisi neyse onu kullanırız — hiçbir zaman daha azını değil.'],
             ['Kart notu ekleyebilir miyim?', 'Elbette. Sipariş sırasında yazdığınız notu elle yazıp buketin yanına iliştiriyoruz. Ücretsiz.'],
             ['Alıcı evde yoksa ne oluyor?', 'Önce alıcıyı arıyoruz. Ulaşamazsak sizi arayıp yönlendirmenizi istiyoruz; komşuya bırakma ya da ikinci teslimat için ek ücret almıyoruz.'],

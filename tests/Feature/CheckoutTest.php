@@ -125,7 +125,21 @@ class CheckoutTest extends TestCase
 
     public function test_ayni_gun_teslim_edilmeyen_bolgeye_bugun_secilemez(): void
     {
-        $zone = DeliveryZone::where('same_day', false)->firstOrFail();
+        /*
+         * Kuralın ön koşulu burada kuruluyor; tohum verisine güvenilmiyor.
+         * Teslimat güzergâhı Alsancak–Çatalköy ile sınırlandırılınca AKTİF
+         * bölgelerin hepsi aynı gün oldu ve bu test tohumda böyle bir bölge
+         * bulamayıp "exists" hatasına düşüyordu.
+         */
+        $zone = DeliveryZone::create([
+            'name' => 'Ertesi Gün Test Bölgesi',
+            'fee' => 300,
+            'free_over' => 4000,
+            'same_day' => false,
+            'is_active' => true,
+            'position' => 99,
+        ]);
+
         $product = $this->simpleProduct();
 
         $this->post('/sepet', ['product_id' => $product->id, 'quantity' => 1]);

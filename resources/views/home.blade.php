@@ -204,7 +204,9 @@
                 <div class="section-head">
                     <div class="section-head__text">
                         <span class="eyebrow">Nereye götürelim</span>
-                        <h2 data-reveal="up">Adanın her yerine gidiyoruz</h2>
+                        {{-- Teslimat yalnız güzergâhta; "adanın her yeri"
+                             artık doğru değildi. --}}
+                        <h2 data-reveal="up">Alsancak'tan Çatalköy'e gidiyoruz</h2>
                     </div>
                     <p class="lead" style="max-width:32ch" data-reveal="up">
                         Bölgenizi seçtiğinizde teslimat ücreti ve en erken teslim günü anında görünür.
