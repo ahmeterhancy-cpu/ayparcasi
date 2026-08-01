@@ -104,11 +104,11 @@
             <div class="wrap">
                 <div class="section-head">
                     <div class="section-head__text">
-                        <span class="eyebrow">Nereden başlayalım</span>
-                        <h2 data-reveal="up">Çiçeği sebebiyle seçin</h2>
+                        <span class="eyebrow">Koleksiyonlar</span>
+                        <h2 data-reveal="up">Özel günler ve favoriler</h2>
                     </div>
                     <p class="lead" style="max-width:34ch" data-reveal="up">
-                        Doğum günü mü, özür mü, yeni bir başlangıç mı — hangisi olduğunu söyleyin, gerisini biz düşünelim.
+                        En çok gönderilen kategoriler. Birinden başlayın, gerisi kolay.
                     </p>
                 </div>
             </div>
