@@ -459,6 +459,18 @@ class DemoSeeder extends Seeder
             );
         }
 
+        // İndirim vitrinindeki dikey kart
+        Banner::updateOrCreate(['placement' => 'showcase'], [
+            'eyebrow' => 'Seçili tasarımlar',
+            'title' => 'İndirimdekiler bu ay',
+            'subtitle' => 'Sınırlı sayıda hazırlanan buket ve aranjmanlar.',
+            'image' => $this->img('tulips-vase'),
+            'link' => '/magaza?indirimli=1',
+            'cta_label' => 'Hepsini gör',
+            'is_active' => true,
+            'position' => 0,
+        ]);
+
         Coupon::updateOrCreate(['code' => 'HOSGELDIN'], [
             'type' => 'percent',
             'value' => 10,

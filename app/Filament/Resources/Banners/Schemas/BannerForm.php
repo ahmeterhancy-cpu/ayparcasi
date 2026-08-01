@@ -23,6 +23,7 @@ class BannerForm
                     ->options([
                         'strip' => 'Üst duyuru şeridi (sitenin en üstü)',
                         'promo' => 'Ara kampanya bloğu',
+                        'showcase' => 'İndirim vitrini — ortadaki dikey kart',
                         'hero' => 'Hero alanı',
                     ])
                     ->default('strip')

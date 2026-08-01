@@ -196,7 +196,93 @@
     @endif
 
     {{-- ===================================================================
-         5. KAMPANYA ŞERİTLERİ — panelden yönetilir (Duyurular › yerleşim: promo)
+         5. İNDİRİM VİTRİNİ — solda liste, ortada kart, sağda ürünler
+         =================================================================== --}}
+    @if ($onSale->count() >= 4)
+        @php
+            // Sağ sütun iki kart alıyor; üçüncüsü bu genişlikte alt satıra
+            // sarkıp dengesiz duruyordu.
+            $saleCards = $onSale->take(2);
+            $saleList = $onSale->slice(2, 5);
+        @endphp
+
+        <section class="section section--tight">
+            <div class="wrap">
+                <div class="section-head">
+                    <div class="section-head__text">
+                        <span class="eyebrow">Şu an indirimde</span>
+                        <h2 data-reveal="up">Fiyatı düşenler</h2>
+                    </div>
+                    <a class="link-u" href="{{ route('shop.index', ['indirimli' => 1]) }}">
+                        Tüm indirimliler <x-ay-icon name="arrow-right" />
+                    </a>
+                </div>
+
+                <div class="showcase">
+                    {{-- Sol: küçük liste --}}
+                    @if ($saleList->isNotEmpty())
+                        <ul class="mini-list" data-stagger="60">
+                            @foreach ($saleList as $item)
+                                <li>
+                                    <a class="mini" href="{{ $item->url }}">
+                                        <img class="mini__img" src="{{ img_url($item->images[0] ?? null) }}"
+                                             alt="" loading="lazy" decoding="async" width="120" height="120">
+                                        <span class="mini__body">
+                                            <span class="mini__name">{{ $item->name }}</span>
+                                            <span class="mini__price">
+                                                <strong>{{ money($item->display_price) }}</strong>
+                                                @if ($item->display_compare_at)
+                                                    <del>{{ money($item->display_compare_at) }}</del>
+                                                @endif
+                                            </span>
+                                        </span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+
+                    {{-- Orta: panelden yönetilen dikey tanıtım kartı --}}
+                    @if ($showcase)
+                        @php $url = $showcase->link ?: route('shop.index', ['indirimli' => 1]); @endphp
+                        <a class="promo promo--tall" href="{{ $url }}" data-reveal="up">
+                            @if ($showcase->image)
+                                <img class="promo__img" src="{{ img_url($showcase->image) }}" alt=""
+                                     loading="lazy" decoding="async">
+                            @endif
+                            <span class="promo__shade promo__shade--top"></span>
+
+                            <span class="promo__body">
+                                @if ($showcase->eyebrow)
+                                    <span class="promo__eyebrow">{{ $showcase->eyebrow }}</span>
+                                @endif
+                                @if ($showcase->title)
+                                    <span class="promo__title">{{ $showcase->title }}</span>
+                                @endif
+                                @if ($showcase->subtitle)
+                                    <span class="promo__sub">{{ $showcase->subtitle }}</span>
+                                @endif
+                                <span class="promo__cta">
+                                    {{ $showcase->cta_label ?: 'İncele' }}
+                                    <x-ay-icon name="arrow-right" />
+                                </span>
+                            </span>
+                        </a>
+                    @endif
+
+                    {{-- Sağ: ürün kartları --}}
+                    <div class="showcase__cards">
+                        @foreach ($saleCards as $item)
+                            <x-product-card :product="$item" />
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
+
+    {{-- ===================================================================
+         6. KAMPANYA ŞERİTLERİ — panelden yönetilir (Duyurular › yerleşim: promo)
          =================================================================== --}}
     @if ($promos->isNotEmpty())
         <section class="section section--tight">
@@ -232,7 +318,7 @@
     @endif
 
     {{-- ===================================================================
-         6. TESLİMAT ROTASI — SVG kaydırdıkça çizilir
+         7. TESLİMAT ROTASI — SVG kaydırdıkça çizilir
          =================================================================== --}}
     @if ($zones->isNotEmpty())
         <section class="section route" data-scrub data-scrub-range="enter">
@@ -321,7 +407,7 @@
     @endif
 
     {{-- ===================================================================
-         7. YENİ GELENLER
+         8. YENİ GELENLER
          =================================================================== --}}
     @if ($newest->isNotEmpty())
         <section class="section section--tight">
@@ -346,7 +432,7 @@
     @endif
 
     {{-- ===================================================================
-         8. GALERİ KOLONLARI — farklı hızlarda kayar
+         9. GALERİ KOLONLARI — farklı hızlarda kayar
          =================================================================== --}}
     @if ($gallery->count() >= 6)
         @php $chunks = $gallery->chunk(ceil($gallery->count() / 3)); @endphp
@@ -379,7 +465,7 @@
     @endif
 
     {{-- ===================================================================
-         9. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
+         10. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
          =================================================================== --}}
     @if ($testimonials->isNotEmpty())
         <section class="section section--sand quotes" data-scrub data-scrub-range="cover" data-swap
@@ -423,7 +509,7 @@
     @endif
 
     {{-- ===================================================================
-         10. SSS
+         11. SSS
          =================================================================== --}}
     @if ($faqs->isNotEmpty())
         <section class="section">
@@ -457,7 +543,7 @@
     @endif
 
     {{-- ===================================================================
-         11. GÜNLÜK
+         12. GÜNLÜK
          =================================================================== --}}
     @if ($posts->isNotEmpty())
         <section class="section section--tight">
@@ -490,7 +576,7 @@
     @endif
 
     {{-- ===================================================================
-         12. BÜLTEN
+         13. BÜLTEN
          =================================================================== --}}
     <section class="section section--tight">
         <div class="wrap">
