@@ -14,8 +14,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
 
-// (Placeholder ve Section yukarıda içe aktarıldı)
-
 class OrderForm
 {
     public static function configure(Schema $schema): Schema
