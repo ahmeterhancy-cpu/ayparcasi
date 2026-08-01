@@ -136,9 +136,10 @@
     flex: none;
 }
 
+/* İşaret kare değil (320×293) — yükseklikten sürülür ki ezilmesin */
 .brand__mark {
-    width: 38px;
-    height: 38px;
+    width: auto;
+    height: 40px;
     flex: none;
 }
 
