@@ -456,6 +456,23 @@
     overflow: visible;
 }
 
+/* Hattın iki sürümü var: geniş viewBox masaüstü, dar viewBox mobil için.
+   Tek sürüm 375px'e sığdırılınca ölçek 0.46'ya düşüyor ve durak adları
+   okunmaz oluyordu. */
+.route__svg--narrow {
+    display: none;
+}
+
+@media (max-width: 720px) {
+    .route__svg {
+        display: none;
+    }
+
+    .route__svg--narrow {
+        display: block;
+    }
+}
+
 .route__line {
     fill: none;
     stroke: var(--turq);
@@ -463,13 +480,6 @@
     stroke-linecap: round;
 }
 
-.route__ghost {
-    fill: none;
-    stroke: var(--line-2);
-    stroke-width: 2;
-    stroke-dasharray: 4 8;
-    stroke-linecap: round;
-}
 
 .route__zones {
     display: grid;
@@ -478,12 +488,16 @@
     margin-top: clamp(2rem, 4vw, 3rem);
 }
 
+/* Izgarada kartlar satırın en uzunu kadar uzuyor. Ad tek satır da olsa iki
+   satır da olsa fiyat ve not aynı hizada dursun diye alt blok dibe yaslanır
+   (ürün kartlarındaki yöntemin aynısı). */
 .zone-card {
     padding: 1.1rem 1.2rem;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     background: var(--white);
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: 0.3rem;
     transition:
         transform 420ms var(--ease),
@@ -502,7 +516,10 @@
     font-size: 1.15rem;
 }
 
+/* Alt bloğun başı — boşluk buranın üstünde toplanır */
 .zone-card__fee {
+    margin-top: auto;
+    padding-top: 0.35rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
 }
@@ -520,7 +537,8 @@
 }
 
 .zone-card__badge {
-    justify-self: start;
+    /* flex sütunda justify-self işlemez — karşılığı align-self */
+    align-self: flex-start;
     padding: 0.16rem 0.5rem;
     border-radius: 999px;
     background: var(--sun);

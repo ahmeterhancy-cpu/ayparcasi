@@ -3,21 +3,56 @@
     $cutoffHour = (int) setting('same_day_cutoff_hour', 15);
     $cutoffMinutes = $cutoffHour * 60;
 
-    // Teslimat rotası düğüm konumları (SVG koordinatı)
-    $nodeMap = [
-        'Alsancak – Çatalköy arası' => [268, 52],
-        'Lefke' => [70, 128],
-        'Güzelyurt' => [190, 118],
-        'Girne' => [400, 66],
-        'Lefkoşa' => [468, 122],
-        'İskele' => [672, 84],
-        'Mağusa' => [742, 140],
-    ];
+    /* Teslimat hattı — dükkânın günlük güzergâhı, batıdan doğuya.
+       Ada geneli bölgeler bu hattın altındaki kartlarda listeleniyor. */
+    $routeStops = ['Alsancak', 'Karaoğlanoğlu', 'Zeytinlik', 'Girne', 'Karakum', 'Ozanköy', 'Çatalköy'];
 
-    // Haritada tam ad çok uzun kalanlar için kısa etiket
-    $nodeLabels = [
-        'Alsancak – Çatalköy arası' => 'Alsancak – Çatalköy',
-    ];
+    /* Duraklar eğrinin ÜSTÜNE otursun diye koordinatlar elle seçilmiyor,
+       kübik Bézier formülünden hesaplanıyor. Böylece eğriyi değiştirsek
+       bile noktalar hattan kopmuyor. */
+    $buildRoute = function (array $names, array $p0, array $p1, array $p2, array $p3) {
+        $at = function (float $t) use ($p0, $p1, $p2, $p3): array {
+            $u = 1 - $t;
+
+            return [
+                round($u ** 3 * $p0[0] + 3 * $u ** 2 * $t * $p1[0] + 3 * $u * $t ** 2 * $p2[0] + $t ** 3 * $p3[0], 1),
+                round($u ** 3 * $p0[1] + 3 * $u ** 2 * $t * $p1[1] + 3 * $u * $t ** 2 * $p2[1] + $t ** 3 * $p3[1], 1),
+            ];
+        };
+
+        $n = count($names);
+
+        return [
+            'path' => "M{$p0[0]} {$p0[1]} C {$p1[0]} {$p1[1]}, {$p2[0]} {$p2[1]}, {$p3[0]} {$p3[1]}",
+            'stops' => collect($names)->map(function (string $name, int $i) use ($at, $n) {
+                // Uçlardan pay bırakıp duraklar eğriye eşit aralıkla dağıtılır
+                [$x, $y] = $at(0.06 + $i * (0.88 / max(1, $n - 1)));
+
+                return [
+                    'name' => $name,
+                    'x' => $x,
+                    'y' => $y,
+                    // Geniş sürümde etiketler bir üstte bir altta
+                    'above' => $i % 2 === 0,
+                ];
+            }),
+        ];
+    };
+
+    /* Kontrol noktalarının X'leri aralığın tam 1/3 ve 2/3'üne konuyor.
+       Böylece x(t) t'ye göre DOĞRUSAL oluyor ve duraklar yatayda eşit
+       aralıklı diziliyor; aksi halde eğrinin uçlarında sıkışıyorlardı
+       (Alsancak ile Karaoğlanoğlu üst üste biniyordu). */
+
+    // Geniş ekran: viewBox 820×210 — 58 → 762 arası, 1/3 ve 2/3: 293 ve 527
+    $wide = $buildRoute($routeStops, [58, 132], [293, 34], [527, 34], [762, 132]);
+    $routePath = $wide['path'];
+    $routeStops = $wide['stops'];
+
+    // Dar ekran: viewBox 360×150 — 18 → 342 arası, 1/3 ve 2/3: 126 ve 234
+    $narrow = $buildRoute($routeStops->pluck('name')->all(), [18, 62], [126, 20], [234, 20], [342, 62]);
+    $routePathNarrow = $narrow['path'];
+    $routeStopsNarrow = $narrow['stops'];
 @endphp
 
 <x-layouts.app :transparent-header="true">
@@ -177,32 +212,50 @@
                 </div>
 
                 <div class="route__art">
-                    <svg class="route__svg" viewBox="0 0 820 200" aria-hidden="true">
-                        <path class="route__ghost"
-                              d="M40 150 C 140 60, 260 40, 380 70 S 560 150, 680 90 S 780 60, 800 96" />
-                        <path class="route__line" data-draw
-                              d="M40 150 C 140 60, 260 40, 380 70 S 560 150, 680 90 S 780 60, 800 96" />
+                    <svg class="route__svg" viewBox="0 0 820 210" aria-hidden="true">
+                        {{-- Hat baştan sona kesiksiz çizili; kaydırdıkça
+                             çizilme efekti ve arkasındaki kesikli iz kaldırıldı. --}}
+                        <path class="route__line" d="{{ $routePath }}" />
 
-                        @foreach ($zones as $i => $zone)
-                            @php
-                                $pos = $nodeMap[$zone->name] ?? [80 + $i * (700 / max(1, $zones->count())), 110];
-                                // İlk bölge dükkânın ana teslimat şeridi — öne çıkar
-                                $isPrimary = $i === 0;
-                            @endphp
+                        @foreach ($routeStops as $stop)
                             <g>
-                                @if ($isPrimary)
-                                    <circle cx="{{ $pos[0] }}" cy="{{ $pos[1] }}" r="13"
-                                            fill="var(--sun)" opacity=".25" />
-                                @endif
-                                <circle cx="{{ $pos[0] }}" cy="{{ $pos[1] }}" r="{{ $isPrimary ? 8 : 6 }}"
-                                        fill="{{ $zone->same_day ? 'var(--sun)' : 'var(--ink-3)' }}" />
-                                <text x="{{ $pos[0] }}" y="{{ $pos[1] - ($isPrimary ? 19 : 14) }}" text-anchor="middle"
-                                      font-size="{{ $isPrimary ? 15 : 13 }}" font-weight="{{ $isPrimary ? 800 : 700 }}"
-                                      fill="var(--ink)"
-                                      font-family="Manrope, sans-serif">{{ $nodeLabels[$zone->name] ?? $zone->name }}</text>
+                                <circle cx="{{ $stop['x'] }}" cy="{{ $stop['y'] }}" r="12"
+                                        fill="var(--sun)" opacity=".22" />
+                                <circle cx="{{ $stop['x'] }}" cy="{{ $stop['y'] }}" r="6.5" fill="var(--sun)" />
+                                <text x="{{ $stop['x'] }}" y="{{ $stop['y'] + ($stop['above'] ? -19 : 27) }}"
+                                      text-anchor="middle" font-size="13" font-weight="700"
+                                      fill="var(--ink)" font-family="Manrope, sans-serif">{{ $stop['name'] }}</text>
                             </g>
                         @endforeach
                     </svg>
+
+                    {{-- Mobil sürüm: aynı hat, dar viewBox'la kurulmuş.
+                         Geniş sürüm 375px'e sığdırılınca ölçek 0.46'ya
+                         düşüyor ve durak adları okunmaz oluyordu; burada
+                         ölçek ~1 olduğu için yazı boyu gerçek boyunda kalıyor.
+                         Yedi ad yan yana sığmadığından etiketler eğik. --}}
+                    <svg class="route__svg route__svg--narrow" viewBox="0 0 360 150" aria-hidden="true">
+                        <path class="route__line" d="{{ $routePathNarrow }}" />
+
+                        @foreach ($routeStopsNarrow as $stop)
+                            <g>
+                                <circle cx="{{ $stop['x'] }}" cy="{{ $stop['y'] }}" r="9"
+                                        fill="var(--sun)" opacity=".22" />
+                                <circle cx="{{ $stop['x'] }}" cy="{{ $stop['y'] }}" r="5" fill="var(--sun)" />
+                                {{-- rotate NEGATİF: pozitif açı saat yönünde
+                                     döndürüp etiketi hattın ÜSTÜNE atıyor. --}}
+                                <text x="{{ $stop['x'] }}" y="{{ $stop['y'] + 15 }}" text-anchor="end"
+                                      transform="rotate(-55 {{ $stop['x'] }} {{ $stop['y'] + 15 }})"
+                                      font-size="12" font-weight="700"
+                                      fill="var(--ink)" font-family="Manrope, sans-serif">{{ $stop['name'] }}</text>
+                            </g>
+                        @endforeach
+                    </svg>
+
+                    {{-- SVG'ler aria-hidden; ekran okuyucu için metin karşılık --}}
+                    <p class="sr-only">
+                        Teslimat hattımız: {{ $routeStops->pluck('name')->implode(', ') }}.
+                    </p>
                 </div>
 
                 <div class="route__zones" data-stagger="70">
