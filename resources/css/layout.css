@@ -71,6 +71,19 @@
     color: var(--sun-2);
     text-decoration: underline;
     text-underline-offset: 3px;
+    /* Bağlantı kendi içinde bölünmesin */
+    white-space: nowrap;
+}
+
+/* Dar ekranda duyuru ikinci satıra taşıyor — bu uzunlukta kaçınılmaz.
+   balance iki satırı eşitler; yoksa bağlantı tek başına alta düşüyordu. */
+@media (max-width: 640px) {
+    .announce {
+        padding-block: 0.5rem;
+        letter-spacing: 0.02em;
+        line-height: 1.45;
+        text-wrap: balance;
+    }
 }
 
 /* --------------------------------------------------------------------------
