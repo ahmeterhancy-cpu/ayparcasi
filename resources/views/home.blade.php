@@ -3,14 +3,6 @@
     $cutoffHour = (int) setting('same_day_cutoff_hour', 15);
     $cutoffMinutes = $cutoffHour * 60;
 
-    // Kart notu bölümü için hazır öneriler
-    $suggestions = [
-        'Doğum günün kutlu olsun, en güzel yılın olsun.',
-        'Seni seviyorum. Her günün böyle güzel olsun.',
-        'Nice mutlu yıllara. İyi ki varsınız.',
-        'Geçmiş olsun, bir an önce iyileş.',
-    ];
-
     // Teslimat rotası düğüm konumları (SVG koordinatı)
     $nodeMap = [
         'Lefke' => [70, 128],
@@ -246,47 +238,7 @@
     @endif
 
     {{-- ===================================================================
-         7. KART NOTU — canlı yazan kart
-         =================================================================== --}}
-    <section class="section note" data-scrub data-scrub-range="enter">
-        <div class="wrap note__grid">
-            <div>
-                <span class="eyebrow">Kart notu</span>
-                <h2 style="margin-block:.8rem 1.1rem" data-reveal="up">
-                    Asıl hediye, <span class="serif-em">yazdığınız cümle</span>
-                </h2>
-                <p class="lead">
-                    Her siparişe elle yazılmış bir kart ekliyoruz. Şimdi deneyin — yazdıkça kartta görün.
-                </p>
-
-                <div class="field" style="margin-top:1.5rem;max-width:30rem">
-                    <label for="kart-notu">Notunuz</label>
-                    <textarea class="textarea" id="kart-notu" maxlength="200"
-                              placeholder="Kalbinizden geçeni yazın…" data-card-input></textarea>
-                    <span class="field__hint">En fazla 200 karakter. Siparişte de düzenleyebilirsiniz.</span>
-                </div>
-
-                <div class="note__chips">
-                    @foreach ($suggestions as $s)
-                        <button type="button" class="chip" data-card-suggestion="{{ $s }}">{{ Str::limit($s, 26) }}</button>
-                    @endforeach
-                </div>
-            </div>
-
-            <div data-parallax="-0.06">
-                <div class="note__card">
-                    <p class="note__text is-empty" data-card-out
-                       data-placeholder="Buraya yazdıklarınız, kartın üzerinde tam olarak böyle görünecek.">
-                        Buraya yazdıklarınız, kartın üzerinde tam olarak böyle görünecek.
-                    </p>
-                    <span class="note__sign">{{ setting('shop_name', 'Ay Parçası') }}</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ===================================================================
-         8. GALERİ KOLONLARI — farklı hızlarda kayar
+         7. GALERİ KOLONLARI — farklı hızlarda kayar
          =================================================================== --}}
     @if ($gallery->count() >= 6)
         @php $chunks = $gallery->chunk(ceil($gallery->count() / 3)); @endphp
@@ -319,7 +271,7 @@
     @endif
 
     {{-- ===================================================================
-         9. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
+         8. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
          =================================================================== --}}
     @if ($testimonials->isNotEmpty())
         <section class="section section--sand quotes" data-scrub data-scrub-range="cover" data-swap
@@ -363,7 +315,7 @@
     @endif
 
     {{-- ===================================================================
-         10. SSS
+         9. SSS
          =================================================================== --}}
     @if ($faqs->isNotEmpty())
         <section class="section">
@@ -397,7 +349,7 @@
     @endif
 
     {{-- ===================================================================
-         11. GÜNLÜK
+         10. GÜNLÜK
          =================================================================== --}}
     @if ($posts->isNotEmpty())
         <section class="section section--tight">
@@ -430,7 +382,7 @@
     @endif
 
     {{-- ===================================================================
-         12. BÜLTEN
+         11. BÜLTEN
          =================================================================== --}}
     <section class="section section--tight">
         <div class="wrap">

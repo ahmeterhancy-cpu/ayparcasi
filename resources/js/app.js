@@ -270,22 +270,14 @@ function initStockInquiry(root = document) {
 }
 
 /* -------------------------------------------------------------------------
- * Kart notu — canlı önizleme
+ * Kart notu — hazır cümle çipleri (kasa, 3. adım)
+ *
+ * Eskiden canlı önizleme kartı da vardı ve önizleme yoksa fonksiyon erken
+ * çıkıyordu; kasada önizleme hiç olmadığı için çipler orada çalışmıyordu.
  * ---------------------------------------------------------------------- */
-function initCardPreview() {
+function initCardSuggestions() {
     const input = document.querySelector('[data-card-input]');
-    const out = document.querySelector('[data-card-out]');
-    if (!input || !out) return;
-
-    const placeholder = out.dataset.placeholder || '';
-
-    const sync = () => {
-        out.textContent = input.value.trim() || placeholder;
-        out.classList.toggle('is-empty', !input.value.trim());
-    };
-
-    input.addEventListener('input', sync);
-    sync();
+    if (!input) return;
 
     document.querySelectorAll('[data-card-suggestion]').forEach((chip) => {
         chip.addEventListener('click', () => {
@@ -701,7 +693,7 @@ function boot() {
     initFavs();
     syncFavs();
     initQuickView();
-    initCardPreview();
+    initCardSuggestions();
     initCountdowns();
     initToasts();
     initCartForms();
