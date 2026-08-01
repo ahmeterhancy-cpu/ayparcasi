@@ -1,0 +1,1038 @@
+/* ==========================================================================
+   Ana sayfa bölümleri
+   Her bölüm kaydırmaya farklı bir şekilde tepki verir; hiçbiri tekrar etmez.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Hero — mozaik perde açılışı, ardından kaydırdıkça çerçeveye dönüşme
+   -------------------------------------------------------------------------- */
+
+.hero {
+    position: relative;
+    height: 178vh; /* sticky iç kabuğun kaydırma payı */
+    margin-top: calc(var(--header-h) * -1);
+}
+
+.hero__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+/* Kaydırdıkça görsel kenarlardan içeri çekilir, köşeleri yuvarlanır */
+.hero__frame {
+    position: absolute;
+    inset: calc(var(--p, 0) * 3.4vw);
+    border-radius: calc(var(--p, 0) * 30px);
+    overflow: hidden;
+    background: var(--ink);
+    z-index: 0;
+}
+
+.hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(calc(1.14 - var(--p, 0) * 0.14)) translate3d(0, calc(var(--p, 0) * -4vh), 0);
+    transform-origin: center 40%;
+}
+
+/* Okunabilirlik örtüsü — alt tarafta koyulaşır */
+.hero__veil {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(14, 44, 52, 0.52) 0%, rgba(14, 44, 52, 0.12) 34%, rgba(14, 44, 52, 0.78) 100%);
+}
+
+/* Mozaik perde — logonun halkasındaki üçgenlerden esinlendi.
+   Açılışta karo karo kalkar. */
+.hero__curtain {
+    position: absolute;
+    inset: -1px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Her karo kendi üst kenarına doğru kapanır; gecikme çaprazdan yayılır */
+.hero__curtain i {
+    background: var(--paper);
+    transform-origin: center top;
+    will-change: transform;
+    animation: curtain-lift 820ms var(--ease) forwards;
+    animation-delay: calc(var(--i) * 78ms);
+}
+
+.hero__curtain i:nth-child(2n) {
+    background: var(--paper-2);
+}
+
+.hero__curtain i:nth-child(3n) {
+    background: var(--sand);
+}
+
+@keyframes curtain-lift {
+    to {
+        transform: scaleY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero__curtain {
+        display: none;
+    }
+}
+
+.hero__content {
+    position: relative;
+    z-index: 4;
+    width: 100%;
+    max-width: var(--page);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    padding-top: var(--header-h);
+    color: #ffffff;
+    opacity: calc(1 - var(--p, 0) * 1.35);
+    transform: translate3d(0, calc(var(--p, 0) * -7vh), 0);
+}
+
+.hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.19em;
+    text-transform: uppercase;
+    color: #ffffff;
+    opacity: 0;
+    animation: fade-up 900ms var(--ease) 700ms forwards;
+}
+
+.hero__eyebrow::before {
+    content: '';
+    width: 34px;
+    height: 1.5px;
+    background: var(--sun);
+}
+
+.hero__title {
+    margin-top: 1.1rem;
+    max-width: 15ch;
+    color: #ffffff;
+}
+
+.hero__title em {
+    font-style: italic;
+    color: var(--sun-2);
+}
+
+.hero__sub {
+    margin-top: 1.5rem;
+    max-width: 44ch;
+    font-size: var(--t-lead);
+    color: rgba(255, 255, 255, 0.9);
+    opacity: 0;
+    animation: fade-up 900ms var(--ease) 1150ms forwards;
+}
+
+.hero__cta {
+    margin-top: 2.2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    opacity: 0;
+    animation: fade-up 900ms var(--ease) 1300ms forwards;
+}
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 1.4rem, 0);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Kaydırma daveti */
+.hero__scroll {
+    position: absolute;
+    left: 50%;
+    bottom: 2.2rem;
+    translate: -50% 0;
+    z-index: 4;
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+    font-size: var(--t-micro);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.75);
+    opacity: calc(1 - var(--p, 0) * 3);
+}
+
+.hero__scroll i {
+    display: block;
+    width: 1px;
+    height: 46px;
+    background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.9));
+    animation: scroll-pulse 2.1s var(--ease-in-out) infinite;
+}
+
+@keyframes scroll-pulse {
+    0%,
+    100% {
+        transform: scaleY(0.35);
+        transform-origin: top;
+        opacity: 0.4;
+    }
+    50% {
+        transform: scaleY(1);
+        transform-origin: top;
+        opacity: 1;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   2. Aynı gün teslimat sayacı — canlı, kullanışlı, süs değil
+   -------------------------------------------------------------------------- */
+
+.cutoff {
+    background: var(--ink);
+    color: var(--paper);
+    padding-block: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.cutoff__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+}
+
+.cutoff__msg {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-size: clamp(1rem, 1.7vw, 1.3rem);
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+}
+
+.cutoff__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--sun);
+    flex: none;
+    position: relative;
+}
+
+.cutoff__dot::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid var(--sun);
+    opacity: 0;
+    animation: ping 2.4s var(--ease-in-out) infinite;
+}
+
+@keyframes ping {
+    0% {
+        transform: scale(0.6);
+        opacity: 0.9;
+    }
+    70%,
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+[data-cutoff][data-state='closed'] .cutoff__open,
+[data-cutoff]:not([data-state='closed']) .cutoff__closed {
+    display: none;
+}
+
+[data-cutoff][data-state='closed'] .cutoff__dot {
+    background: var(--ink-3);
+}
+
+[data-cutoff][data-state='urgent'] .cutoff__dot {
+    background: var(--coral);
+}
+
+.cutoff strong {
+    color: var(--sun);
+    font-variant-numeric: tabular-nums;
+}
+
+.cutoff__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.6rem;
+    font-size: var(--t-small);
+    color: color-mix(in srgb, var(--paper) 68%, transparent);
+}
+
+.cutoff__meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.cutoff__meta svg {
+    width: 16px;
+    height: 16px;
+    color: var(--turq-2);
+}
+
+/* --------------------------------------------------------------------------
+   3. "Ne için çiçek?" — genişleyen özel gün panelleri
+   -------------------------------------------------------------------------- */
+
+.panels {
+    display: flex;
+    gap: 0.5rem;
+    height: clamp(24rem, 56vh, 34rem);
+}
+
+.panel {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--sand);
+    transition: flex-grow 780ms var(--ease);
+}
+
+.panel.is-active {
+    flex-grow: 3.4;
+}
+
+.panel__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.45) brightness(0.72);
+    transform: scale(1.08);
+    transition:
+        filter 900ms var(--ease),
+        transform 1100ms var(--ease);
+}
+
+.panel.is-active .panel__img {
+    filter: none;
+    transform: scale(1);
+}
+
+.panel__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(14, 44, 52, 0.15), rgba(14, 44, 52, 0.85));
+}
+
+.panel__body {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: clamp(1rem, 1.8vw, 1.6rem);
+    color: #ffffff;
+    display: grid;
+    gap: 0.5rem;
+}
+
+/* Dar haldeyken başlık dikey durur — panelin kendisi bir sırt gibi */
+.panel__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.7vw, 1.45rem);
+    line-height: 1.1;
+    writing-mode: vertical-rl;
+    position: absolute;
+    left: clamp(1rem, 1.8vw, 1.6rem);
+    bottom: clamp(1rem, 1.8vw, 1.6rem);
+    transition:
+        writing-mode 0s 380ms,
+        opacity 380ms var(--ease);
+}
+
+.panel.is-active .panel__title {
+    writing-mode: horizontal-tb;
+    position: static;
+}
+
+.panel__desc,
+.panel__link {
+    opacity: 0;
+    transform: translateY(0.8rem);
+    transition:
+        opacity 520ms var(--ease) 220ms,
+        transform 620ms var(--ease) 220ms;
+}
+
+.panel.is-active .panel__desc,
+.panel.is-active .panel__link {
+    opacity: 1;
+    transform: none;
+}
+
+.panel__desc {
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 34ch;
+}
+
+.panel__count {
+    position: absolute;
+    top: clamp(0.9rem, 1.6vw, 1.4rem);
+    left: clamp(0.9rem, 1.6vw, 1.4rem);
+    font-size: var(--t-micro);
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--sun);
+}
+
+/* Mobilde panel yerine dikey kartlar */
+@media (max-width: 860px) {
+    .panels {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        height: auto;
+        gap: 0.75rem;
+    }
+
+    .panel {
+        aspect-ratio: 3 / 4;
+    }
+
+    .panel__img {
+        filter: none;
+        transform: none;
+    }
+
+    .panel__title {
+        writing-mode: horizontal-tb;
+        position: static;
+    }
+
+    .panel__desc {
+        display: none;
+    }
+
+    .panel__link {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   4. Spotlight — yapışkan görsel, yanından geçen üç metin
+   -------------------------------------------------------------------------- */
+
+.spot {
+    position: relative;
+}
+
+.spot__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .spot__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.spot__media {
+    position: sticky;
+    top: calc(var(--header-h) + 3rem);
+    aspect-ratio: 4 / 5;
+    border-radius: var(--arch);
+    overflow: hidden;
+    background: var(--sand);
+}
+
+@media (max-width: 900px) {
+    .spot__media {
+        position: relative;
+        top: 0;
+    }
+}
+
+.spot__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.08);
+    transition:
+        opacity 900ms var(--ease),
+        transform 1400ms var(--ease);
+}
+
+.spot__media img.is-active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.spot__steps {
+    display: grid;
+    gap: clamp(3rem, 12vh, 8rem);
+    padding-block: clamp(2rem, 8vh, 6rem);
+}
+
+.spot__step {
+    opacity: 0.32;
+    transition: opacity 620ms var(--ease);
+}
+
+.spot__step.is-active {
+    opacity: 1;
+}
+
+.spot__step h3 {
+    margin-block: 0.8rem 0.7rem;
+}
+
+.spot__no {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--sea);
+    letter-spacing: 0.1em;
+}
+
+/* --------------------------------------------------------------------------
+   5. Mozaik halka — logonun halkası, kaydırdıkça döner
+   -------------------------------------------------------------------------- */
+
+.ring {
+    background: var(--ink);
+    color: var(--paper);
+    overflow: hidden;
+}
+
+.ring__grid {
+    display: grid;
+    grid-template-columns: 1fr minmax(18rem, 26rem) 1fr;
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+@media (max-width: 980px) {
+    .ring__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ring__art {
+    position: relative;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+}
+
+.ring__svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(calc(var(--p, 0) * 180deg - 40deg));
+}
+
+.ring__core {
+    position: absolute;
+    inset: 26%;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    background: radial-gradient(circle at 40% 35%, var(--sun-2), var(--sun) 55%, var(--sun-deep));
+    color: var(--ink);
+    padding: 1.2rem;
+}
+
+.ring__core span {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.7vw, 1.35rem);
+    line-height: 1.1;
+}
+
+.ring__list {
+    display: grid;
+    gap: 1.6rem;
+}
+
+.ring__item {
+    display: grid;
+    gap: 0.35rem;
+    padding-left: 1.25rem;
+    border-left: 2px solid color-mix(in srgb, var(--paper) 18%, transparent);
+    transition: border-color 520ms var(--ease);
+}
+
+.ring__item:hover {
+    border-left-color: var(--sun);
+}
+
+.ring__item h3 {
+    font-size: 1.15rem;
+}
+
+.ring__item p {
+    font-size: 0.92rem;
+    color: color-mix(in srgb, var(--paper) 68%, transparent);
+}
+
+.ring__stat {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1;
+    color: var(--sun);
+    font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   6. Teslimat rotası — SVG kaydırdıkça çizilir
+   -------------------------------------------------------------------------- */
+
+.route {
+    position: relative;
+}
+
+.route__art {
+    position: relative;
+    margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.route__svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.route__line {
+    fill: none;
+    stroke: var(--turq);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.route__ghost {
+    fill: none;
+    stroke: var(--line-2);
+    stroke-width: 2;
+    stroke-dasharray: 4 8;
+    stroke-linecap: round;
+}
+
+.route__zones {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 0.75rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+.zone-card {
+    padding: 1.1rem 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    display: grid;
+    gap: 0.3rem;
+    transition:
+        transform 420ms var(--ease),
+        box-shadow 420ms var(--ease),
+        border-color 420ms var(--ease);
+}
+
+.zone-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--turq);
+    box-shadow: var(--shadow);
+}
+
+.zone-card__name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+}
+
+.zone-card__fee {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.zone-card__note {
+    font-size: 0.8rem;
+    color: var(--ink-3);
+}
+
+/* --------------------------------------------------------------------------
+   7. Kart notu — canlı yazan kart
+   -------------------------------------------------------------------------- */
+
+.note {
+    background: var(--paper-2);
+}
+
+.note__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+}
+
+@media (max-width: 860px) {
+    .note__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Gerçek bir kart gibi — hafif eğik, gölgeli */
+.note__card {
+    position: relative;
+    aspect-ratio: 7 / 5;
+    background: var(--white);
+    border-radius: 6px;
+    box-shadow: var(--shadow-lg);
+    padding: clamp(1.6rem, 3vw, 2.6rem);
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    text-align: center;
+    transform: rotate(-2.2deg) translate3d(0, var(--shift, 0), 0);
+    transition: transform 700ms var(--ease);
+}
+
+.note__card::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    pointer-events: none;
+}
+
+/* Köşedeki küçük mozaik işaret */
+.note__card::after {
+    content: '';
+    position: absolute;
+    top: 26px;
+    left: 26px;
+    width: 26px;
+    height: 26px;
+    background-image:
+        linear-gradient(135deg, var(--turq) 25%, transparent 25%),
+        linear-gradient(225deg, var(--sun) 25%, transparent 25%);
+    background-size: 13px 13px;
+    opacity: 0.8;
+}
+
+.note__text {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.15rem, 2.2vw, 1.75rem);
+    line-height: 1.4;
+    color: var(--ink);
+    max-width: 22ch;
+    text-wrap: balance;
+}
+
+.note__text.is-empty {
+    color: var(--ink-3);
+}
+
+.note__sign {
+    margin-top: 1.2rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+}
+
+.note__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1rem;
+}
+
+.chip {
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-2);
+    background: var(--white);
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition:
+        border-color 240ms var(--ease),
+        background-color 240ms var(--ease),
+        transform 240ms var(--ease);
+}
+
+.chip:hover {
+    border-color: var(--sea);
+    background: var(--turq-3);
+    transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------------------------
+   8. Galeri kolonları — farklı hızlarda kayan üç sütun
+   -------------------------------------------------------------------------- */
+
+.cols {
+    overflow: clip;
+}
+
+.cols__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(0.6rem, 1.4vw, 1.1rem);
+    height: clamp(28rem, 82vh, 46rem);
+}
+
+@media (max-width: 700px) {
+    .cols__grid {
+        grid-template-columns: repeat(2, 1fr);
+        height: 32rem;
+    }
+    .cols__col:nth-child(3) {
+        display: none;
+    }
+}
+
+.cols__col {
+    display: grid;
+    gap: clamp(0.6rem, 1.4vw, 1.1rem);
+    align-content: start;
+    transform: translate3d(0, var(--shift, 0), 0);
+    will-change: transform;
+}
+
+.cols__col figure {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--sand);
+}
+
+.cols__col img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    transition: transform 900ms var(--ease);
+}
+
+.cols__col figure:hover img {
+    transform: scale(1.05);
+}
+
+/* --------------------------------------------------------------------------
+   9. Yorumlar — tek büyük alıntı
+   -------------------------------------------------------------------------- */
+
+.quotes {
+    text-align: center;
+}
+
+.quotes__stage {
+    position: relative;
+    min-height: clamp(15rem, 32vh, 20rem);
+    display: grid;
+    place-items: center;
+}
+
+.quote {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 1.2rem;
+    opacity: 0;
+    transform: translateY(1.4rem) scale(0.98);
+    transition:
+        opacity 700ms var(--ease),
+        transform 900ms var(--ease);
+    pointer-events: none;
+}
+
+.quote.is-active {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+}
+
+.quote p {
+    font-family: var(--font-display);
+    font-size: clamp(1.35rem, 3vw, 2.35rem);
+    line-height: 1.28;
+    letter-spacing: -0.018em;
+    max-width: 24ch;
+    text-wrap: balance;
+}
+
+.quote cite {
+    font-style: normal;
+    font-size: var(--t-small);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sea);
+}
+
+.stars {
+    display: inline-flex;
+    gap: 3px;
+    color: var(--sun);
+}
+
+.stars svg {
+    width: 17px;
+    height: 17px;
+}
+
+.quotes__dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 2rem;
+}
+
+.quotes__dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--line-2);
+    transition:
+        width 420ms var(--ease),
+        background-color 420ms var(--ease);
+}
+
+.quotes__dots i.is-on {
+    width: 24px;
+    border-radius: 999px;
+    background: var(--sun);
+}
+
+/* --------------------------------------------------------------------------
+   10. Günlük (blog)
+   -------------------------------------------------------------------------- */
+
+.journal {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 2.25rem);
+}
+
+.journal__item figure {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 3 / 2;
+    background: var(--sand);
+    margin-bottom: 1.1rem;
+}
+
+.journal__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 900ms var(--ease);
+}
+
+.journal__item:hover img {
+    transform: scale(1.05);
+}
+
+.journal__meta {
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sea);
+}
+
+.journal__item h3 {
+    margin-block: 0.55rem 0.5rem;
+    font-size: 1.28rem;
+}
+
+/* --------------------------------------------------------------------------
+   11. Bülten
+   -------------------------------------------------------------------------- */
+
+.news {
+    background: var(--turq-3);
+    border-radius: var(--radius-lg);
+    padding: clamp(2rem, 5vw, 4rem);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: center;
+}
+
+@media (max-width: 780px) {
+    .news {
+        grid-template-columns: 1fr;
+    }
+}
+
+.news__form {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.news__form .input {
+    flex: 1 1 14rem;
+}
+
+/* --------------------------------------------------------------------------
+   12. Güven şeridi
+   -------------------------------------------------------------------------- */
+
+.trust {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    padding-block: clamp(2.5rem, 5vw, 4rem);
+    border-block: 1px solid var(--line);
+}
+
+.trust__item {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.trust__item svg {
+    width: 26px;
+    height: 26px;
+    color: var(--sea);
+    margin-bottom: 0.35rem;
+}
+
+.trust__item h3 {
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+}
+
+.trust__item p {
+    font-size: 0.87rem;
+    color: var(--ink-3);
+}

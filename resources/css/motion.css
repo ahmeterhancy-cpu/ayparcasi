@@ -1,0 +1,203 @@
+/* ==========================================================================
+   Hareket ilkelleri
+   motion.js yalnızca sınıf ve CSS değişkeni yazar; hareketin tamamı burada
+   tanımlıdır. Böylece prefers-reduced-motion tek noktadan kapatılabilir.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Reveal — görünür olunca içeri gel
+   -------------------------------------------------------------------------- */
+
+[data-reveal] {
+    --delay: 0ms;
+    --dur: 900ms;
+    transition:
+        opacity var(--dur) var(--ease) var(--delay),
+        transform var(--dur) var(--ease) var(--delay),
+        clip-path var(--dur) var(--ease) var(--delay);
+    will-change: opacity, transform;
+}
+
+[data-reveal='up'] {
+    opacity: 0;
+    transform: translate3d(0, 2.2rem, 0);
+}
+
+[data-reveal='fade'] {
+    opacity: 0;
+}
+
+[data-reveal='scale'] {
+    opacity: 0;
+    transform: scale(1.06);
+}
+
+/* Perde — görsel aşağıdan açılır */
+[data-reveal='mask'] {
+    clip-path: inset(100% 0 0 0);
+}
+
+/* Yandan perde — kart ızgaraları için */
+[data-reveal='wipe'] {
+    clip-path: inset(0 100% 0 0);
+}
+
+[data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 0 0);
+}
+
+/* Sıralı giriş: ebeveyne data-stagger, çocuklara gecikme */
+[data-stagger] > * {
+    --delay: 0ms;
+    opacity: 0;
+    transform: translate3d(0, 1.6rem, 0);
+    transition:
+        opacity 800ms var(--ease) var(--delay),
+        transform 800ms var(--ease) var(--delay);
+}
+
+[data-stagger] > *.is-in {
+    opacity: 1;
+    transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   2. Split — kelime / harf yükselmesi
+   -------------------------------------------------------------------------- */
+
+.is-split .sp {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding-bottom: 0.06em;
+    margin-bottom: -0.06em;
+}
+
+.is-split .sp-i {
+    display: inline-block;
+    transform: translate3d(0, 105%, 0) rotate(2.5deg);
+    transition:
+        transform 1000ms var(--ease);
+    transition-delay: calc(var(--i) * 55ms + var(--split-delay, 0ms));
+    transform-origin: left top;
+}
+
+.is-split.is-in .sp-i,
+.is-in .is-split .sp-i {
+    transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   3. Parallax — motor --shift yazar
+   -------------------------------------------------------------------------- */
+
+[data-parallax] {
+    --shift: 0vh;
+    will-change: transform;
+}
+
+.parallax-y {
+    transform: translate3d(0, var(--shift), 0);
+}
+
+.parallax-y-neg {
+    transform: translate3d(0, calc(var(--shift) * -1), 0);
+}
+
+/* --------------------------------------------------------------------------
+   4. Scrub'a bağlı yardımcı sınıflar
+   --p değişkeni 0 → 1 arası motor tarafından yazılır
+   -------------------------------------------------------------------------- */
+
+[data-scrub] {
+    --p: 0;
+}
+
+/* --------------------------------------------------------------------------
+   5. Manyetik düğme
+   -------------------------------------------------------------------------- */
+
+[data-magnetic] {
+    --mx: 0px;
+    --my: 0px;
+    transform: translate3d(var(--mx), var(--my), 0);
+}
+
+/* --------------------------------------------------------------------------
+   6. Eğim (tilt)
+   -------------------------------------------------------------------------- */
+
+[data-tilt] {
+    --rx: 0deg;
+    --ry: 0deg;
+    transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+    transition: transform 500ms var(--ease);
+}
+
+[data-tilt]:hover {
+    transition-duration: 120ms;
+}
+
+/* --------------------------------------------------------------------------
+   7. SVG çizim
+   -------------------------------------------------------------------------- */
+
+/* --p, üstteki [data-scrub] kabından miras alınır */
+[data-draw] {
+    stroke-dashoffset: calc(var(--len, 1000) * (1 - var(--p, 0)));
+}
+
+/* --------------------------------------------------------------------------
+   8. Hareket kapalıyken her şey yerinde ve görünür
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    [data-reveal],
+    [data-stagger] > * {
+        opacity: 1 !important;
+        transform: none !important;
+        clip-path: none !important;
+    }
+
+    .is-split .sp-i {
+        transform: none !important;
+    }
+
+    [data-parallax] {
+        --shift: 0vh !important;
+    }
+
+    [data-tilt] {
+        transform: none !important;
+    }
+
+    /* Çizim animasyonu yerine yol baştan tam görünsün */
+    [data-draw] {
+        stroke-dashoffset: 0 !important;
+    }
+}
+
+/* JS kapalı/başarısızsa içerik yine de görünür olsun.
+   .js sınıfı <head> içindeki tek satırlık betikle anında eklenir,
+   böylece açılışta yanıp sönme olmaz. */
+html:not(.js) [data-reveal],
+html:not(.js) [data-stagger] > * {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+}
+
+html:not(.js) .is-split .sp-i {
+    transform: none !important;
+}

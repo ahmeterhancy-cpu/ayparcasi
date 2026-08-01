@@ -1,0 +1,806 @@
+/* ==========================================================================
+   Bileşenler: düğmeler, ürün kartı, form alanları, rozetler, akordiyon
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Düğmeler
+   -------------------------------------------------------------------------- */
+
+.btn {
+    --btn-bg: var(--ink);
+    --btn-fg: #ffffff;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.95rem 1.7rem;
+    border-radius: 999px;
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.012em;
+    line-height: 1.1;
+    white-space: nowrap;
+    isolation: isolate;
+    overflow: hidden;
+    transition:
+        color 320ms var(--ease),
+        box-shadow 320ms var(--ease),
+        opacity 240ms var(--ease);
+}
+
+/* Dolgunun içeriden büyümesi — hover imzası */
+.btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--sun);
+    border-radius: inherit;
+    transform: scale(0.2);
+    opacity: 0;
+    transition:
+        transform 520ms var(--ease),
+        opacity 340ms var(--ease);
+}
+
+.btn:hover::before,
+.btn:focus-visible::before {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.btn:hover,
+.btn:focus-visible {
+    color: var(--ink);
+}
+
+.btn svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+}
+
+.btn--ghost {
+    --btn-bg: transparent;
+    --btn-fg: var(--ink);
+    box-shadow: inset 0 0 0 1.5px var(--line-2);
+}
+
+.btn--light {
+    --btn-bg: var(--white);
+    --btn-fg: var(--ink);
+}
+
+.btn--sun {
+    --btn-bg: var(--sun);
+    --btn-fg: var(--ink);
+}
+
+.btn--sun::before {
+    background: var(--ink);
+}
+
+.btn--sun:hover,
+.btn--sun:focus-visible {
+    color: #ffffff;
+}
+
+.btn--wa {
+    --btn-bg: #128c7e;
+    --btn-fg: #ffffff;
+}
+
+.btn--wa::before {
+    background: #0f7264;
+}
+
+.btn--wa:hover,
+.btn--wa:focus-visible {
+    color: #ffffff;
+}
+
+.btn--block {
+    width: 100%;
+}
+
+.btn--sm {
+    padding: 0.65rem 1.15rem;
+    font-size: 0.82rem;
+}
+
+.btn--lg {
+    padding: 1.15rem 2.2rem;
+    font-size: 1rem;
+}
+
+.btn[disabled],
+.btn.is-busy {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* Altı çizili metin bağlantısı */
+.link-u {
+    position: relative;
+    font-weight: 700;
+    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding-bottom: 2px;
+}
+
+.link-u::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1.5px;
+    background: currentColor;
+    transform-origin: right;
+    transition: transform 420ms var(--ease);
+}
+
+.link-u:hover::after {
+    transform: scaleX(0);
+    transform-origin: left;
+}
+
+.link-u svg {
+    width: 15px;
+    height: 15px;
+    transition: transform 400ms var(--ease);
+}
+
+.link-u:hover svg {
+    transform: translateX(4px);
+}
+
+/* --------------------------------------------------------------------------
+   Rozetler ve etiketler
+   -------------------------------------------------------------------------- */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.28rem 0.62rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    background: var(--ink);
+    color: #ffffff;
+}
+
+.badge--sun {
+    background: var(--sun);
+    color: var(--ink);
+}
+
+.badge--coral {
+    background: var(--coral);
+    color: #ffffff;
+}
+
+.badge--turq {
+    background: var(--turq);
+    color: var(--ink);
+}
+
+.badge--outline {
+    background: transparent;
+    color: var(--ink-2);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+}
+
+/* Stok durumu */
+.stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: var(--t-small);
+    font-weight: 600;
+}
+
+.stock::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ok);
+    flex: none;
+}
+
+.stock[data-state='low']::before {
+    background: var(--warn);
+}
+
+.stock[data-state='out_of_stock']::before {
+    background: var(--bad);
+}
+
+.stock[data-state='made_to_order']::before {
+    background: var(--sea);
+}
+
+/* --------------------------------------------------------------------------
+   Ürün kartı — kemer formu markanın imzası
+   -------------------------------------------------------------------------- */
+
+.grid-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+    gap: clamp(1.25rem, 2.4vw, 2.25rem) clamp(1rem, 1.8vw, 1.75rem);
+}
+
+@media (max-width: 520px) {
+    .grid-products {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem 0.75rem;
+    }
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.card__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--arch);
+    overflow: hidden;
+    background: var(--sand);
+    isolation: isolate;
+}
+
+.card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition:
+        transform 900ms var(--ease),
+        opacity 600ms var(--ease);
+}
+
+/* İkinci görsel — üzerine gelince yumuşak geçiş */
+.card__img--alt {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+}
+
+.card:hover .card__img--alt {
+    opacity: 1;
+}
+
+.card:hover .card__img {
+    transform: scale(1.06);
+}
+
+/* Rozetler gövdede durur — kemerin yuvarlak köşesi onları kırpardı */
+.card__flags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 0.1rem;
+}
+
+/* Tükendi örtüsü — görselin ortasında */
+.card__sold {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--paper) 55%, transparent);
+    backdrop-filter: blur(1px);
+}
+
+/* Üzerine gelince alttan çıkan aksiyon çubuğu */
+.card__actions {
+    position: absolute;
+    left: 0.7rem;
+    right: 0.7rem;
+    bottom: 0.7rem;
+    z-index: 3;
+    display: grid;
+    gap: 0.4rem;
+    opacity: 0;
+    transform: translateY(0.9rem);
+    transition:
+        opacity 380ms var(--ease),
+        transform 460ms var(--ease);
+}
+
+.card:hover .card__actions,
+.card:focus-within .card__actions {
+    opacity: 1;
+    transform: none;
+}
+
+@media (hover: none) {
+    .card__actions {
+        opacity: 1;
+        transform: none;
+        position: static;
+        margin-top: 0.65rem;
+    }
+}
+
+.card__body {
+    padding-top: 0.95rem;
+    display: grid;
+    gap: 0.3rem;
+}
+
+.card__cat {
+    font-size: var(--t-micro);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sea);
+}
+
+.card__title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 1.22;
+    letter-spacing: -0.012em;
+}
+
+.card__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.card__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.card__price del {
+    font-weight: 500;
+    font-size: 0.86em;
+    color: var(--ink-3);
+}
+
+.card__from {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* Tükendi durumunda görseli soldur */
+.card.is-out .card__img {
+    filter: grayscale(0.75);
+    opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
+   Form alanları
+   -------------------------------------------------------------------------- */
+
+.field {
+    display: grid;
+    gap: 0.42rem;
+}
+
+.field > label,
+.label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--ink-2);
+}
+
+.input,
+.textarea,
+.select {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--white);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-lg);
+    font-size: 0.95rem;
+    transition:
+        border-color 240ms var(--ease),
+        box-shadow 240ms var(--ease);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+    color: color-mix(in srgb, var(--ink) 38%, transparent);
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+    outline: none;
+    border-color: var(--sea);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sea) 16%, transparent);
+}
+
+.textarea {
+    min-height: 7rem;
+    resize: vertical;
+    line-height: 1.55;
+}
+
+.select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230e2c34' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 18px;
+    padding-right: 2.6rem;
+}
+
+.field__error {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--bad);
+}
+
+.field__hint {
+    font-size: 0.8rem;
+    color: var(--ink-3);
+}
+
+.input.is-error,
+.textarea.is-error,
+.select.is-error {
+    border-color: var(--bad);
+}
+
+/* Seçim kartları (radyo / onay kutusu) */
+.choice {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    cursor: pointer;
+    transition:
+        border-color 240ms var(--ease),
+        background-color 240ms var(--ease),
+        box-shadow 240ms var(--ease);
+}
+
+.choice:hover {
+    border-color: var(--turq);
+}
+
+.choice input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.choice__dot {
+    position: relative;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line-2);
+    transition:
+        border-color 240ms var(--ease),
+        background-color 240ms var(--ease);
+}
+
+.choice__dot::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: var(--white);
+    transform: scale(0);
+    transition: transform 320ms var(--ease);
+}
+
+.choice--check .choice__dot {
+    border-radius: 6px;
+}
+
+.choice--check .choice__dot::after {
+    border-radius: 2px;
+}
+
+.choice input:checked ~ .choice__dot {
+    border-color: var(--sea);
+    background: var(--sea);
+}
+
+.choice input:checked ~ .choice__dot::after {
+    transform: scale(1);
+}
+
+.choice:has(input:checked) {
+    border-color: var(--sea);
+    background: color-mix(in srgb, var(--turq-3) 55%, var(--white));
+    box-shadow: 0 0 0 1px var(--sea);
+}
+
+.choice input:focus-visible ~ .choice__dot {
+    outline: 2px solid var(--sea);
+    outline-offset: 3px;
+}
+
+.choice__text {
+    display: grid;
+    gap: 0.12rem;
+    min-width: 0;
+}
+
+.choice__title {
+    font-weight: 700;
+    font-size: 0.93rem;
+}
+
+.choice__meta {
+    font-size: 0.82rem;
+    color: var(--ink-3);
+}
+
+.choice__price {
+    margin-left: auto;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Boy seçenekleri — yatay şeritler */
+.sizes {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.size {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    background: var(--white);
+    transition:
+        border-color 240ms var(--ease),
+        box-shadow 240ms var(--ease),
+        transform 320ms var(--ease);
+}
+
+.size input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.size:has(input:checked) {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 1px var(--ink);
+}
+
+.size:has(input:disabled) {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.size__name {
+    font-weight: 700;
+}
+
+.size__desc {
+    font-size: 0.82rem;
+    color: var(--ink-3);
+}
+
+.size__price {
+    margin-left: auto;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Adet artırıcı */
+.qty {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--white);
+}
+
+.qty button {
+    width: 44px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+    color: var(--ink-2);
+    transition: background-color 200ms var(--ease);
+}
+
+.qty button:hover {
+    background: var(--paper-2);
+}
+
+.qty input {
+    width: 46px;
+    height: 46px;
+    text-align: center;
+    border: 0;
+    background: transparent;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+}
+
+.qty input::-webkit-outer-spin-button,
+.qty input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Akordiyon
+   -------------------------------------------------------------------------- */
+
+.acc {
+    border-top: 1px solid var(--line);
+}
+
+.acc__item {
+    border-bottom: 1px solid var(--line);
+}
+
+.acc__trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.35rem 0;
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transition: color 260ms var(--ease);
+}
+
+.acc__trigger:hover {
+    color: var(--sea);
+}
+
+.acc__sign {
+    position: relative;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--line-2);
+    transition:
+        background-color 320ms var(--ease),
+        border-color 320ms var(--ease),
+        transform 480ms var(--ease);
+}
+
+.acc__sign::before,
+.acc__sign::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 11px;
+    height: 1.5px;
+    background: currentColor;
+    translate: -50% -50%;
+    transition: transform 420ms var(--ease);
+}
+
+.acc__sign::after {
+    transform: rotate(90deg);
+}
+
+.acc__item.is-open .acc__sign {
+    background: var(--sun);
+    border-color: var(--sun);
+    transform: rotate(180deg);
+}
+
+.acc__item.is-open .acc__sign::after {
+    transform: rotate(0deg);
+}
+
+.acc__panel {
+    --h: 0px;
+    height: var(--h);
+    overflow: hidden;
+    transition: height 520ms var(--ease);
+}
+
+.acc__panel > div {
+    padding-bottom: 1.5rem;
+    max-width: 62ch;
+    color: var(--ink-2);
+}
+
+/* --------------------------------------------------------------------------
+   Sayfalama
+   -------------------------------------------------------------------------- */
+
+.pager {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 3.5rem;
+}
+
+.pager a,
+.pager span {
+    min-width: 44px;
+    height: 44px;
+    padding-inline: 0.8rem;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: 1px solid var(--line);
+    transition:
+        background-color 240ms var(--ease),
+        border-color 240ms var(--ease),
+        color 240ms var(--ease);
+}
+
+.pager a:hover {
+    border-color: var(--ink);
+}
+
+.pager .is-current {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #ffffff;
+}
+
+.pager .is-disabled {
+    opacity: 0.35;
+}
+
+/* --------------------------------------------------------------------------
+   Boş durum
+   -------------------------------------------------------------------------- */
+
+.empty {
+    text-align: center;
+    padding-block: clamp(3rem, 8vw, 6rem);
+    max-width: 34rem;
+    margin-inline: auto;
+    display: grid;
+    gap: 1.1rem;
+    justify-items: center;
+}

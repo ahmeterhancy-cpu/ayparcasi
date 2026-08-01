@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Filament\Resources\Products;
+
+use App\Filament\Resources\Products\Pages\CreateProduct;
+use App\Filament\Resources\Products\Pages\EditProduct;
+use App\Filament\Resources\Products\Pages\ListProducts;
+use App\Filament\Resources\Products\RelationManagers\VariantsRelationManager;
+use App\Filament\Resources\Products\Schemas\ProductForm;
+use App\Filament\Resources\Products\Tables\ProductsTable;
+use App\Models\Product;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
+
+class ProductResource extends Resource
+{
+    protected static ?string $model = Product::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Katalog';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationLabel = 'Ürünler';
+
+    protected static ?string $modelLabel = 'ürün';
+
+    protected static ?string $pluralModelLabel = 'ürünler';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function form(Schema $schema): Schema
+    {
+        return ProductForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return ProductsTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with('categories', 'variants');
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            VariantsRelationManager::class,
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $out = static::getModel()::query()
+            ->where('is_active', true)
+            ->where('track_stock', true)
+            ->where('stock', '<=', 0)
+            ->whereDoesntHave('variants')
+            ->count();
+
+        return $out > 0 ? (string) $out : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Stoğu biten ürün sayısı';
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListProducts::route('/'),
+            'create' => CreateProduct::route('/create'),
+            'edit' => EditProduct::route('/{record}/edit'),
+        ];
+    }
+}

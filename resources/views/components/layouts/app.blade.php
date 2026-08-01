@@ -1,0 +1,60 @@
+@props([
+    'title' => null,
+    'description' => null,
+    'transparentHeader' => false,
+    'bodyClass' => '',
+])
+
+<!DOCTYPE html>
+<html lang="tr" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>{{ $title ? $title.' — '.setting('shop_name', 'Ay Parçası') : setting('shop_name', 'Ay Parçası').' — '.setting('tagline', 'Hediyelik Tasarımlar & Çiçekçi Dükkanı') }}</title>
+    <meta name="description" content="{{ $description ?: setting('meta_description', 'Kıbrıs\'ta el yapımı buketler, orkideler ve hediyelik tasarımlar. Aynı gün teslimat.') }}">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ setting('shop_name', 'Ay Parçası') }}">
+    <meta property="og:title" content="{{ $title ?: setting('shop_name', 'Ay Parçası') }}">
+    <meta property="og:description" content="{{ $description ?: setting('meta_description', 'Kıbrıs\'ta el yapımı buketler ve hediyelik tasarımlar.') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta name="theme-color" content="#0e2c34">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+
+    {{-- Hareket başlamadan önce .js işaretle — açılışta yanıp sönmeyi önler --}}
+    <script>document.documentElement.classList.replace('no-js','js')</script>
+
+    {{ Vite::fonts() }}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @stack('head')
+</head>
+<body class="{{ $bodyClass }}">
+    <a class="skip-link" href="#icerik">İçeriğe geç</a>
+
+    @include('partials.header', ['transparent' => $transparentHeader])
+
+    <main id="icerik">
+        {{ $slot }}
+    </main>
+
+    @include('partials.footer')
+
+    @include('partials.toasts')
+
+    <a
+        class="wa-float"
+        href="{{ wa_link('Merhaba, Ay Parçası\'ndan bilgi almak istiyorum.') }}"
+        target="_blank"
+        rel="noopener"
+    >
+        <x-ay-icon name="whatsapp" :filled="true" />
+        <span>WhatsApp'tan yaz</span>
+    </a>
+
+    @stack('scripts')
+</body>
+</html>
