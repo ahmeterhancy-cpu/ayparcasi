@@ -113,20 +113,6 @@ function initAccordions() {
 }
 
 /* -------------------------------------------------------------------------
- * Spotlight — yapışkan görsel değişirken yanındaki adım da öne çıksın
- * ---------------------------------------------------------------------- */
-function initSpot() {
-    document.querySelectorAll('.spot[data-swap]').forEach((section) => {
-        const steps = [...section.querySelectorAll('.spot__step')];
-        if (!steps.length) return;
-
-        section.addEventListener('swap', (e) => {
-            steps.forEach((s, k) => s.classList.toggle('is-active', k === e.detail.index));
-        });
-    });
-}
-
-/* -------------------------------------------------------------------------
  * "Ne için çiçek?" — genişleyen panel seçici
  * ---------------------------------------------------------------------- */
 function initPanels() {
@@ -709,7 +695,6 @@ function boot() {
     initOverlays();
     initAccordions();
     initPanels();
-    initSpot();
     initGallery();
     initProduct();
     initStockInquiry();

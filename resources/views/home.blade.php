@@ -163,114 +163,7 @@
     @endif
 
     {{-- ===================================================================
-         5. SPOTLIGHT — yapışkan görsel, yanından geçen üç adım
-         =================================================================== --}}
-    @if ($spotlight && $spotlightProducts->isNotEmpty())
-        @php
-            $spotImages = $spotlightProducts->map(fn ($p) => img_url($p->hero_image))->filter()->values();
-        @endphp
-
-        <section class="section section--sand spot" data-scrub data-scrub-range="cover" data-swap>
-            <div class="wrap spot__grid">
-                <div class="spot__media">
-                    @foreach ($spotImages as $i => $src)
-                        <img src="{{ $src }}" alt="" loading="lazy" decoding="async"
-                             class="{{ $i === 0 ? 'is-active' : '' }}" data-swap-item>
-                    @endforeach
-                </div>
-
-                <div class="spot__steps">
-                    <div class="spot__step is-active">
-                        <span class="spot__no">01 — Seçim</span>
-                        <h3>Her dal tek tek elden geçer</h3>
-                        <p class="lead">
-                            {{ $spotlight->name }} koleksiyonundaki her sap, sabah gelen partiden ayıklanır.
-                            Açmamış olan raftan çıkar; size en uzun ömürlüsü kalır.
-                        </p>
-                    </div>
-
-                    <div class="spot__step">
-                        <span class="spot__no">02 — Tasarım</span>
-                        <h3>Buket, siparişten sonra bağlanır</h3>
-                        <p class="lead">
-                            Hazır buket tutmuyoruz. Sipariş düştüğünde tezgâha çıkıyor, elde bağlanıyor,
-                            kâğıdı ve kurdelesi o an seçiliyor.
-                        </p>
-                    </div>
-
-                    <div class="spot__step">
-                        <span class="spot__no">03 — Teslim</span>
-                        <h3>Kapıya suyla birlikte gider</h3>
-                        <p class="lead">
-                            Su haznesiyle paketlenir; yolda susamaz. Teslimden sonra alıcıya ulaştığına dair
-                            fotoğraflı bilgi göndeririz.
-                        </p>
-                        <a class="btn btn--ghost" style="margin-top:1.4rem" href="{{ route('shop.category', $spotlight->slug) }}">
-                            {{ $spotlight->name }} koleksiyonu <x-ay-icon name="arrow-right" />
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- ===================================================================
-         6. MOZAİK HALKA — logonun halkası, kaydırdıkça döner
-         =================================================================== --}}
-    <section class="section ring grain" data-scrub data-scrub-range="enter">
-        <div class="wrap ring__grid">
-            <div class="ring__list">
-                <div class="ring__item" data-reveal="up">
-                    <span class="ring__stat"><span data-count-to="{{ $stats['orders'] }}">0</span>+</span>
-                    <h3>Teslim edilen sipariş</h3>
-                    <p>Girne'den Mağusa'ya, kapı kapı.</p>
-                </div>
-                <div class="ring__item" data-reveal="up">
-                    <span class="ring__stat"><span data-count-to="{{ $stats['products'] }}">0</span></span>
-                    <h3>Tasarım</h3>
-                    <p>Buket, aranjman, orkide ve hediyelik.</p>
-                </div>
-            </div>
-
-            <div class="ring__art" data-reveal="scale">
-                {{-- Mozaik halka — logodaki üçgen dizisi --}}
-                <svg class="ring__svg" viewBox="0 0 200 200" aria-hidden="true">
-                    <g>
-                        @for ($i = 0; $i < 36; $i++)
-                            @php $c = $i % 3 === 0 ? 'var(--sun)' : ($i % 3 === 1 ? 'var(--turq)' : 'var(--sea)'); @endphp
-                            <polygon
-                                points="100,6 105,20 95,20"
-                                fill="{{ $c }}"
-                                transform="rotate({{ $i * 10 }} 100 100)"
-                                opacity="{{ $i % 2 ? 0.95 : 0.6 }}"
-                            />
-                        @endfor
-                    </g>
-                    <circle cx="100" cy="100" r="76" fill="none" stroke="var(--turq)" stroke-width="1" opacity=".35" />
-                </svg>
-
-                <div class="ring__core">
-                    <span>Elde<br>bağlanır</span>
-                </div>
-            </div>
-
-            <div class="ring__list">
-                <div class="ring__item" data-reveal="up">
-                    <span class="ring__stat"><span data-count-to="{{ $stats['zones'] }}">0</span></span>
-                    <h3>Teslimat bölgesi</h3>
-                    <p>Ada genelinde, çoğunda aynı gün.</p>
-                </div>
-                <div class="ring__item" data-reveal="up">
-                    <span class="ring__stat">7/7</span>
-                    <h3>Açığız</h3>
-                    <p>WhatsApp'tan her gün ulaşabilirsiniz.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ===================================================================
-         7. TESLİMAT ROTASI — SVG kaydırdıkça çizilir
+         5. TESLİMAT ROTASI — SVG kaydırdıkça çizilir
          =================================================================== --}}
     @if ($zones->isNotEmpty())
         <section class="section route" data-scrub data-scrub-range="enter">
@@ -328,7 +221,7 @@
     @endif
 
     {{-- ===================================================================
-         8. YENİ GELENLER
+         6. YENİ GELENLER
          =================================================================== --}}
     @if ($newest->isNotEmpty())
         <section class="section section--tight">
@@ -353,7 +246,7 @@
     @endif
 
     {{-- ===================================================================
-         9. KART NOTU — canlı yazan kart
+         7. KART NOTU — canlı yazan kart
          =================================================================== --}}
     <section class="section note" data-scrub data-scrub-range="enter">
         <div class="wrap note__grid">
@@ -393,7 +286,7 @@
     </section>
 
     {{-- ===================================================================
-         10. GALERİ KOLONLARI — farklı hızlarda kayar
+         8. GALERİ KOLONLARI — farklı hızlarda kayar
          =================================================================== --}}
     @if ($gallery->count() >= 6)
         @php $chunks = $gallery->chunk(ceil($gallery->count() / 3)); @endphp
@@ -426,7 +319,7 @@
     @endif
 
     {{-- ===================================================================
-         11. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
+         9. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
          =================================================================== --}}
     @if ($testimonials->isNotEmpty())
         <section class="section section--sand quotes" data-scrub data-scrub-range="cover" data-swap
@@ -470,7 +363,7 @@
     @endif
 
     {{-- ===================================================================
-         12. SSS
+         10. SSS
          =================================================================== --}}
     @if ($faqs->isNotEmpty())
         <section class="section">
@@ -504,7 +397,7 @@
     @endif
 
     {{-- ===================================================================
-         13. GÜNLÜK
+         11. GÜNLÜK
          =================================================================== --}}
     @if ($posts->isNotEmpty())
         <section class="section section--tight">
@@ -537,7 +430,7 @@
     @endif
 
     {{-- ===================================================================
-         14. BÜLTEN
+         12. BÜLTEN
          =================================================================== --}}
     <section class="section section--tight">
         <div class="wrap">
