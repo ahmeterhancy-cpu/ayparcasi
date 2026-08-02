@@ -297,19 +297,22 @@
     @if ($videoFile)
         <section class="section section--sand">
             <div class="wrap video-block">
-                {{-- Kapak görseli poster olarak kullanılır; tarayıcının kendi
-                     denetimleri yeterli, ayrı bir oynatıcı kütüphanesi yok.
-                     preload="none" — video ekrana gelmeden indirilmesin. --}}
                 <div class="video-block__media" data-reveal="up">
-                    {{-- loop + muted: ortam görüntüsü kısa olabiliyor, tek
-                         seferde bitip donuk kalmasın; ses de beklenmedik
-                         açılmasın. Ziyaretçi denetimlerden sesi açabilir. --}}
+                    {{-- Kendiliğinden oynar ve sonsuz döner.
+                         muted ZORUNLU: tarayıcılar sesli otomatik oynatmayı
+                         engeller, sessiz olmazsa video hiç başlamaz.
+                         controls kalıyor — 5 saniyeden uzun, kendiliğinden
+                         başlayan içeriğin durdurulabilir olması gerekir
+                         (WCAG 2.2.2); ayrıca ses buradan açılır.
+                         preload="auto": otomatik oynatma "none" ile çelişir.
+                         Dosya 720 KB olduğu için sayfayı yormuyor. --}}
                     <video
                         class="video-block__video"
                         controls
+                        autoplay
                         loop
                         muted
-                        preload="none"
+                        preload="auto"
                         playsinline
                         @if ($videoPoster) poster="{{ img_url($videoPoster) }}" @endif
                     >

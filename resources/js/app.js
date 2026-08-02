@@ -289,6 +289,21 @@ function initCardSuggestions() {
 }
 
 /* -------------------------------------------------------------------------
+ * Hareket azaltma tercihi: kendiliğinden oynayan video başlatılmaz.
+ * İşletim sisteminde "hareketi azalt" açıksa dönen görüntü rahatsız eder;
+ * ziyaretçi isterse denetimlerden kendisi oynatır.
+ * ---------------------------------------------------------------------- */
+function initAutoplayGuard() {
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    document.querySelectorAll('video[autoplay]').forEach((video) => {
+        video.autoplay = false;
+        video.removeAttribute('autoplay');
+        video.pause();
+    });
+}
+
+/* -------------------------------------------------------------------------
  * Aynı gün gönderim geri sayımı (KKTC saati)
  * Hem üstteki şeridi hem her ürün kartındaki satırı besler.
  * Sunucu ilk değeri basar; burası yalnızca tazeler — JS kapalıysa da doğru.
@@ -718,6 +733,7 @@ function boot() {
     syncFavs();
     initQuickView();
     initCardSuggestions();
+    initAutoplayGuard();
     initCountdowns();
     initToasts();
     initCartForms();
