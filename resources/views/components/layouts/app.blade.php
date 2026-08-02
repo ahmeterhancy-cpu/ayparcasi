@@ -58,6 +58,8 @@
 
     @include('partials.toasts')
 
+    @include('partials.tabbar')
+
     <a
         class="wa-float"
         href="{{ wa_link('Merhaba, Ay Parçası\'ndan bilgi almak istiyorum.') }}"

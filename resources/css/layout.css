@@ -671,3 +671,95 @@
 .crumbs li {
     display: inline-flex;
 }
+
+/* --------------------------------------------------------------------------
+   Mobil alt gezinme çubuğu
+   -------------------------------------------------------------------------- */
+
+.tabbar {
+    display: none;
+}
+
+@media (max-width: 760px) {
+    .tabbar {
+        position: fixed;
+        inset: auto 0 0 0;
+        z-index: 80;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        background: var(--paper);
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -8px 24px -18px rgba(14, 44, 52, 0.6);
+        /* iPhone alt çubuğu (home indicator) için pay */
+        padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .tabbar__item {
+        display: grid;
+        justify-items: center;
+        align-content: center;
+        gap: 0.22rem;
+        padding: 0.6rem 0.2rem 0.55rem;
+        background: none;
+        border: 0;
+        color: var(--ink-3);
+        font-family: inherit;
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+        transition: color 220ms var(--ease);
+    }
+
+    .tabbar__item svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .tabbar__item.is-on {
+        color: var(--sea);
+    }
+
+    .tabbar__item:active {
+        color: var(--ink);
+    }
+
+    /* Sepet rozeti */
+    .tabbar__icon {
+        position: relative;
+        display: block;
+    }
+
+    .tabbar__count {
+        position: absolute;
+        top: -5px;
+        right: -9px;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 999px;
+        background: var(--coral);
+        color: #ffffff;
+        font-size: 0.62rem;
+        font-weight: 800;
+        line-height: 16px;
+        text-align: center;
+    }
+
+    /* Sabit çubuk içeriği kapatmasın */
+    body {
+        padding-bottom: calc(4.2rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* WhatsApp düğmesi çubuğun üstüne çıksın */
+    .wa-float {
+        bottom: calc(4.9rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Bildirimler de çubuğun üstünde dursun */
+    .toasts {
+        bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    }
+}
