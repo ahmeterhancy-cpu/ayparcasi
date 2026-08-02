@@ -76,17 +76,17 @@
     display: inline-block;
     overflow: hidden;
     vertical-align: bottom;
-    padding-top: 0.14em;
-    margin-top: -0.14em;
-    padding-bottom: 0.22em;
-    margin-bottom: -0.22em;
+    padding-top: 0.2em;
+    margin-top: -0.2em;
+    padding-bottom: 0.32em;
+    margin-bottom: -0.32em;
 }
 
 .is-split .sp-i {
     display: inline-block;
     /* Maske yukarıdaki dolgu kadar uzadı; kelime de o kadar aşağıdan
        başlamalı, yoksa animasyon başlamadan harflerin tepesi görünüyor. */
-    transform: translate3d(0, 145%, 0) rotate(2.5deg);
+    transform: translate3d(0, 170%, 0) rotate(2.5deg);
     transition:
         transform 1000ms var(--ease);
     transition-delay: calc(var(--i) * 55ms + var(--split-delay, 0ms));
