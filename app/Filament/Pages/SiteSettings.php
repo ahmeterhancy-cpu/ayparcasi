@@ -53,6 +53,7 @@ class SiteSettings extends Page implements HasSchemas
         'low_stock_threshold', 'low_stock_email',
         'order_emails_enabled', 'order_alert_email',
         'hero_eyebrow', 'hero_title', 'hero_subtitle', 'hero_image',
+        'video_title', 'video_text', 'video_points', 'video_poster', 'video_file',
         'about_title', 'about_text', 'about_image',
         'footer_text',
     ];
@@ -130,6 +131,34 @@ class SiteSettings extends Page implements HasSchemas
                                     ->columnSpanFull()
                                     ->helperText('Geniş ve yatay bir fotoğraf seçin (en az 2000px).'),
                             ]),
+
+                            Section::make('Tanıtım videosu')
+                                ->description('Boş bırakırsanız bu bölüm ana sayfada hiç görünmez.')
+                                ->columns(2)
+                                ->schema([
+                                    TextInput::make('video_title')->label('Başlık')->columnSpanFull()
+                                        ->placeholder('Sevdiklerinizi mutlu etmenin en güzel yolu'),
+                                    Textarea::make('video_text')->label('Alt metin')->rows(3)->columnSpanFull(),
+                                    Textarea::make('video_points')->label('Maddeler')->rows(4)->columnSpanFull()
+                                        ->helperText('Her satır bir madde olur. Boş bırakabilirsiniz.'),
+
+                                    FileUpload::make('video_poster')
+                                        ->label('Kapak görseli')
+                                        ->image()
+                                        ->imageEditor()
+                                        ->directory('site')
+                                        ->disk('public')
+                                        ->maxSize(8192)
+                                        ->helperText('Video oynatılmadan önce görünen kare.'),
+
+                                    FileUpload::make('video_file')
+                                        ->label('Video dosyası')
+                                        ->acceptedFileTypes(['video/mp4', 'video/webm'])
+                                        ->directory('site')
+                                        ->disk('public')
+                                        ->maxSize(51200)
+                                        ->helperText('MP4 ya da WebM, en fazla 50 MB. Kısa tutun (20–40 sn).'),
+                                ]),
                         ]),
 
                     Tab::make('Hakkımızda')

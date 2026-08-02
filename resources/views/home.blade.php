@@ -282,7 +282,63 @@
     @endif
 
     {{-- ===================================================================
-         6. KAMPANYA ŞERİTLERİ — panelden yönetilir (Duyurular › yerleşim: promo)
+         6. TANITIM VİDEOSU — panelden yönetilir (Site ayarları › Ana sayfa)
+         =================================================================== --}}
+    @php
+        $videoFile = setting('video_file');
+        $videoPoster = setting('video_poster');
+        // Her satır bir madde
+        $videoPoints = collect(preg_split('/\r\n|\r|\n/', (string) setting('video_points')))
+            ->map(fn ($l) => trim($l))
+            ->filter()
+            ->values();
+    @endphp
+
+    @if ($videoFile)
+        <section class="section section--sand">
+            <div class="wrap video-block">
+                {{-- Kapak görseli poster olarak kullanılır; tarayıcının kendi
+                     denetimleri yeterli, ayrı bir oynatıcı kütüphanesi yok.
+                     preload="none" — video ekrana gelmeden indirilmesin. --}}
+                <div class="video-block__media" data-reveal="up">
+                    <video
+                        class="video-block__video"
+                        controls
+                        preload="none"
+                        playsinline
+                        @if ($videoPoster) poster="{{ img_url($videoPoster) }}" @endif
+                    >
+                        <source src="{{ img_url($videoFile) }}" type="video/mp4">
+                        Tarayıcınız video oynatmayı desteklemiyor.
+                    </video>
+                </div>
+
+                <div class="video-block__text">
+                    @if (setting('video_title'))
+                        <h2 data-reveal="up">{{ setting('video_title') }}</h2>
+                    @endif
+
+                    @if (setting('video_text'))
+                        <p class="lead">{{ setting('video_text') }}</p>
+                    @endif
+
+                    @if ($videoPoints->isNotEmpty())
+                        <ul class="video-block__points">
+                            @foreach ($videoPoints as $point)
+                                <li>
+                                    <x-ay-icon name="flower" />
+                                    <span>{{ $point }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
+
+    {{-- ===================================================================
+         7. KAMPANYA ŞERİTLERİ — panelden yönetilir (Duyurular › yerleşim: promo)
          =================================================================== --}}
     @if ($promos->isNotEmpty())
         <section class="section section--tight">
@@ -318,7 +374,7 @@
     @endif
 
     {{-- ===================================================================
-         7. TESLİMAT ROTASI — SVG kaydırdıkça çizilir
+         8. TESLİMAT ROTASI — SVG kaydırdıkça çizilir
          =================================================================== --}}
     @if ($zones->isNotEmpty())
         <section class="section route" data-scrub data-scrub-range="enter">
@@ -407,7 +463,7 @@
     @endif
 
     {{-- ===================================================================
-         8. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
+         9. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
          =================================================================== --}}
     @if ($testimonials->isNotEmpty())
         <section class="section section--sand quotes" data-scrub data-scrub-range="cover" data-swap
@@ -451,7 +507,7 @@
     @endif
 
     {{-- ===================================================================
-         9. SSS
+         10. SSS
          =================================================================== --}}
     @if ($faqs->isNotEmpty())
         <section class="section">
@@ -485,7 +541,7 @@
     @endif
 
     {{-- ===================================================================
-         10. GÜNLÜK
+         11. GÜNLÜK
          =================================================================== --}}
     @if ($posts->isNotEmpty())
         <section class="section section--tight">
@@ -518,7 +574,7 @@
     @endif
 
     {{-- ===================================================================
-         11. BÜLTEN
+         12. BÜLTEN
          =================================================================== --}}
     <section class="section section--tight">
         <div class="wrap">
