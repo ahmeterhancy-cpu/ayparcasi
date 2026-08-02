@@ -282,6 +282,41 @@ function initSplit() {
     document.querySelectorAll('[data-split]').forEach(splitNode);
 }
 
+/**
+ * Kelime maskesi (.sp'deki overflow: hidden) yalnızca yükselme sürerken
+ * gerekli. Sonrasında durursa harflerin satır kutusundan taşan parçalarını
+ * keser: altta y/g/ş kuyrukları, üstte İ/Ğ/Ü/Ö/Ş şapkaları. Dolguyla
+ * kurtarmak güvenilir değil — Fraunces değişken bir yazı tipi, optik boy
+ * ekseni gliflerin gerçek sınırlarını puntoya göre değiştiriyor.
+ *
+ * Bu yüzden son kelime yerine oturunca maske büsbütün kaldırılır.
+ * Reveal tek seferlik (io.unobserve), maskenin geri gelmesi gerekmiyor.
+ */
+function initUnmask() {
+    if (reduced.matches) {
+        // Geçiş çalışmıyor, transitionend hiç gelmez — hemen aç.
+        document.querySelectorAll('.is-split').forEach((el) => el.classList.add('is-shown'));
+        return;
+    }
+
+    document.querySelectorAll('.is-split').forEach((el) => {
+        const total = el.querySelectorAll('.sp-i').length;
+        if (!total) return;
+
+        let settled = 0;
+
+        const onEnd = (e) => {
+            if (e.propertyName !== 'transform') return;
+            if (++settled < total) return;
+
+            el.classList.add('is-shown');
+            el.removeEventListener('transitionend', onEnd);
+        };
+
+        el.addEventListener('transitionend', onEnd);
+    });
+}
+
 /* -------------------------------------------------------------------------
  * 6. Magnetic — imleci takip eden düğme
  * ---------------------------------------------------------------------- */
@@ -448,6 +483,7 @@ export function initMotion() {
     root.dataset.motion = reduced.matches ? 'off' : 'on';
 
     initSplit();
+    initUnmask();
     initReveal();
     initTilt();
     initCounters();

@@ -67,26 +67,34 @@
    2. Split — kelime / harf yükselmesi
    -------------------------------------------------------------------------- */
 
-/* Kelimeyi saran maske. `overflow: hidden` yükselme animasyonunu kesiyor
-   ama sıkı satır yüksekliğinde (hero'da 0.92) harfin kendisini de kesiyordu:
-   altta "y, g, ş" kuyrukları, üstte Türkçe büyük harflerin şapkaları
-   (İ, Ğ, Ü, Ö, Ş) satır kutusunun dışına taşıyor. Dolgu bu taşmayı içeri
-   alır, eşit negatif kenar boşluğu da düzeni olduğu yerde tutar. */
+/* Kelimeyi saran maske. Sıkı satır yüksekliğinde (hero'da 0.92) harfin
+   kendisi satır kutusunun dışına taşar — altta y/g/ş kuyrukları, üstte
+   Türkçe büyük harflerin şapkaları (İ, Ğ, Ü, Ö, Ş) — ve `overflow: hidden`
+   bunları keser. Dolgu taşmanın çoğunu içeri alır, eşit negatif kenar
+   boşluğu düzeni yerinde tutar; ama tek başına yetmez, çünkü değişken
+   yazı tipinin optik boy ekseni gliflerin gerçek sınırlarını değiştiriyor.
+   Asıl çözüm .is-shown: yükselme bitince maske tamamen kalkar. */
 .is-split .sp {
     display: inline-block;
     overflow: hidden;
     vertical-align: bottom;
-    padding-top: 0.2em;
-    margin-top: -0.2em;
-    padding-bottom: 0.32em;
-    margin-bottom: -0.32em;
+    padding-top: 0.14em;
+    margin-top: -0.14em;
+    padding-bottom: 0.22em;
+    margin-bottom: -0.22em;
+}
+
+/* Animasyon bittikten sonra maskeye gerek yok — motion.js son geçişi
+   yakalayınca bu sınıfı ekler ve harfler bir daha kesilmez. */
+.is-split.is-shown .sp {
+    overflow: visible;
 }
 
 .is-split .sp-i {
     display: inline-block;
-    /* Maske yukarıdaki dolgu kadar uzadı; kelime de o kadar aşağıdan
-       başlamalı, yoksa animasyon başlamadan harflerin tepesi görünüyor. */
-    transform: translate3d(0, 170%, 0) rotate(2.5deg);
+    /* Maske dolgu kadar uzadı; kelime de o kadar aşağıdan başlamalı,
+       yoksa animasyon başlamadan harflerin tepesi görünüyor. */
+    transform: translate3d(0, 145%, 0) rotate(2.5deg);
     transition:
         transform 1000ms var(--ease);
     transition-delay: calc(var(--i) * 55ms + var(--split-delay, 0ms));
@@ -183,6 +191,12 @@
         transform: none !important;
     }
 
+    /* Geçiş hiç çalışmadığı için transitionend de gelmez; maskeyi
+       burada kaldırmazsak harfler kalıcı olarak kesik kalır. */
+    .is-split .sp {
+        overflow: visible !important;
+    }
+
     [data-parallax] {
         --shift: 0vh !important;
     }
@@ -209,4 +223,8 @@ html:not(.js) [data-stagger] > * {
 
 html:not(.js) .is-split .sp-i {
     transform: none !important;
+}
+
+html:not(.js) .is-split .sp {
+    overflow: visible !important;
 }
