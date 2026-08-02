@@ -432,40 +432,7 @@
     @endif
 
     {{-- ===================================================================
-         9. GALERİ KOLONLARI — farklı hızlarda kayar
-         =================================================================== --}}
-    @if ($gallery->count() >= 6)
-        @php $chunks = $gallery->chunk(ceil($gallery->count() / 3)); @endphp
-
-        <section class="section cols" data-scrub data-scrub-range="enter">
-            <div class="wrap" style="margin-bottom:clamp(2rem,4vw,3rem)">
-                <div class="section-head" style="margin-bottom:0">
-                    <div class="section-head__text">
-                        <span class="eyebrow">Dükkândan</span>
-                        <h2 data-reveal="up">Geçen hafta yolladıklarımız</h2>
-                    </div>
-                    <a class="link-u" href="{{ setting('instagram', '#') }}" target="_blank" rel="noopener">
-                        Instagram'da takip et <x-ay-icon name="arrow-right" />
-                    </a>
-                </div>
-            </div>
-
-            <div class="wrap wrap--wide">
-                <div class="cols__grid">
-                    @foreach ($chunks as $i => $chunk)
-                        <div class="cols__col" data-parallax="{{ [-0.18, 0.12, -0.28][$i] ?? 0 }}">
-                            @foreach ($chunk as $src)
-                                <figure><img src="{{ img_url($src) }}" alt="" loading="lazy" decoding="async"></figure>
-                            @endforeach
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- ===================================================================
-         10. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
+         9. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
          =================================================================== --}}
     @if ($testimonials->isNotEmpty())
         <section class="section section--sand quotes" data-scrub data-scrub-range="cover" data-swap
@@ -509,7 +476,7 @@
     @endif
 
     {{-- ===================================================================
-         11. SSS
+         10. SSS
          =================================================================== --}}
     @if ($faqs->isNotEmpty())
         <section class="section">
@@ -543,7 +510,7 @@
     @endif
 
     {{-- ===================================================================
-         12. GÜNLÜK
+         11. GÜNLÜK
          =================================================================== --}}
     @if ($posts->isNotEmpty())
         <section class="section section--tight">
@@ -576,7 +543,7 @@
     @endif
 
     {{-- ===================================================================
-         13. BÜLTEN
+         12. BÜLTEN
          =================================================================== --}}
     <section class="section section--tight">
         <div class="wrap">

@@ -560,57 +560,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   6. Galeri kolonları — farklı hızlarda kayan üç sütun
-   -------------------------------------------------------------------------- */
-
-.cols {
-    overflow: clip;
-}
-
-.cols__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(0.6rem, 1.4vw, 1.1rem);
-    height: clamp(28rem, 82vh, 46rem);
-}
-
-@media (max-width: 700px) {
-    .cols__grid {
-        grid-template-columns: repeat(2, 1fr);
-        height: 32rem;
-    }
-    .cols__col:nth-child(3) {
-        display: none;
-    }
-}
-
-.cols__col {
-    display: grid;
-    gap: clamp(0.6rem, 1.4vw, 1.1rem);
-    align-content: start;
-    transform: translate3d(0, var(--shift, 0), 0);
-    will-change: transform;
-}
-
-.cols__col figure {
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    background: var(--sand);
-}
-
-.cols__col img {
-    width: 100%;
-    aspect-ratio: 3 / 4;
-    object-fit: cover;
-    transition: transform 900ms var(--ease);
-}
-
-.cols__col figure:hover img {
-    transform: scale(1.05);
-}
-
-/* --------------------------------------------------------------------------
-   7. Yorumlar — tek büyük alıntı
+   6. Yorumlar — tek büyük alıntı
    -------------------------------------------------------------------------- */
 
 .quotes {
@@ -698,7 +648,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   8. Günlük (blog)
+   7. Günlük (blog)
    -------------------------------------------------------------------------- */
 
 .journal {
@@ -740,7 +690,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   9. Bülten
+   8. Bülten
    -------------------------------------------------------------------------- */
 
 .news {
@@ -770,7 +720,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   10. Güven şeridi
+   9. Güven şeridi
    -------------------------------------------------------------------------- */
 
 .trust {
@@ -806,7 +756,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   11. Kampanya şeritleri — panelden yönetilen görsel bloklar
+   10. Kampanya şeritleri — panelden yönetilen görsel bloklar
    -------------------------------------------------------------------------- */
 
 .promos {
@@ -912,7 +862,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   12. İndirim vitrini — solda liste, ortada dikey kart, sağda ürün kartları
+   11. İndirim vitrini — solda liste, ortada dikey kart, sağda ürün kartları
    -------------------------------------------------------------------------- */
 
 .showcase {

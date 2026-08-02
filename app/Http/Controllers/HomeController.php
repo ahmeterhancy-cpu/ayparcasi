@@ -59,12 +59,6 @@ class HomeController extends Controller
             'testimonials' => Testimonial::active()->limit(6)->get(),
             'faqs' => Faq::active()->limit(6)->get(),
             'posts' => Post::published()->limit(3)->get(),
-            'gallery' => Product::query()
-                ->active()
-                ->whereNotNull('hero_image')
-                ->inRandomOrder()
-                ->limit(12)
-                ->pluck('hero_image'),
         ]);
     }
 }
