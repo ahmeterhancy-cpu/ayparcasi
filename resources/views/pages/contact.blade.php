@@ -48,7 +48,7 @@
             <h2 style="font-size:1.5rem">Sipariş vermek için</h2>
             <p style="margin-top:.7rem;color:var(--ink-2)">
                 Siteden seçip kartla ödeyebilirsiniz. Kararsızsanız WhatsApp'tan yazın; kime, hangi vesileyle
-                göndereceğinizi söyleyin, size birkaç öneri hazırlayalım.
+                göndereceğinizi söyleyin, size birkaç öneri sunalım.
             </p>
 
             <div style="display:grid;gap:.6rem;margin-top:1.5rem">
@@ -60,5 +60,45 @@
             </div>
         </div>
     </section>
+
+    {{-- Harita — koordinat girilmemişse bölüm hiç görünmez --}}
+    @php
+        $lat = setting('map_lat');
+        $lng = setting('map_lng');
+    @endphp
+
+    @if ($lat && $lng)
+        @php
+            // OpenStreetMap gömme: anahtar istemiyor, çerez bırakmıyor.
+            $d = 0.0025; // haritanın kapsayacağı alan
+            $bbox = ($lng - $d).','.($lat - $d).','.($lng + $d).','.($lat + $d);
+            $osm = 'https://www.openstreetmap.org/export/embed.html?bbox='.$bbox.'&layer=mapnik&marker='.$lat.','.$lng;
+            $yolTarifi = 'https://www.google.com/maps/dir/?api=1&destination='.$lat.','.$lng;
+        @endphp
+
+        <section class="section section--tight" style="padding-top:0">
+            <div class="wrap">
+                <div class="map-block">
+                    {{-- loading="lazy": harita ekrana gelmeden dış istek atılmasın --}}
+                    <iframe
+                        class="map-block__frame"
+                        src="{{ $osm }}"
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        title="{{ setting('shop_name', 'Ay Parçası') }} konumu"
+                    ></iframe>
+
+                    <div class="map-block__foot">
+                        @if (setting('address'))
+                            <p><x-ay-icon name="pin" /> {{ setting('address') }}</p>
+                        @endif
+                        <a class="btn btn--rect btn--sm" href="{{ $yolTarifi }}" target="_blank" rel="noopener">
+                            Yol tarifi al <x-ay-icon name="arrow-right" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
 
 </x-layouts.app>

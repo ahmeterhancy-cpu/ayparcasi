@@ -54,13 +54,16 @@ class DemoSeeder extends Seeder
              * Telefon ve sosyal hesaplar işletmenin kendi kayıtlarından
              * (Google Maps / Facebook sayfası) alındı.
              * HÂLÂ DOĞRULANMADI: açık adres, e-posta ve çalışma saatleri.
-             * Adres bilerek BOŞ — boşken iletişim sayfasında satır hiç
-             * görünmüyor; uydurma bir sokak adı yazmaktansa gizli kalsın.
+             * Adres, Maps koordinatlarından ters coğrafi kodlamayla
+             * (OpenStreetMap) çözüldü — sokak doğru, KAPI NUMARASI YOK.
              */
             'phone' => '+90 533 846 02 46',
             'whatsapp' => '905338460246',
             'email' => 'merhaba@ayparcasicicekci.com',
-            'address' => '',
+            'address' => 'Namık Kemal Caddesi, Yukarı Girne, Girne 99300, Kuzey Kıbrıs',
+            // Harita koordinatları — Google Maps listelemesinden
+            'map_lat' => '35.3361986',
+            'map_lng' => '33.3224065',
             'hours' => 'Her gün 09:00 – 19:00',
             'instagram' => 'https://www.instagram.com/ayparcasihediyelikvecicekcilik/',
             'facebook' => 'https://www.facebook.com/Ayparcasihediyelik/',

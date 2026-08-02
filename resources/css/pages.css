@@ -2115,3 +2115,48 @@
     font-size: 0.92rem;
     color: var(--ink-2);
 }
+
+/* --------------------------------------------------------------------------
+   İletişim haritası
+   -------------------------------------------------------------------------- */
+
+.map-block {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--white);
+}
+
+.map-block__frame {
+    display: block;
+    width: 100%;
+    height: clamp(18rem, 42vh, 26rem);
+    border: 0;
+    /* Harita karoları ekranın geri kalanından biraz daha sakin dursun */
+    filter: saturate(0.92);
+}
+
+.map-block__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem 1.5rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--line);
+}
+
+.map-block__foot p {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+}
+
+.map-block__foot svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    color: var(--coral);
+}

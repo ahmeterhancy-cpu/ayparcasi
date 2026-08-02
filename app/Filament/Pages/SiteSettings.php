@@ -52,6 +52,7 @@ class SiteSettings extends Page implements HasSchemas
         'same_day_cutoff_hour', 'bank_details',
         'low_stock_threshold', 'low_stock_email',
         'order_emails_enabled', 'order_alert_email',
+        'map_lat', 'map_lng',
         'hero_eyebrow', 'hero_title', 'hero_subtitle', 'hero_image',
         'video_title', 'video_text', 'video_points', 'video_poster', 'video_file',
         'about_title', 'about_text', 'about_image',
@@ -110,6 +111,14 @@ class SiteSettings extends Page implements HasSchemas
                                 Textarea::make('address')->label('Adres')->rows(2)->columnSpanFull(),
                                 TextInput::make('instagram')->label('Instagram adresi')->url(),
                                 TextInput::make('facebook')->label('Facebook adresi')->url(),
+
+                                TextInput::make('map_lat')
+                                    ->label('Harita — enlem')
+                                    ->placeholder('35.3361986')
+                                    ->helperText('Google Haritalar üzerinde dükkâna sağ tıklayıp koordinatları kopyalayın. Boş bırakırsanız harita hiç görünmez.'),
+                                TextInput::make('map_lng')
+                                    ->label('Harita — boylam')
+                                    ->placeholder('33.3224065'),
                             ]),
                         ]),
 

@@ -123,7 +123,7 @@
             <div style="padding:1.2rem;border-radius:var(--radius-lg);background:var(--turq-3)">
                 <h2 class="filter__title" style="color:var(--sea)">Ne alacağınıza karar veremediniz mi?</h2>
                 <p style="font-size:.88rem;color:var(--ink-2);margin-bottom:1rem">
-                    Kime, hangi vesileyle göndereceğinizi yazın; birkaç öneri hazırlayalım.
+                    Kime, hangi vesileyle göndereceğinizi yazın; birkaç öneri sunalım.
                 </p>
                 <a class="btn btn--wa btn--sm btn--block"
                    href="{{ wa_link('Merhaba, bir hediye seçmekte yardım eder misiniz?') }}"
