@@ -130,7 +130,9 @@ ol {
     --font-display: 'Fraunces', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
     --font-ui: 'Manrope', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
 
-    --t-hero: clamp(2.9rem, 8.4vw, 7.5rem);
+    /* Hero başlığı ekranı yutmasın: 8.4vw dar ve orta ekranlarda üç satıra
+       taşıp kenarlara dayanıyordu, tavan da gereğinden yüksekti. */
+    --t-hero: clamp(2.35rem, 6.4vw, 6.25rem);
     --t-h1: clamp(2.3rem, 5.2vw, 4.4rem);
     --t-h2: clamp(1.85rem, 3.6vw, 3.1rem);
     --t-h3: clamp(1.35rem, 2.1vw, 1.85rem);
