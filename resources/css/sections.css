@@ -181,7 +181,11 @@
     max-width: var(--page);
     margin-inline: auto;
     padding-inline: var(--gutter);
+    /* Üstte sabit başlık, altta "Kaydır" ipucu var. Yalnız başlığı
+       hesaba katınca blok gözle görülür biçimde aşağıda kalıyordu;
+       ikisi de sayılınca metin optik olarak ortaya oturuyor. */
     padding-top: var(--header-h);
+    padding-bottom: calc(var(--header-h) + 1.5rem);
     color: #ffffff;
     opacity: calc(1 - var(--p, 0) * 1.35);
     transform: translate3d(0, calc(var(--p, 0) * -7vh), 0);
