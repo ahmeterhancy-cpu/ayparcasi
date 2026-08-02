@@ -459,13 +459,13 @@ class DemoSeeder extends Seeder
             );
         }
 
-        // İndirim vitrinindeki dikey kart
+        // "Yeni Çiçekler" vitrinindeki dikey kart
         Banner::updateOrCreate(['placement' => 'showcase'], [
-            'eyebrow' => 'Seçili tasarımlar',
-            'title' => 'İndirimdekiler bu ay',
-            'subtitle' => 'Sınırlı sayıda hazırlanan buket ve aranjmanlar.',
+            'eyebrow' => 'Bu hafta tezgâhta',
+            'title' => 'Mevsimin yeni gelenleri',
+            'subtitle' => 'Sabah gelen partiden seçilip elde bağlanan tasarımlar.',
             'image' => $this->img('tulips-vase'),
-            'link' => '/magaza?indirimli=1',
+            'link' => '/magaza?sirala=yeni',
             'cta_label' => 'Hepsini gör',
             'is_active' => true,
             'position' => 0,

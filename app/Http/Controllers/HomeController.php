@@ -36,23 +36,11 @@ class HomeController extends Controller
             ->limit(8)
             ->get();
 
-        /*
-         * İndirim vitrini: solda küçük liste, ortada tanıtım kartı, sağda
-         * ürün kartları. Tek sorgudan besleniyor; ilk 3'ü kart, kalanı liste.
-         */
-        $onSale = Product::query()
-            ->active()
-            ->onSale()
-            ->with('variants', 'categories')
-            ->orderBy('position')
-            ->limit(8)
-            ->get();
-
         return view('home', [
             'occasions' => $occasions,
             'featured' => $featured,
+            // "Yeni Çiçekler" vitrini de $newest'ten besleniyor; ayrı sorgu yok
             'newest' => $newest,
-            'onSale' => $onSale,
             'showcase' => Banner::live('showcase')->first(),
             'zones' => DeliveryZone::active()->orderBy('position')->get(),
             'promos' => Banner::live('promo')->limit(3)->get(),

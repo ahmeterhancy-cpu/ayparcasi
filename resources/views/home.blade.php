@@ -196,33 +196,33 @@
     @endif
 
     {{-- ===================================================================
-         5. İNDİRİM VİTRİNİ — solda liste, ortada kart, sağda ürünler
+         5. YENİ ÇİÇEKLER VİTRİNİ — solda liste, ortada kart, sağda ürünler
          =================================================================== --}}
-    @if ($onSale->count() >= 4)
+    @if ($newest->count() >= 4)
         @php
             // Sağ sütun iki kart alıyor; üçüncüsü bu genişlikte alt satıra
             // sarkıp dengesiz duruyordu.
-            $saleCards = $onSale->take(2);
-            $saleList = $onSale->slice(2, 5);
+            $showcaseCards = $newest->take(2);
+            $showcaseList = $newest->slice(2, 5);
         @endphp
 
         <section class="section section--tight">
             <div class="wrap">
                 <div class="section-head">
                     <div class="section-head__text">
-                        <span class="eyebrow">Şu an indirimde</span>
-                        <h2 data-reveal="up">Fiyatı düşenler</h2>
+                        <span class="eyebrow">Tezgâhtan yeni çıktı</span>
+                        <h2 data-reveal="up">Yeni Çiçekler</h2>
                     </div>
-                    <a class="link-u" href="{{ route('shop.index', ['indirimli' => 1]) }}">
-                        Tüm indirimliler <x-ay-icon name="arrow-right" />
+                    <a class="link-u" href="{{ route('shop.index', ['sirala' => 'yeni']) }}">
+                        Tümünü gör <x-ay-icon name="arrow-right" />
                     </a>
                 </div>
 
                 <div class="showcase">
                     {{-- Sol: küçük liste --}}
-                    @if ($saleList->isNotEmpty())
+                    @if ($showcaseList->isNotEmpty())
                         <ul class="mini-list" data-stagger="60">
-                            @foreach ($saleList as $item)
+                            @foreach ($showcaseList as $item)
                                 <li>
                                     <a class="mini" href="{{ $item->url }}">
                                         <img class="mini__img" src="{{ img_url($item->images[0] ?? null) }}"
@@ -272,7 +272,7 @@
 
                     {{-- Sağ: ürün kartları --}}
                     <div class="showcase__cards">
-                        @foreach ($saleCards as $item)
+                        @foreach ($showcaseCards as $item)
                             <x-product-card :product="$item" />
                         @endforeach
                     </div>
@@ -407,32 +407,7 @@
     @endif
 
     {{-- ===================================================================
-         8. YENİ GELENLER
-         =================================================================== --}}
-    @if ($newest->isNotEmpty())
-        <section class="section section--tight">
-            <div class="wrap">
-                <div class="section-head">
-                    <div class="section-head__text">
-                        <span class="eyebrow">Tezgâhtan yeni çıktı</span>
-                        <h2 data-reveal="up">Bu haftanın tasarımları</h2>
-                    </div>
-                    <a class="link-u" href="{{ route('shop.index', ['sirala' => 'yeni']) }}">
-                        Yeni gelenler <x-ay-icon name="arrow-right" />
-                    </a>
-                </div>
-
-                <div class="grid-products">
-                    @foreach ($newest->take(4) as $product)
-                        <x-product-card :product="$product" reveal="wipe" />
-                    @endforeach
-                </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- ===================================================================
-         9. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
+         8. YORUMLAR — tek büyük alıntı, kaydırdıkça değişir
          =================================================================== --}}
     @if ($testimonials->isNotEmpty())
         <section class="section section--sand quotes" data-scrub data-scrub-range="cover" data-swap
@@ -476,7 +451,7 @@
     @endif
 
     {{-- ===================================================================
-         10. SSS
+         9. SSS
          =================================================================== --}}
     @if ($faqs->isNotEmpty())
         <section class="section">
@@ -510,7 +485,7 @@
     @endif
 
     {{-- ===================================================================
-         11. GÜNLÜK
+         10. GÜNLÜK
          =================================================================== --}}
     @if ($posts->isNotEmpty())
         <section class="section section--tight">
@@ -543,7 +518,7 @@
     @endif
 
     {{-- ===================================================================
-         12. BÜLTEN
+         11. BÜLTEN
          =================================================================== --}}
     <section class="section section--tight">
         <div class="wrap">
