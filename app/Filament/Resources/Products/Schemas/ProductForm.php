@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Models\Addon;
+use App\Models\ProductTemplate;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -13,6 +14,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -31,6 +33,39 @@ class ProductForm
         return $schema
             ->columns(3)
             ->components([
+
+                // Yalnız yeni üründe: seçilen şablon alanları anında doldurur.
+                // Boy seti kayıttan sonra kopyalanır (bkz. CreateProduct).
+                Section::make('Şablondan başla')
+                    ->columnSpanFull()
+                    ->visible(fn (string $operation) => $operation === 'create'
+                        && ProductTemplate::active()->exists())
+                    ->schema([
+                        Select::make('sablon')
+                            ->hiddenLabel()
+                            ->placeholder('Şablon seçin — alanlar hazır gelsin')
+                            ->options(fn () => ProductTemplate::active()
+                                ->orderBy('position')
+                                ->pluck('name', 'id'))
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                $template = ProductTemplate::find($state);
+
+                                if (! $template) {
+                                    return;
+                                }
+
+                                foreach ($template->fields() as $field => $value) {
+                                    if ($value !== null) {
+                                        $set($field, $value);
+                                    }
+                                }
+
+                                $set('categories', $template->categoryIds());
+                                $set('addons', $template->addonIds());
+                            })
+                            ->helperText('Şablonları Katalog → Ürün şablonları bölümünden yönetirsiniz.'),
+                    ]),
 
                 // --- Sol ray: içerik --------------------------------------
                 Group::make()->columnSpan(2)->schema([

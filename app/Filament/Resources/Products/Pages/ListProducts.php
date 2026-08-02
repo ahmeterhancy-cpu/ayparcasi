@@ -3,11 +3,15 @@
 namespace App\Filament\Resources\Products\Pages;
 
 use App\Filament\Resources\Products\ProductResource;
+use App\Models\ProductTemplate;
+use App\Services\BulkPhotoDrafts;
 use App\Services\ProductCsv;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 
@@ -18,6 +22,50 @@ class ListProducts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('toplu_fotograf')
+                ->label('Toplu fotoğraf')
+                ->icon('heroicon-o-camera')
+                ->color('gray')
+                ->modalHeading('Fotoğraflardan taslak ürün aç')
+                ->modalDescription('Bir çekimden çıkan fotoğrafları birden sürükleyin. Her fotoğraf için yayından kaldırılmış bir taslak ürün açılır; adı ve fiyatı listede, form açmadan doldurabilirsiniz.')
+                ->modalSubmitActionLabel('Taslakları aç')
+                ->schema([
+                    FileUpload::make('images')
+                        ->label('Fotoğraflar')
+                        ->image()
+                        ->multiple()
+                        ->required()
+                        ->storeFiles(false)
+                        ->maxSize(6144)
+                        ->maxFiles(30)
+                        ->helperText('En fazla 30 fotoğraf, her biri 6 MB’a kadar.'),
+
+                    Select::make('template_id')
+                        ->label('Şablon')
+                        ->placeholder('Şablonsuz — yalnız fotoğraf')
+                        ->options(fn () => ProductTemplate::active()->orderBy('position')->pluck('name', 'id'))
+                        ->visible(fn () => ProductTemplate::active()->exists())
+                        ->helperText('Seçerseniz açıklama, kategori, ek ürünler ve boylar da hazır gelir.'),
+
+                    Toggle::make('name_from_filename')
+                        ->label('Ürün adını dosya adından al')
+                        ->default(true)
+                        ->helperText('IMG_1234 gibi anlamsız adlar atlanır, o ürünler "Yeni ürün 1" olarak açılır.'),
+                ])
+                ->action(function (array $data) {
+                    $result = app(BulkPhotoDrafts::class)->create(
+                        files: (array) $data['images'],
+                        template: ProductTemplate::find($data['template_id'] ?? null),
+                        nameFromFilename: (bool) ($data['name_from_filename'] ?? true),
+                    );
+
+                    Notification::make()
+                        ->title($result['created'].' taslak ürün açıldı')
+                        ->body('Listede adı ve fiyatı doldurup "Satışta" düğmesiyle yayınlayabilirsiniz.')
+                        ->success()
+                        ->send();
+                }),
+
             ActionGroup::make([
                 Action::make('disa_aktar')
                     ->label('CSV olarak indir')

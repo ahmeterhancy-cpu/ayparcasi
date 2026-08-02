@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Models\Product;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -25,19 +28,35 @@ class ProductsTable
                     ->disk('public')
                     ->imageSize(48),
 
-                TextColumn::make('name')
+                // Ad ve fiyat satır içinde düzenlenebilir: toplu fotoğraftan
+                // açılan taslakları form açmadan doldurmak için.
+                TextInputColumn::make('name')
                     ->label('Ürün')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold')
-                    ->description(fn ($record) => $record?->categories->pluck('name')->implode(' · ')),
+                    ->rules(['required', 'max:190'])
+                    ->beforeStateUpdated(function ($record, $state) {
+                        // Taslağın adı değişince bağlantı adresi de düzelsin.
+                        // Yayına girmiş üründe adres sabit kalır — paylaşılmış
+                        // bağlantılar ve arama motoru sonuçları kırılmasın.
+                        if (! $record->is_active) {
+                            $record->slug = Product::uniqueSlug((string) $state, $record->id);
+                        }
+                    }),
 
-                TextColumn::make('price')
+                TextColumn::make('categories.name')
+                    ->label('Kategori')
+                    ->badge()
+                    ->color('gray')
+                    ->toggleable(),
+
+                TextInputColumn::make('price')
                     ->label('Fiyat')
                     ->sortable()
-                    ->formatStateUsing(fn ($state, $record) => $record?->has_variants
-                        ? money($record->display_price).' başlangıç'
-                        : money($state)),
+                    ->type('number')
+                    ->rules(['numeric', 'min:0'])
+                    // Boy seçeneği olan üründe fiyat boylardan gelir
+                    ->disabled(fn ($record) => (bool) $record?->has_variants),
 
                 TextColumn::make('stock')
                     ->label('Stok')
@@ -50,9 +69,8 @@ class ProductsTable
                         default => 'success',
                     }),
 
-                IconColumn::make('is_active')
-                    ->label('Satışta')
-                    ->boolean(),
+                ToggleColumn::make('is_active')
+                    ->label('Satışta'),
 
                 IconColumn::make('is_featured')
                     ->label('Öne çıkan')
