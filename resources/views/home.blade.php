@@ -334,7 +334,7 @@
                         <ul class="video-block__points">
                             @foreach ($videoPoints as $point)
                                 <li>
-                                    <x-ay-icon name="flower" />
+                                    <x-ay-icon name="heart" :filled="true" />
                                     <span>{{ $point }}</span>
                                 </li>
                             @endforeach

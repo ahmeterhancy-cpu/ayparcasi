@@ -1064,9 +1064,10 @@
     color: var(--ink-2);
 }
 
+/* Dolu kalp — markanın mercan kırmızısı */
 .video-block__points svg {
-    width: 20px;
-    height: 20px;
-    margin-top: 1px;
-    color: var(--turq);
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+    color: var(--coral);
 }
