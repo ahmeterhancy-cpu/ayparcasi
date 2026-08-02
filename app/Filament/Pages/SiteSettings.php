@@ -7,19 +7,24 @@ use App\Models\Setting;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 /**
@@ -57,10 +62,18 @@ class SiteSettings extends Page implements HasSchemas
         'video_title', 'video_text', 'video_points', 'video_poster', 'video_file',
         'about_title', 'about_text', 'about_image',
         'footer_text',
+        'maintenance_enabled', 'maintenance_title', 'maintenance_message',
+        'maintenance_until', 'maintenance_bypass_key',
     ];
 
     public function mount(): void
     {
+        // Önizleme anahtarı olmadan perde açıldığında dükkân sahibi kendi
+        // sitesini göremez; ilk açılışta bir kez üretilip sabitlenir.
+        if (blank(Setting::get('maintenance_bypass_key'))) {
+            Setting::put('maintenance_bypass_key', self::freshBypassKey());
+        }
+
         $values = [];
 
         foreach (self::KEYS as $key) {
@@ -68,6 +81,11 @@ class SiteSettings extends Page implements HasSchemas
         }
 
         $this->form->fill($values);
+    }
+
+    private static function freshBypassKey(): string
+    {
+        return Str::lower(Str::random(14));
     }
 
     public function form(Schema $schema): Schema
@@ -246,6 +264,66 @@ class SiteSettings extends Page implements HasSchemas
                                     ->helperText('Boş bırakırsanız mağaza e-postasına gider.'),
                             ]),
                         ]),
+
+                    Tab::make('Yapım aşamasında')
+                        ->icon('heroicon-o-wrench-screwdriver')
+                        ->badge(fn () => setting('maintenance_enabled') ? 'Açık' : null)
+                        ->badgeColor('danger')
+                        ->schema([
+                            Callout::make('Site şu anda ziyaretçilere kapalı')
+                                ->description('Vitrine giren herkes yapım aşamasında sayfasını görüyor. Yönetim paneli ve süren ödemeler etkilenmez.')
+                                // Mercan zemin dikkat çeksin, ekran okuyucuya
+                                // "Hata" değil "Uyarı" diye duyurulsun.
+                                ->warning()
+                                ->color('danger')
+                                ->iconColor('danger')
+                                ->visible(fn (Get $get) => (bool) $get('maintenance_enabled')),
+
+                            Section::make()->schema([
+                                Toggle::make('maintenance_enabled')
+                                    ->label('Siteyi yapım aşamasına al')
+                                    ->live()
+                                    ->helperText('Açtığınızda vitrin kapanır. Panel, süren ödemeler ve mevcut sipariş sayfaları açık kalır; ekip hesabıyla girmişseniz siteyi normal görmeye devam edersiniz.'),
+                            ]),
+
+                            Section::make('Ziyaretçiye gösterilecek sayfa')
+                                ->description('Boş bıraktığınız alanlar için hazır metinler kullanılır.')
+                                ->schema([
+                                    TextInput::make('maintenance_title')
+                                        ->label('Başlık')
+                                        ->placeholder('Vitrinimizi yeniliyoruz'),
+
+                                    Textarea::make('maintenance_message')
+                                        ->label('Açıklama')
+                                        ->rows(4)
+                                        ->placeholder('Sitemiz kısa bir süreliğine kapalı. Çiçekleriniz için WhatsApp’tan yazabilirsiniz.'),
+
+                                    TextInput::make('maintenance_until')
+                                        ->label('Ne zaman açılacak')
+                                        ->placeholder('Cuma sabahı yeniden buradayız')
+                                        ->helperText('Serbest metin. Boş bırakırsanız bu satır hiç görünmez.'),
+                                ]),
+
+                            Section::make('Önizleme bağlantısı')
+                                ->description('Bu adresi açan kişi, giriş yapmadan da siteyi kapalıyken gezebilir. Anahtar tarayıcıda saklanır.')
+                                ->schema([
+                                    TextInput::make('maintenance_bypass_key')
+                                        ->label('Önizleme anahtarı')
+                                        ->live(onBlur: true)
+                                        ->required()
+                                        ->hintAction(
+                                            Action::make('yeni_anahtar')
+                                                ->label('Yeni anahtar')
+                                                ->icon('heroicon-m-arrow-path')
+                                                ->action(fn (Set $set) => $set('maintenance_bypass_key', self::freshBypassKey()))
+                                        )
+                                        ->helperText('Değiştirdiğinizde eski bağlantı çalışmaz.'),
+
+                                    Placeholder::make('onizleme_baglantisi')
+                                        ->label('Bağlantı')
+                                        ->content(fn (Get $get) => url('/?anahtar='.trim((string) $get('maintenance_bypass_key')))),
+                                ]),
+                        ]),
                 ]),
             ]);
     }
@@ -291,6 +369,10 @@ class SiteSettings extends Page implements HasSchemas
     public function save(): void
     {
         $data = $this->form->getState();
+
+        // Toggle'ın false'u boş dizeye düşerse okurken varsayılana dönerdi;
+        // "1"/"0" olarak yazınca kapalı gerçekten kapalı kalıyor.
+        $data['maintenance_enabled'] = ! empty($data['maintenance_enabled']) ? '1' : '0';
 
         Setting::putMany(collect($data)
             ->only(self::KEYS)

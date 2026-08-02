@@ -131,6 +131,8 @@ class AdminPanelProvider extends PanelProvider
             // Marka katmanı: fontlar + düz CSS (Tailwind sınıfı çalışmaz)
             ->renderHook(PanelsRenderHook::HEAD_END, fn () => view('filament.theme'))
             ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn () => view('filament.auth-foot'))
+            // Vitrin kapalıyken unutulmasın diye her sayfanın tepesinde durur
+            ->renderHook(PanelsRenderHook::TOPBAR_AFTER, fn () => view('filament.maintenance-banner'))
             ->maxContentWidth(Width::Full)
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([

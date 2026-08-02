@@ -2160,3 +2160,143 @@
     flex: none;
     color: var(--coral);
 }
+
+/* --------------------------------------------------------------------------
+   Yapım aşamasında perdesi (resources/views/maintenance.blade.php)
+   Başlık/alt bilgi olmadan tek başına duran sayfa — düzenini kendi kurar.
+   -------------------------------------------------------------------------- */
+
+.mtn {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100svh;
+    align-items: stretch;
+}
+
+@media (max-width: 900px) {
+    .mtn {
+        grid-template-columns: 1fr;
+    }
+}
+
+.mtn__panel {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 1rem;
+    padding: clamp(2.5rem, 7vw, 5rem) var(--gutter);
+    max-width: 36rem;
+    margin-inline: auto;
+    width: 100%;
+}
+
+.mtn__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* İşaret kare değil (320×293) — yükseklikten sürülür ki ezilmesin */
+.mtn__mark {
+    width: auto;
+    height: 52px;
+    flex: none;
+}
+
+.mtn__brand strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.mtn__brand em {
+    display: block;
+    font-style: normal;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.19em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-top: 4px;
+}
+
+.mtn__rule {
+    width: 5.5rem;
+    margin: 0.4rem 0;
+}
+
+.mtn__title {
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    line-height: 1.08;
+    text-wrap: balance;
+}
+
+.mtn__until {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.5rem 0.95rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--white);
+    font-size: 0.92rem;
+    color: var(--ink-2);
+}
+
+.mtn__until svg {
+    width: 17px;
+    height: 17px;
+    flex: none;
+    color: var(--sun-deep);
+}
+
+.mtn__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.mtn__social {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--ink-3);
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    width: 100%;
+}
+
+.mtn__social:hover {
+    color: var(--sea);
+}
+
+.mtn__social svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+}
+
+.mtn__aside {
+    position: relative;
+    overflow: hidden;
+    background: var(--paper-2);
+}
+
+.mtn__aside img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 900px) {
+    .mtn__aside {
+        order: -1;
+        height: clamp(11rem, 32vh, 18rem);
+        /* Logonun kemer motifi — altta yumuşak, üstte düz */
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+}

@@ -44,6 +44,12 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === 'admin';
     }
 
+    /** Yönetici ya da çalışan — kısacası dükkânın ekibi. */
+    public function isStaff(): bool
+    {
+        return in_array($this->role, ['admin', 'staff'], true);
+    }
+
     public function isCustomer(): bool
     {
         return $this->role === 'customer';
