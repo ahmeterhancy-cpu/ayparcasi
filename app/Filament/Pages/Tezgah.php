@@ -3,11 +3,13 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Resources\Products\ProductResource;
+use App\Filament\Resources\ProductTemplates\ProductTemplateResource;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductTemplate;
 use BackedEnum;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -18,6 +20,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\HtmlString;
 use UnitEnum;
 
 /**
@@ -106,6 +109,19 @@ class Tezgah extends Page implements HasSchemas
                             ->options(fn () => ProductTemplate::active()->orderBy('position')->pluck('name', 'id'))
                             ->visible(fn () => ProductTemplate::active()->exists())
                             ->helperText('Açıklama, kategori, ek ürünler ve boylar şablondan gelir.'),
+
+                        // Şablon yokken alanı sessizce gizlemek "böyle bir şey
+                        // yok" gibi okunuyordu; ne olduğunu ve nasıl açılacağını
+                        // söylüyoruz.
+                        Placeholder::make('sablon_yok')
+                            ->label('Şablon')
+                            ->visible(fn () => ! ProductTemplate::active()->exists())
+                            ->content(new HtmlString(
+                                'Henüz şablon yok. <a href="'.e(ProductTemplateResource::getUrl('index')).'" '
+                                .'style="text-decoration:underline">Ürün şablonları</a>ndan bir tane açarsanız '
+                                .'açıklama, kategori, ek ürünler ve boylar burada hazır gelir. '
+                                .'En kısa yolu: beğendiğiniz bir ürünü açıp <strong>Şablon çıkar</strong> deyin.'
+                            )),
 
                         Select::make('category_ids')
                             ->label('Kategoriler')

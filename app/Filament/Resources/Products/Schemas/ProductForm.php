@@ -7,6 +7,7 @@ use App\Models\ProductTemplate;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -38,12 +39,23 @@ class ProductForm
                 // Boy seti kayıttan sonra kopyalanır (bkz. CreateProduct).
                 Section::make('Şablondan başla')
                     ->columnSpanFull()
-                    ->visible(fn (string $operation) => $operation === 'create'
-                        && ProductTemplate::active()->exists())
+                    ->visible(fn (string $operation) => $operation === 'create')
                     ->schema([
+                        // Şablon yokken alanı gizlemek "böyle bir şey yok" gibi
+                        // okunuyordu; ne işe yaradığını burada söylüyoruz.
+                        Placeholder::make('sablon_yok')
+                            ->hiddenLabel()
+                            ->visible(fn () => ! ProductTemplate::active()->exists())
+                            ->content(new HtmlString(
+                                'Henüz şablon yok. Sık eklediğiniz ürün tipleri için bir şablon açarsanız '
+                                .'açıklama, bakım önerisi, kategori, ek ürünler ve boy seti burada hazır gelir. '
+                                .'En kısa yolu: beğendiğiniz bir ürünü açıp <strong>Şablon çıkar</strong> deyin.'
+                            )),
+
                         Select::make('sablon')
                             ->hiddenLabel()
                             ->placeholder('Şablon seçin — alanlar hazır gelsin')
+                            ->visible(fn () => ProductTemplate::active()->exists())
                             ->options(fn () => ProductTemplate::active()
                                 ->orderBy('position')
                                 ->pluck('name', 'id'))

@@ -31,6 +31,37 @@ class ProductTemplate extends Model
         return $query->where('is_active', true);
     }
 
+    /**
+     * Mevcut bir üründen şablon çıkarır. İlk şablonu sıfırdan yazmak yerine
+     * beğendiğin ürünün üstünden almak en kısa yol — metin, kategori, ek
+     * ürünler ve boylar olduğu gibi gelir.
+     */
+    public static function fromProduct(Product $product, ?string $name = null): self
+    {
+        return static::create([
+            'name' => $name ?: $product->name,
+            'short_description' => $product->short_description,
+            'description' => $product->description,
+            'contents' => $product->contents,
+            'care_notes' => $product->care_notes,
+            'badge' => $product->badge,
+            'price' => $product->price,
+            'track_stock' => $product->track_stock,
+            'stock' => 0,
+            'same_day' => $product->same_day,
+            'category_ids' => $product->categories->pluck('id')->all(),
+            'addon_ids' => $product->addons->pluck('id')->all(),
+            'variants' => $product->variants->map(fn ($variant) => [
+                'name' => $variant->name,
+                'description' => $variant->description,
+                'price' => (float) $variant->price,
+                'stock' => 0,
+                'is_default' => (bool) $variant->is_default,
+            ])->all(),
+            'position' => (int) static::max('position') + 1,
+        ]);
+    }
+
     /** Yeni ürün formunu dolduracak alanlar. */
     public function fields(): array
     {

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Filament\Pages\Tezgah;
 use App\Filament\Resources\Products\Pages\CreateProduct;
+use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Models\Addon;
 use App\Models\Category;
@@ -135,6 +136,39 @@ class ProductAddingTest extends TestCase
         $this->assertSame('Yeni', $product->badge);
         $this->assertCount(2, $product->variants);
         $this->assertFalse($product->is_active);
+    }
+
+    public function test_urunden_sablon_cikarilir(): void
+    {
+        $product = Product::has('variants')->with('categories', 'addons', 'variants')->firstOrFail();
+
+        Livewire::actingAs($this->admin)
+            ->test(EditProduct::class, ['record' => $product->id])
+            ->callAction('sablon_cikar', ['name' => 'Buket şablonu']);
+
+        $template = ProductTemplate::where('name', 'Buket şablonu')->firstOrFail();
+
+        $this->assertSame($product->care_notes, $template->care_notes);
+        $this->assertSame($product->categories->pluck('id')->all(), $template->category_ids);
+        $this->assertSame($product->addons->pluck('id')->all(), $template->addon_ids);
+        $this->assertCount($product->variants->count(), $template->variants);
+        // Stok şablona taşınmaz — her ürünün stoğu kendine ait
+        $this->assertSame(0, $template->stock);
+    }
+
+    public function test_sablon_yokken_ekranlar_yol_gosterir(): void
+    {
+        $this->assertSame(0, ProductTemplate::count());
+
+        $this->actingAs($this->admin)
+            ->get('/admin/tezgah')
+            ->assertOk()
+            ->assertSee('Henüz şablon yok');
+
+        $this->actingAs($this->admin)
+            ->get('/admin/products/create')
+            ->assertOk()
+            ->assertSee('Henüz şablon yok');
     }
 
     public function test_yeni_panel_sayfalari_acilir(): void

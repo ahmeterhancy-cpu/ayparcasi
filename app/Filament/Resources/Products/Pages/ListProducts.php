@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -46,6 +47,11 @@ class ListProducts extends ListRecords
                         ->options(fn () => ProductTemplate::active()->orderBy('position')->pluck('name', 'id'))
                         ->visible(fn () => ProductTemplate::active()->exists())
                         ->helperText('Seçerseniz açıklama, kategori, ek ürünler ve boylar da hazır gelir.'),
+
+                    Placeholder::make('sablon_yok')
+                        ->label('Şablon')
+                        ->visible(fn () => ! ProductTemplate::active()->exists())
+                        ->content('Henüz şablon yok. Bir ürünü açıp "Şablon çıkar" derseniz, sonraki toplu yüklemelerde açıklama ve kategoriler de hazır gelir.'),
 
                     Toggle::make('name_from_filename')
                         ->label('Ürün adını dosya adından al')
