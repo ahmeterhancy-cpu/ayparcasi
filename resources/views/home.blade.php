@@ -1,5 +1,12 @@
 @php
     $heroImage = img_url(setting('hero_image'), 'https://images.unsplash.com/photo-1487070183336-b863922373d4?auto=format&fit=crop&w=2000&q=72');
+
+    // Hero fotoğrafları — 2. ve 3. isteğe bağlı; birden fazlaysa mozaik geçiş çalışır
+    $heroSlides = collect([$heroImage, setting('hero_image_2'), setting('hero_image_3')])
+        ->filter()
+        ->map(fn ($src) => img_url($src))
+        ->values()
+        ->all();
     $cutoffHour = (int) setting('same_day_cutoff_hour', 15);
     $cutoffMinutes = $cutoffHour * 60;
 
@@ -63,7 +70,31 @@
     <section class="hero" data-scrub data-scrub-range="cover" aria-label="Ay Parçası">
         <div class="hero__sticky">
             <div class="hero__frame">
-                <img class="hero__img" src="{{ $heroImage }}" alt="" fetchpriority="high" decoding="async">
+                {{-- Fotoğraflar üst üste durur, aralarındaki geçişi mozaik
+                     karolar yapar (bkz. .hero__tiles ve initHeroSlides). --}}
+                @foreach ($heroSlides as $i => $slide)
+                    <img class="hero__img {{ $i === 0 ? 'is-on' : '' }}"
+                         src="{{ $slide }}" alt=""
+                         @if ($i === 0) fetchpriority="high" @else loading="lazy" @endif
+                         decoding="async">
+                @endforeach
+
+                {{-- Geçiş karoları — logodaki mozaikle aynı 6×3 ızgara.
+                     Giden fotoğrafı dilim dilim gösterip çaprazlama kapanır,
+                     altındaki yeni fotoğraf ortaya çıkar. --}}
+                @if (count($heroSlides) > 1)
+                    <div class="hero__tiles" data-hero-tiles aria-hidden="true">
+                        @for ($r = 0; $r < 3; $r++)
+                            @for ($c = 0; $c < 6; $c++)
+                                <i style="--c:{{ $c }};--r:{{ $r }}"></i>
+                            @endfor
+                        @endfor
+                    </div>
+                @endif
+
+                {{-- Yavaşça gezinen ışık — fotoğraf sabitken bile "nefes alır" --}}
+                <div class="hero__light" aria-hidden="true"></div>
+
                 <div class="hero__veil"></div>
             </div>
 

@@ -289,6 +289,46 @@ function initCardSuggestions() {
 }
 
 /* -------------------------------------------------------------------------
+ * Hero fotoğraf geçişi — logonun mozaik ızgarasıyla
+ *
+ * Karolar GİDEN fotoğrafın dilimlerini gösterir; çaprazlama kapanınca
+ * altındaki yeni fotoğraf açılır. Fotoğraflar arasında opaklık geçişi
+ * yapılmaz: hero'nun transform'u kaydırmaya bağlı (--p) ve animasyonla
+ * çakışırdı.
+ * ---------------------------------------------------------------------- */
+function initHeroSlides() {
+    const frame = document.querySelector('.hero__frame');
+    const tiles = frame?.querySelector('[data-hero-tiles]');
+    if (!frame || !tiles) return;
+
+    const slides = [...frame.querySelectorAll('.hero__img')];
+    if (slides.length < 2) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let index = 0;
+
+    setInterval(() => {
+        // Sekme arka plandayken boşuna çalışmasın
+        if (document.hidden) return;
+
+        const current = slides[index];
+        index = (index + 1) % slides.length;
+        const next = slides[index];
+
+        tiles.style.setProperty('--bg', `url("${current.currentSrc || current.src}")`);
+
+        next.classList.add('is-on');
+        current.classList.remove('is-on');
+
+        // Animasyonu baştan başlatmak için sınıfı sıfırla; araya bir
+        // yeniden akış (reflow) girmezse tarayıcı değişikliği görmez.
+        tiles.classList.remove('is-wiping');
+        void tiles.offsetWidth;
+        tiles.classList.add('is-wiping');
+    }, 7000);
+}
+
+/* -------------------------------------------------------------------------
  * Hareket azaltma tercihi: kendiliğinden oynayan video başlatılmaz.
  * İşletim sisteminde "hareketi azalt" açıksa dönen görüntü rahatsız eder;
  * ziyaretçi isterse denetimlerden kendisi oynatır.
@@ -733,6 +773,7 @@ function boot() {
     syncFavs();
     initQuickView();
     initCardSuggestions();
+    initHeroSlides();
     initAutoplayGuard();
     initCountdowns();
     initToasts();

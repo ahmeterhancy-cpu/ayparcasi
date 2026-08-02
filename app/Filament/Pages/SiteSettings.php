@@ -53,7 +53,7 @@ class SiteSettings extends Page implements HasSchemas
         'low_stock_threshold', 'low_stock_email',
         'order_emails_enabled', 'order_alert_email',
         'map_lat', 'map_lng',
-        'hero_eyebrow', 'hero_title', 'hero_subtitle', 'hero_image',
+        'hero_eyebrow', 'hero_title', 'hero_subtitle', 'hero_image', 'hero_image_2', 'hero_image_3',
         'video_title', 'video_text', 'video_points', 'video_poster', 'video_file',
         'about_title', 'about_text', 'about_image',
         'footer_text',
@@ -139,6 +139,15 @@ class SiteSettings extends Page implements HasSchemas
                                     ->maxSize(8192)
                                     ->columnSpanFull()
                                     ->helperText('Geniş ve yatay bir fotoğraf seçin (en az 2000px).'),
+
+                                FileUpload::make('hero_image_2')
+                                    ->label('2. fotoğraf (isteğe bağlı)')
+                                    ->image()->imageEditor()->directory('site')->disk('public')->maxSize(8192)
+                                    ->helperText('Eklerseniz fotoğraflar mozaik geçişle sırayla değişir.'),
+
+                                FileUpload::make('hero_image_3')
+                                    ->label('3. fotoğraf (isteğe bağlı)')
+                                    ->image()->imageEditor()->directory('site')->disk('public')->maxSize(8192),
                             ]),
 
                             Section::make('Tanıtım videosu')

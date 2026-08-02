@@ -32,18 +32,103 @@
     z-index: 0;
 }
 
+/* Fotoğraflar üst üste durur; görünen olana .is-on verilir.
+   Geçiş opaklıkla DEĞİL mozaik karolarla yapılır, çünkü buradaki transform
+   kaydırmaya bağlı (--p) ve animasyonla çakışmamalı. */
 .hero__img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    opacity: 0;
     transform: scale(calc(1.14 - var(--p, 0) * 0.14)) translate3d(0, calc(var(--p, 0) * -4vh), 0);
     transform-origin: center 40%;
 }
 
-/* Okunabilirlik örtüsü — alt tarafta koyulaşır */
+.hero__img.is-on {
+    opacity: 1;
+}
+
+/* --- Mozaik geçiş karoları -------------------------------------------------
+   Logonun mozaik ızgarasıyla aynı 6×3. Karolar GİDEN fotoğrafın dilimlerini
+   gösterir; çaprazlama kapanınca altındaki yeni fotoğraf açılır.
+   animation-fill-mode: backwards — gecikme boyunca karo scaleY(1)'de bekler,
+   yoksa sıra kendisine gelene kadar kapalı görünüp fotoğrafı erken açardı. */
+.hero__tiles {
+    position: absolute;
+    inset: -1px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* scaleX(1.01): kesirli sütun genişliğinden doğan dikey dikiş çizgilerini
+   kapatmak için karolar yanlardan ~1px bindirilir. */
+.hero__tiles i {
+    background-image: var(--bg);
+    background-size: 600% 300%;
+    background-position: calc(var(--c) * 20%) calc(var(--r) * 50%);
+    transform: scaleX(1.01) scaleY(0);
+    transform-origin: center top;
+}
+
+.hero__tiles.is-wiping i {
+    animation: hero-tile-fall 780ms var(--ease) backwards;
+    animation-delay: calc((var(--c) + var(--r)) * 55ms);
+}
+
+@keyframes hero-tile-fall {
+    from {
+        transform: scaleX(1.01) scaleY(1);
+    }
+    to {
+        transform: scaleX(1.01) scaleY(0);
+    }
+}
+
+/* --- Gezinen ışık ----------------------------------------------------------
+   Fotoğrafın üstünde çok yavaş dolaşan sıcak/serin ışık lekeleri. */
+.hero__light {
+    position: absolute;
+    inset: -25%;
+    z-index: 2;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+    background:
+        radial-gradient(38% 44% at 30% 34%, rgba(255, 226, 168, 0.55), transparent 70%),
+        radial-gradient(34% 40% at 72% 64%, rgba(140, 220, 220, 0.4), transparent 72%);
+    animation: hero-light 26s var(--ease-in-out) infinite alternate;
+}
+
+@keyframes hero-light {
+    from {
+        transform: translate3d(-3%, -2%, 0) scale(1);
+    }
+    to {
+        transform: translate3d(4%, 3%, 0) scale(1.1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero__light {
+        animation: none;
+    }
+
+    .hero__tiles {
+        display: none;
+    }
+}
+
+/* Okunabilirlik örtüsü — alt tarafta koyulaşır.
+   z-index: ışık katmanının (2) ÜSTÜNDE kalmalı. Altında kalırsa ışık
+   örtüyü de aydınlatıp başlığın kontrastını düşürüyor. */
 .hero__veil {
     position: absolute;
     inset: 0;
+    z-index: 3;
     background:
         linear-gradient(180deg, rgba(14, 44, 52, 0.52) 0%, rgba(14, 44, 52, 0.12) 34%, rgba(14, 44, 52, 0.78) 100%);
 }
@@ -57,7 +142,7 @@
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(3, 1fr);
     pointer-events: none;
-    z-index: 3;
+    z-index: 4;
 }
 
 /* Her karo kendi üst kenarına doğru kapanır; gecikme çaprazdan yayılır */
@@ -91,7 +176,7 @@
 
 .hero__content {
     position: relative;
-    z-index: 4;
+    z-index: 5;
     width: 100%;
     max-width: var(--page);
     margin-inline: auto;
@@ -168,7 +253,7 @@
     left: 50%;
     bottom: 2.2rem;
     translate: -50% 0;
-    z-index: 4;
+    z-index: 5;
     display: grid;
     justify-items: center;
     gap: 0.6rem;
