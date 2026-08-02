@@ -50,14 +50,20 @@ class DemoSeeder extends Seeder
             'tagline' => 'Hediyelik Tasarımlar & Çiçekçi Dükkanı',
             'meta_description' => 'Kıbrıs\'ta el yapımı buketler, orkideler ve hediyelik tasarımlar. Saat 15:00\'e kadar verilen siparişlerde aynı gün teslimat.',
 
-            // NOT: aşağıdaki iletişim bilgileri örnektir — gerçekleriyle değiştirilmeli.
-            'phone' => '+90 533 000 00 00',
-            'whatsapp' => '905330000000',
+            /*
+             * Telefon ve sosyal hesaplar işletmenin kendi kayıtlarından
+             * (Google Maps / Facebook sayfası) alındı.
+             * HÂLÂ DOĞRULANMADI: açık adres, e-posta ve çalışma saatleri.
+             * Adres bilerek BOŞ — boşken iletişim sayfasında satır hiç
+             * görünmüyor; uydurma bir sokak adı yazmaktansa gizli kalsın.
+             */
+            'phone' => '+90 533 846 02 46',
+            'whatsapp' => '905338460246',
             'email' => 'merhaba@ayparcasicicekci.com',
-            'address' => 'Örnek Sokak No. 1, Girne, Kuzey Kıbrıs',
+            'address' => '',
             'hours' => 'Her gün 09:00 – 19:00',
-            'instagram' => 'https://instagram.com/',
-            'facebook' => '',
+            'instagram' => 'https://www.instagram.com/ayparcasihediyelikvecicekcilik/',
+            'facebook' => 'https://www.facebook.com/Ayparcasihediyelik/',
 
             'same_day_cutoff_hour' => 15,
             'bank_details' => "Hesap bilgilerini sipariş sonrası WhatsApp'tan paylaşıyoruz.",
