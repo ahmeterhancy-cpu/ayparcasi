@@ -52,6 +52,12 @@ class Product extends Model
         return $this->belongsToMany(Category::class);
     }
 
+    /** Ürün sayfasında "Yanına ekleyin" altında çıkacak ek ürünler. */
+    public function addons(): BelongsToMany
+    {
+        return $this->belongsToMany(Addon::class)->orderBy('position');
+    }
+
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class)->orderBy('position');

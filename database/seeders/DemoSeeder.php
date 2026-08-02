@@ -38,6 +38,7 @@ class DemoSeeder extends Seeder
         $this->addons();
         $cats = $this->categories();
         $this->products($cats);
+        $this->attachAddons();
         $this->content();
     }
 
@@ -148,6 +149,23 @@ class DemoSeeder extends Seeder
                 'is_active' => true,
             ]);
         }
+    }
+
+    /**
+     * Ek ürünler ürüne bağlı. Demo katalogda hepsi her ürüne seçili gelir
+     * ki vitrindeki "Yanına ekleyin" bölümü boş kalmasın.
+     */
+    private function attachAddons(): void
+    {
+        $addonIds = Addon::pluck('id')->all();
+
+        if (! $addonIds) {
+            return;
+        }
+
+        Product::query()->each(
+            fn (Product $product) => $product->addons()->syncWithoutDetaching($addonIds)
+        );
     }
 
     /** @return array<string, Category> */

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Addon;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -145,7 +144,7 @@ class ShopController extends Controller
         return view('shop.product', [
             'product' => $product,
             'related' => $related,
-            'addons' => Addon::active()->orderBy('position')->get(),
+            'addons' => $product->addons()->active()->get(),
             'reviews' => $product->approvedReviews()->get(),
             'breakdown' => $product->ratingBreakdown(),
             // Yorum formu yalnızca hakkı olana gösterilir; asıl kontrol
@@ -167,7 +166,7 @@ class ShopController extends Controller
 
         return view('shop.quickview', [
             'product' => $product,
-            'addons' => Addon::active()->orderBy('position')->get(),
+            'addons' => $product->addons()->active()->get(),
         ]);
     }
 

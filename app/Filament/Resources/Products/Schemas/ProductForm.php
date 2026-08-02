@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Models\Addon;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -102,6 +104,24 @@ class ProductForm
                             ->preload()
                             ->searchable()
                             ->required(),
+                    ]),
+
+                Section::make('Yanına ekleyin')
+                    ->columnSpanFull()
+                    ->description('Müşteri bu ürünü sepete atarken yanında önerilecek ek ürünler. Hiçbirini seçmezseniz ürün sayfasında bu bölüm hiç görünmez.')
+                    ->schema([
+                        CheckboxList::make('addons')
+                            ->hiddenLabel()
+                            ->relationship('addons', 'name')
+                            ->getOptionLabelFromRecordUsing(
+                                fn (Addon $record) => $record->name.' — '.money($record->price)
+                                    .($record->is_active ? '' : ' (pasif)')
+                            )
+                            ->columns(2)
+                            ->bulkToggleable()
+                            ->noSearchResultsMessage('Ek ürün bulunamadı.')
+                            ->searchable()
+                            ->helperText('Listeyi Katalog → Ek ürünler bölümünden yönetirsiniz.'),
                     ]),
 
                 Section::make('Fiyat')

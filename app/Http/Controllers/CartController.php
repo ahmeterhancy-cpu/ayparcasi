@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Addon;
 use App\Models\DeliveryZone;
 use App\Models\Product;
 use App\Services\Cart;
@@ -53,8 +52,15 @@ class CartController extends Controller
                 ?? $product->variants->where('is_active', true)->sortBy('price')->first();
         }
 
+        // Ek ürünler artık ürüne bağlı. Formdan gelen kimlikler yalnızca bu
+        // ürüne seçilmiş ve aktif olanlarla kesiştirilir — istek elle
+        // düzenlenip başka bir ürünün eki sepete sokulamasın.
+        $allowed = $product->addons()->active()->pluck('addons.id');
+
         $addonIds = collect($data['addons'] ?? [])
-            ->filter(fn ($id) => Addon::where('id', $id)->where('is_active', true)->exists())
+            ->map(fn ($id) => (int) $id)
+            ->intersect($allowed)
+            ->values()
             ->all();
 
         $this->cart->add($product, $variant, (int) ($data['quantity'] ?? 1), $addonIds);
