@@ -301,9 +301,14 @@
                      denetimleri yeterli, ayrı bir oynatıcı kütüphanesi yok.
                      preload="none" — video ekrana gelmeden indirilmesin. --}}
                 <div class="video-block__media" data-reveal="up">
+                    {{-- loop + muted: ortam görüntüsü kısa olabiliyor, tek
+                         seferde bitip donuk kalmasın; ses de beklenmedik
+                         açılmasın. Ziyaretçi denetimlerden sesi açabilir. --}}
                     <video
                         class="video-block__video"
                         controls
+                        loop
+                        muted
                         preload="none"
                         playsinline
                         @if ($videoPoster) poster="{{ img_url($videoPoster) }}" @endif
