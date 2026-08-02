@@ -67,17 +67,26 @@
    2. Split — kelime / harf yükselmesi
    -------------------------------------------------------------------------- */
 
+/* Kelimeyi saran maske. `overflow: hidden` yükselme animasyonunu kesiyor
+   ama sıkı satır yüksekliğinde (hero'da 0.92) harfin kendisini de kesiyordu:
+   altta "y, g, ş" kuyrukları, üstte Türkçe büyük harflerin şapkaları
+   (İ, Ğ, Ü, Ö, Ş) satır kutusunun dışına taşıyor. Dolgu bu taşmayı içeri
+   alır, eşit negatif kenar boşluğu da düzeni olduğu yerde tutar. */
 .is-split .sp {
     display: inline-block;
     overflow: hidden;
     vertical-align: bottom;
-    padding-bottom: 0.06em;
-    margin-bottom: -0.06em;
+    padding-top: 0.14em;
+    margin-top: -0.14em;
+    padding-bottom: 0.22em;
+    margin-bottom: -0.22em;
 }
 
 .is-split .sp-i {
     display: inline-block;
-    transform: translate3d(0, 105%, 0) rotate(2.5deg);
+    /* Maske yukarıdaki dolgu kadar uzadı; kelime de o kadar aşağıdan
+       başlamalı, yoksa animasyon başlamadan harflerin tepesi görünüyor. */
+    transform: translate3d(0, 145%, 0) rotate(2.5deg);
     transition:
         transform 1000ms var(--ease);
     transition-delay: calc(var(--i) * 55ms + var(--split-delay, 0ms));
