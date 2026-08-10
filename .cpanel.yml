@@ -1,0 +1,36 @@
+---
+# cPanel → Git Version Control → "Deploy HEAD Commit" bu dosyayı çalıştırır.
+# Komutlar cPanel kullanıcısı olarak, deponun kök dizininde koşar.
+#
+# İLK KURULUMDAN ÖNCE iki satırı kendi hesabınıza göre düzeltin:
+#   DEPLOYPATH  → uygulamanın duracağı dizin (public_html'in DIŞINDA)
+#   PHPBIN      → PHP 8.3+ ikilisi (cPanel'de "MultiPHP" sürümüyle aynı olmalı)
+#
+# Ayrıntılı anlatım: DEPLOY.md
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/KULLANICI/ayparcasi
+    - export PHPBIN=/opt/cpanel/ea-php83/root/usr/bin/php
+
+    - /bin/mkdir -p $DEPLOYPATH
+
+    # Kodu kopyala. .env ve storage BİLEREK hariç: biri sunucuya özel
+    # ayarlar, öteki yüklenen görseller ve günlükler — deploy onları silmemeli.
+    - /usr/bin/rsync -a --delete
+        --exclude '.git'
+        --exclude '.env'
+        --exclude 'storage/'
+        --exclude 'node_modules/'
+        --exclude 'tests/'
+        ./ $DEPLOYPATH/
+
+    - cd $DEPLOYPATH && /usr/local/bin/composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+    - cd $DEPLOYPATH && $PHPBIN artisan migrate --force
+    - cd $DEPLOYPATH && $PHPBIN artisan storage:link
+
+    # Önbellekleri tazele. optimize:clear önce çalışır ki eski config
+    # önbelleği yeni .env'i gölgelemesin.
+    - cd $DEPLOYPATH && $PHPBIN artisan optimize:clear
+    - cd $DEPLOYPATH && $PHPBIN artisan optimize
+    - cd $DEPLOYPATH && $PHPBIN artisan filament:optimize

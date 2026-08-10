@@ -1,0 +1,342 @@
+{
+  "version": 1,
+  "style": {
+    "file": "assets/fonts-COeTN3gk.css",
+    "familyStyles": {
+      "fraunces": "@font-face {\n  font-family: \"Fraunces\";\n  font-style: italic;\n  font-weight: 400;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-400-italic-ChpO6tcr.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: italic;\n  font-weight: 400;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-400-italic-B7iDoVhm.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: italic;\n  font-weight: 500;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-500-italic-CjxnbVsv.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: italic;\n  font-weight: 500;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-500-italic-Bp1RWfBU.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: italic;\n  font-weight: 600;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-600-italic-O70d2LGK.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: italic;\n  font-weight: 600;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-600-italic-BlP2rMdV.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: italic;\n  font-weight: 700;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-700-italic-BTx51a-P.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: italic;\n  font-weight: 700;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-700-italic-Bjyesmbf.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-400-normal-6IfK1voy.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-400-normal-NUPT2cO8.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-500-normal-DnGCNyPD.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-500-normal-BTR4KCeb.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-600-normal-BFCDtZfi.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-600-normal-DL5QCzvS.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-700-normal-CEOla-zY.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Fraunces\";\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(\"/build/assets/fraunces-700-normal-DTjk5d1Q.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n.font-fraunces {\n  font-family: var(--font-fraunces);\n}",
+      "manrope": "@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-400-normal-PaqtzbVb.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-400-normal-8tf8FM3T.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-500-normal-BYYD-dBL.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-500-normal-DMZssgOp.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-600-normal-4f0koTD-.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-600-normal-BqgrALkZ.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-700-normal-BZp_XxE4.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-700-normal-DGRFkw-m.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 800;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-800-normal-BfWYOv1c.woff2\") format(\"woff2\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n@font-face {\n  font-family: \"Manrope\";\n  font-style: normal;\n  font-weight: 800;\n  font-display: swap;\n  src: url(\"/build/assets/manrope-800-normal-uHUdIJgA.woff\") format(\"woff\");\n  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;\n}\n\n.font-manrope {\n  font-family: var(--font-manrope);\n}"
+    },
+    "variables": {
+      "fraunces": "--font-fraunces: \"Fraunces\";",
+      "manrope": "--font-manrope: \"Manrope\";"
+    }
+  },
+  "preloads": [
+    {
+      "alias": "fraunces",
+      "family": "Fraunces",
+      "weight": 400,
+      "style": "italic",
+      "file": "assets/fraunces-400-italic-ChpO6tcr.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "fraunces",
+      "family": "Fraunces",
+      "weight": 500,
+      "style": "italic",
+      "file": "assets/fraunces-500-italic-CjxnbVsv.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "fraunces",
+      "family": "Fraunces",
+      "weight": 600,
+      "style": "italic",
+      "file": "assets/fraunces-600-italic-O70d2LGK.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "fraunces",
+      "family": "Fraunces",
+      "weight": 700,
+      "style": "italic",
+      "file": "assets/fraunces-700-italic-BTx51a-P.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "fraunces",
+      "family": "Fraunces",
+      "weight": 400,
+      "style": "normal",
+      "file": "assets/fraunces-400-normal-6IfK1voy.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "fraunces",
+      "family": "Fraunces",
+      "weight": 500,
+      "style": "normal",
+      "file": "assets/fraunces-500-normal-DnGCNyPD.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "fraunces",
+      "family": "Fraunces",
+      "weight": 600,
+      "style": "normal",
+      "file": "assets/fraunces-600-normal-BFCDtZfi.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "fraunces",
+      "family": "Fraunces",
+      "weight": 700,
+      "style": "normal",
+      "file": "assets/fraunces-700-normal-CEOla-zY.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "manrope",
+      "family": "Manrope",
+      "weight": 400,
+      "style": "normal",
+      "file": "assets/manrope-400-normal-PaqtzbVb.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "manrope",
+      "family": "Manrope",
+      "weight": 500,
+      "style": "normal",
+      "file": "assets/manrope-500-normal-BYYD-dBL.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "manrope",
+      "family": "Manrope",
+      "weight": 600,
+      "style": "normal",
+      "file": "assets/manrope-600-normal-4f0koTD-.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "manrope",
+      "family": "Manrope",
+      "weight": 700,
+      "style": "normal",
+      "file": "assets/manrope-700-normal-BZp_XxE4.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    },
+    {
+      "alias": "manrope",
+      "family": "Manrope",
+      "weight": 800,
+      "style": "normal",
+      "file": "assets/manrope-800-normal-BfWYOv1c.woff2",
+      "as": "font",
+      "type": "font/woff2",
+      "crossorigin": "anonymous"
+    }
+  ],
+  "families": {
+    "fraunces": {
+      "family": "Fraunces",
+      "variable": "--font-fraunces",
+      "variants": {
+        "400:italic": {
+          "files": [
+            {
+              "file": "assets/fraunces-400-italic-ChpO6tcr.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/fraunces-400-italic-B7iDoVhm.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "500:italic": {
+          "files": [
+            {
+              "file": "assets/fraunces-500-italic-CjxnbVsv.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/fraunces-500-italic-Bp1RWfBU.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "600:italic": {
+          "files": [
+            {
+              "file": "assets/fraunces-600-italic-O70d2LGK.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/fraunces-600-italic-BlP2rMdV.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "700:italic": {
+          "files": [
+            {
+              "file": "assets/fraunces-700-italic-BTx51a-P.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/fraunces-700-italic-Bjyesmbf.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "400:normal": {
+          "files": [
+            {
+              "file": "assets/fraunces-400-normal-6IfK1voy.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/fraunces-400-normal-NUPT2cO8.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "500:normal": {
+          "files": [
+            {
+              "file": "assets/fraunces-500-normal-DnGCNyPD.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/fraunces-500-normal-BTR4KCeb.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "600:normal": {
+          "files": [
+            {
+              "file": "assets/fraunces-600-normal-BFCDtZfi.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/fraunces-600-normal-DL5QCzvS.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "700:normal": {
+          "files": [
+            {
+              "file": "assets/fraunces-700-normal-CEOla-zY.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/fraunces-700-normal-DTjk5d1Q.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        }
+      }
+    },
+    "manrope": {
+      "family": "Manrope",
+      "variable": "--font-manrope",
+      "variants": {
+        "400:normal": {
+          "files": [
+            {
+              "file": "assets/manrope-400-normal-PaqtzbVb.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/manrope-400-normal-8tf8FM3T.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "500:normal": {
+          "files": [
+            {
+              "file": "assets/manrope-500-normal-BYYD-dBL.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/manrope-500-normal-DMZssgOp.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "600:normal": {
+          "files": [
+            {
+              "file": "assets/manrope-600-normal-4f0koTD-.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/manrope-600-normal-BqgrALkZ.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "700:normal": {
+          "files": [
+            {
+              "file": "assets/manrope-700-normal-BZp_XxE4.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/manrope-700-normal-DGRFkw-m.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        },
+        "800:normal": {
+          "files": [
+            {
+              "file": "assets/manrope-800-normal-BfWYOv1c.woff2",
+              "format": "woff2",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            },
+            {
+              "file": "assets/manrope-800-normal-uHUdIJgA.woff",
+              "format": "woff",
+              "unicodeRange": "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

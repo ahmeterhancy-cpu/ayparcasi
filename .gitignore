@@ -14,7 +14,9 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
+# public/build BİLEREK depoda tutuluyor: paylaşımlı sunucuda node yok,
+# derlenmiş varlıklar git üzerinden gidiyor. Ön yüzü değiştirdikten sonra
+# `npm run build` çalıştırıp çıktıyı commit'leyin (bkz. DEPLOY.md).
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
