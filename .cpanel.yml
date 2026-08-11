@@ -18,6 +18,11 @@
 # Her görev TEK SATIR: cPanel'in YAML ayrıştırıcısı çok satırlı komutlarda
 # takılabiliyor. Uzun görünseler de bölmeyin.
 #
+# GÖREV METİNLERİNDE "iki nokta + boşluk" KULLANMAYIN. Tırnaksız bir YAML
+# değerinin içinde `: ` geçerse ayrıştırıcı orayı eşleme sanıp dosyayı
+# reddediyor; cPanel deploy'u anında düşürüyor ve "Last Deployed" son
+# başarılı commit'te donuyor. Bu yüzden echo metinlerinde `=` var.
+#
 # Ayrıntılı anlatım: DEPLOY.md
 deployment:
   tasks:
@@ -65,10 +70,10 @@ deployment:
     - date > $DURUM 2>&1
     - echo "php=$($PHPBIN -v 2>&1 | head -1)" >> $DURUM 2>&1
     - echo "composer=$(command -v composer)" >> $DURUM 2>&1
-    - test -f $APPPATH/.env && echo "ENV: VAR" >> $DURUM 2>&1 || echo "ENV: YOK" >> $DURUM 2>&1
-    - test -f $APPPATH/vendor/autoload.php && echo "VENDOR: VAR" >> $DURUM 2>&1 || echo "VENDOR: YOK" >> $DURUM 2>&1
-    - test -f $APPPATH/artisan && echo "ARTISAN: VAR" >> $DURUM 2>&1 || echo "ARTISAN: YOK" >> $DURUM 2>&1
-    - test -L $WEBROOT/storage && echo "STORAGE BAGI: VAR" >> $DURUM 2>&1 || echo "STORAGE BAGI: YOK" >> $DURUM 2>&1
+    - test -f $APPPATH/.env && echo "ENV=VAR" >> $DURUM 2>&1 || echo "ENV=YOK" >> $DURUM 2>&1
+    - test -f $APPPATH/vendor/autoload.php && echo "VENDOR=VAR" >> $DURUM 2>&1 || echo "VENDOR=YOK" >> $DURUM 2>&1
+    - test -f $APPPATH/artisan && echo "ARTISAN=VAR" >> $DURUM 2>&1 || echo "ARTISAN=YOK" >> $DURUM 2>&1
+    - test -L $WEBROOT/storage && echo "STORAGE BAGI=VAR" >> $DURUM 2>&1 || echo "STORAGE BAGI=YOK" >> $DURUM 2>&1
     - echo "APPPATH:" >> $DURUM 2>&1
     - /bin/ls -1 $APPPATH >> $DURUM 2>&1
     - echo "SON HATA:" >> $DURUM 2>&1
