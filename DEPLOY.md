@@ -77,25 +77,37 @@ cPanel → **MySQL® Veritabanları**:
 2. Kullanıcı oluştur, güçlü bir parola ver
 3. Kullanıcıyı veritabanına ekle, **ALL PRIVILEGES** seç
 
-### 2-B. Depoyu klonla
+### 2-B. Depoyu klonla (bu hesapta SSH yok)
 
-Depo **private**. cPanel klonlarken parola soramaz, o yüzden HTTPS adresi
-çalışmaz — SSH anahtarı gerekir. Sıra şöyle:
+Depo **private** ve cPanel'de *SSH Access* bulunmuyor, yani anahtar
+üretilemiyor. Kalan tek yol: klon adresine **salt okunur bir GitHub
+jetonu** gömmek.
 
-1. cPanel → **SSH Access** → *Manage SSH Keys* → **Generate a New Key**
-   (parola/passphrase **boş** bırakın; cPanel'in git'i passphrase soramaz)
-2. Üretilen anahtarı **Authorize** edin
-3. *View/Download* ile **genel** anahtarı (`.pub`) kopyalayın
-4. GitHub → depo → *Settings* → **Deploy keys** → *Add deploy key* →
-   yapıştırın. **Allow write access KAPALI** kalsın — sunucunun yazmasına
-   gerek yok.
+1. GitHub → sağ üst avatar → *Settings* → *Developer settings* →
+   **Personal access tokens** → *Fine-grained tokens* → **Generate new token**
+2. Ayarlar:
+   - **Repository access**: *Only select repositories* → `ayparcasi`
+   - **Permissions** → *Repository permissions* → **Contents: Read-only**
+     (başka hiçbir izin vermeyin)
+   - **Expiration**: 1 yıl
+3. Üretilen jetonu (`github_pat_...`) kopyalayın — bir daha gösterilmez.
 
 Sonra cPanel → **Git Version Control** → *Create*:
 
 - **Clone a Repository**: açık
-- **Clone URL**: `git@github.com:ahmeterhancy-cpu/ayparcasi.git`
+- **Clone URL**:
+  ```
+  https://JETON@github.com/ahmeterhancy-cpu/ayparcasi.git
+  ```
+  `JETON` yerine kopyaladığınız değeri yazın.
 - **Repository Path**: `repositories/ayparcasi`
 - **Repository Name**: `ayparcasi`
+
+> Jeton sunucuda `repositories/ayparcasi/.git/config` içinde düz metin
+> durur. O dizin `public_html` dışında olduğu için web'den okunamaz.
+> Yine de jetonu **yalnız bu depoya** ve **salt okunur** verin; sızarsa
+> yapabileceği tek şey kaynak kodu okumaktır. Şüphelenirseniz GitHub'dan
+> iptal edip yenisini üretin, Clone URL'yi güncelleyin.
 
 ### 2-C. `.cpanel.yml` dosyasını kendi hesabınıza göre düzeltin
 
@@ -107,90 +119,118 @@ Depodaki `.cpanel.yml` içinde üç satır var:
 - export PHPBIN=/opt/cpanel/ea-php83/root/usr/bin/php
 ```
 
-- `aypa8479` → cPanel kullanıcı adı (bu hesapta doğrulandı)
-- `PHPBIN` → cPanel → *MultiPHP Manager*'da seçtiğiniz sürümün ikilisi.
-  PHP 8.4 seçtiyseniz `ea-php84` yazın. **Proje PHP 8.3 ve üstünü ister.**
+Kullanıcı adı (`aypa8479`) doğrulandı, o satırlar hazır. Kontrol etmeniz
+gereken tek satır **`PHPBIN`**: cPanel → *MultiPHP Manager*'da alan adı için
+hangi sürüm seçiliyse ikilisi o olmalı. PHP 8.4 seçiliyse `ea-php83` yerine
+`ea-php84` yazın. **Proje PHP 8.3 ve üstünü ister** — seçili sürüm 8.2 ya da
+altındaysa önce MultiPHP'den yükseltin, yoksa composer kurulumu reddeder.
 
-Composer yolu farklıysa (`/usr/local/bin/composer` çalışmazsa) SSH'ta
-`which composer` ile bulup `.cpanel.yml` içinde düzeltin.
+Düzeltmeyi yerelde yapıp `git push` edin; sunucuda dosya düzenlemeyin,
+sonraki deploy üzerine yazar.
 
 ### 2-D. İlk deploy
 
 Git Version Control → deponun yanındaki **Manage** → **Deploy HEAD Commit**.
 
-İlk deploy `.env` olmadığı için `artisan` adımlarında hata verecek — normal,
-sonraki adımda düzeltiyoruz.
+İlk deploy `.env` olmadığı için `artisan` adımlarını atlayacak — normal,
+3. bölümde `.env`'i oluşturup deploy'u tekrarlıyoruz.
 
-## 3. Sunucuda tek seferlik ayarlar
+### 2-E. Composer sunucuda yoksa
 
-SSH ya da cPanel → **Terminal**:
-
-```bash
-cd ~/public_html/ayparcasi_app
-cp .env.production.example .env
-nano .env          # veritabanı, e-posta ve APP_URL'i doldurun
-php artisan key:generate
-php artisan migrate --force
-php artisan optimize
-```
-
-> `php` komutu eski sürüm veriyorsa `.cpanel.yml`'deki tam yolu kullanın:
-> `/opt/cpanel/ea-php83/root/usr/bin/php artisan ...`
-
-**`storage:link` çalıştırmayın.** O komut bağı uygulamanın kendi `public/`
-dizinine kurar; burada web kökü orası değil. Doğru bağı deploy zaten
-kuruyor — kontrol etmek isterseniz:
+Deploy günlüğünde **`COMPOSER BULUNAMADI`** yazıyorsa sunucuda composer
+yok demektir; `vendor/` dizinini depoya koymak gerekir. Yerelde:
 
 ```bash
-ls -l ~/public_html/storage
-# storage -> /home/aypa8479/public_html/ayparcasi_app/storage/app/public
+composer install --no-dev --optimize-autoloader   # dev paketleri çıkar
+# .gitignore içindeki "/vendor" satırını silin
+git add -f vendor && git commit -m "chore: vendor'ı depoya al (sunucuda composer yok)"
+git push
+composer install                                   # yerelde dev paketleri geri al
 ```
 
-### 3-0. Güvenlik kontrolü (atlamayın)
+Bu yol çalışır ama bedeli var: depo şişer ve her paket güncellemesinde
+`--no-dev` ile kurup yeniden commit'lemeniz gerekir. Önce composer'ın
+gerçekten yok olduğundan emin olun — hosting desteğine sormaya değer.
 
-```bash
-curl -I https://ALANADI/ayparcasi_app/.env
+## 3. Sunucuda tek seferlik ayarlar (terminal olmadan)
+
+SSH/Terminal olmadığı için `artisan` komutlarını elle çalıştıramıyoruz.
+Bunların hepsini deploy görevleri (`.cpanel.yml`) çalıştırıyor. Size kalan
+tek iş `.env` dosyasını oluşturmak.
+
+### 3-A. `.env` dosyası
+
+cPanel → **Dosya Yöneticisi** → sağ üst *Settings* → **Show Hidden Files**
+açık olsun. `public_html/ayparcasi_app/` klasörüne girin:
+
+1. `.env.production.example` dosyasını seçin → **Copy** → adı `.env` olsun
+   (ya da *+ File* ile `.env` oluşturup içeriği yapıştırın)
+2. `.env` dosyasını seçip **Edit** ile açın, şunları doldurun:
+
+```dotenv
+APP_URL=https://ayparcasicicekci.com
+APP_KEY=base64:BURAYA-ANAHTAR
+
+DB_DATABASE=aypa8479_ayparcasi
+DB_USERNAME=aypa8479_ayparcasi
+DB_PASSWORD=veritabanı-parolanız
+
+MAIL_USERNAME=merhaba@ayparcasicicekci.com
+MAIL_PASSWORD=posta-parolanız
+
+# Yönetici hesabı ilk deploy'da bundan açılır (en az 10 karakter).
+# Panele girdikten sonra bu iki satırı SİLİN.
+ADMIN_NAME="Ahmet"
+ADMIN_EMAIL=admin@ayparcasicicekci.com
+ADMIN_PASSWORD=uzun-ve-guclu-bir-parola
 ```
 
-**403 Forbidden** dönmeli. 200 dönerse 0. bölümdeki uyarıyı okuyun.
+`APP_KEY` için `php artisan key:generate` çalıştıramıyoruz; anahtar
+yerelde üretilip buraya yapıştırılır. **Anahtarı sonradan değiştirmeyin** —
+şifrelenmiş oturum verileri okunamaz hâle gelir.
 
-### 3-A. Yönetici hesabı
+### 3-B. Deploy'u tekrar çalıştırın
 
-Demo verisi **yüklenmez** (`db:seed` çalıştırmayın — panelden yaptığınız
-düzenlemeleri ezer). Yalnız yönetici hesabını açın:
+`.env` hazır olduktan sonra Git Version Control → **Deploy HEAD Commit**.
+Bu turda göçler, önbellek ve yönetici hesabı oluşur.
 
-```bash
-php artisan tinker
+Deploy günlüğünü aynı ekranda görebilirsiniz. Aranacaklar:
+
+| Günlükte | Anlamı |
+|---|---|
+| `COMPOSER BULUNAMADI` | 2-E'ye bakın |
+| `... yönetici olarak açıldı` | panel girişi hazır |
+| `zaten var, dokunulmadı` | hesap önceden açılmış, sorun yok |
+| `Nothing to migrate` | veritabanı güncel |
+
+Panele girdikten sonra `.env` içindeki `ADMIN_PASSWORD` satırını silin.
+
+### 3-C. Güvenlik kontrolü (atlamayın)
+
+Tarayıcıda şu adresi açın:
+
 ```
-```php
-App\Models\User::create([
-    'name' => 'Ahmet',
-    'email' => 'admin@ayparcasicicekci.com',
-    'password' => 'BURAYA-GÜÇLÜ-BİR-PAROLA',
-    'role' => 'admin',
-]);
+https://ayparcasicicekci.com/ayparcasi_app/.env
 ```
 
-### 3-B. Görseller
+**403 / Forbidden** görmelisiniz. Dosyanın içeriği görünüyorsa 0. bölümdeki
+uyarıyı okuyun — parolalarınız açıkta demektir.
+
+### 3-D. Görseller
 
 `storage/app/public` git'te **yok**. Ürün fotoğrafları, hero görselleri ve
-tanıtım videosu yerelden ayrıca taşınır:
+tanıtım videosu ayrıca taşınır: cPanel → **Dosya Yöneticisi** →
+`public_html/ayparcasi_app/storage/app/public/` altına yükleyin
+(klasörü yoksa oluşturun). Toplu iş için yerelde zip'leyip yükleyip
+Dosya Yöneticisi'nin *Extract* düğmesini kullanmak en hızlısı.
 
-- cPanel → *Dosya Yöneticisi* ile
-  `public_html/ayparcasi_app/storage/app/public/` altına yükleyin
-- ya da:
-  ```bash
-  scp -r storage/app/public/* aypa8479@sunucu:~/public_html/ayparcasi_app/storage/app/public/
-  ```
+Sembolik bağı deploy kurduğu için dosyalar `/storage/...` adresinden görünür.
 
-Sembolik bağ kurulu olduğu için dosyalar `/storage/...` adresinden görünür.
+### 3-E. İzinler
 
-### 3-C. İzinler
-
-```bash
-cd ~/public_html/ayparcasi_app
-chmod -R 775 storage bootstrap/cache
-```
+Dosya Yöneticisi → klasörü seç → **Permissions**:
+`ayparcasi_app/storage` ve `ayparcasi_app/bootstrap/cache` → **775**
+(*Recurse into subdirectories* işaretli).
 
 ## 4. Zamanlanmış görev — şimdilik gerek yok
 

@@ -49,9 +49,25 @@ deployment:
     #    burada web kökü orası değil.
     - test -L $WEBROOT/storage || /bin/ln -s $APPPATH/storage/app/public $WEBROOT/storage
 
-    # 6) Bağımlılıklar, göçler, önbellek
-    - cd $APPPATH && /usr/local/bin/composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-    - cd $APPPATH && $PHPBIN artisan migrate --force
-    - cd $APPPATH && $PHPBIN artisan optimize:clear
-    - cd $APPPATH && $PHPBIN artisan optimize
-    - cd $APPPATH && $PHPBIN artisan filament:optimize
+    # 6) Bağımlılıklar. Sunucuda SSH yok, composer'ın nerede olduğunu
+    #    önceden bilemiyoruz; birkaç bilinen yolu deneyip bulamazsak
+    #    deploy'u KIRMADAN günlüğe not düşüyoruz (|| true). Günlükte
+    #    "COMPOSER BULUNAMADI" görürseniz DEPLOY.md → 2-E'ye bakın.
+    - cd $APPPATH && (
+        COMPOSER=$(command -v composer || echo /usr/local/bin/composer);
+        if [ -x "$COMPOSER" ]; then
+          $PHPBIN $COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader;
+        else
+          echo "COMPOSER BULUNAMADI — vendor/ depoya eklenmeli (DEPLOY.md 2-E)";
+        fi ) || true
+
+    # 7) Göçler ve önbellek. autoload yoksa bunlar da çalışmaz; zinciri
+    #    kırmasın diye || true — asıl hata yukarıdaki adımda görünür.
+    - cd $APPPATH && $PHPBIN artisan migrate --force || true
+    - cd $APPPATH && $PHPBIN artisan optimize:clear || true
+    - cd $APPPATH && $PHPBIN artisan optimize || true
+    - cd $APPPATH && $PHPBIN artisan filament:optimize || true
+
+    # 8) Yönetici hesabı. .env'de ADMIN_EMAIL/ADMIN_PASSWORD varsa açar,
+    #    hesap zaten varsa dokunmaz — SSH olmadan tinker çalıştıramıyoruz.
+    - cd $APPPATH && $PHPBIN artisan admin:olustur || true
