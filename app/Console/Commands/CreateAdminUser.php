@@ -24,9 +24,11 @@ class CreateAdminUser extends Command
 
     public function handle(): int
     {
-        $email = $this->option('eposta') ?: env('ADMIN_EMAIL');
-        $password = $this->option('parola') ?: env('ADMIN_PASSWORD');
-        $name = $this->option('ad') ?: env('ADMIN_NAME', 'Yönetici');
+        // config üzerinden okunuyor, env() ile değil: config önbelleğe
+        // alındığında Laravel .env'i hiç yüklemez ve env() null döner.
+        $email = $this->option('eposta') ?: config('shop.admin.email');
+        $password = $this->option('parola') ?: config('shop.admin.password');
+        $name = $this->option('ad') ?: config('shop.admin.name', 'Yönetici');
 
         if (blank($email) || blank($password)) {
             $this->warn('ADMIN_EMAIL ve ADMIN_PASSWORD boş — hesap açılmadı.');

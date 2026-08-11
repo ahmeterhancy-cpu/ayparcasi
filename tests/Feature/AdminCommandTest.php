@@ -12,6 +12,8 @@ class AdminCommandTest extends TestCase
 
     public function test_bilgi_yoksa_hesap_acmaz_ama_deployu_kirmaz(): void
     {
+        config(['shop.admin.email' => null, 'shop.admin.password' => null]);
+
         $this->artisan('admin:olustur')->assertSuccessful();
 
         $this->assertSame(0, User::where('role', 'admin')->count());
@@ -48,6 +50,21 @@ class AdminCommandTest extends TestCase
         $this->assertTrue(
             \Hash::check('eski-parola-uzun', User::where('email', 'patron@ornek.com')->value('password'))
         );
+    }
+
+    public function test_config_onbellekteyken_de_calisir(): void
+    {
+        // Canlıda deploy önce optimize çalıştırıyor; o noktada .env artık
+        // yüklenmiyor ve env() null dönüyor. Değerler config'ten okunmalı.
+        config([
+            'shop.admin.name' => 'Patron',
+            'shop.admin.email' => 'config@ornek.com',
+            'shop.admin.password' => 'configten-gelen-parola',
+        ]);
+
+        $this->artisan('admin:olustur')->assertSuccessful();
+
+        $this->assertSame('admin', User::where('email', 'config@ornek.com')->value('role'));
     }
 
     public function test_kisa_parolayi_reddeder(): void

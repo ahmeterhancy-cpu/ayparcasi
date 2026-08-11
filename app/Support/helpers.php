@@ -35,7 +35,7 @@ if (! function_exists('wa_link')) {
      */
     function wa_link(string $message = '', ?string $phone = null): string
     {
-        $phone = preg_replace('/\D+/', '', $phone ?: (string) setting('whatsapp', env('SHOP_WHATSAPP', '905488000000')));
+        $phone = preg_replace('/\D+/', '', $phone ?: (string) setting('whatsapp', config('shop.whatsapp')));
 
         return 'https://wa.me/'.$phone.($message !== '' ? '?text='.rawurlencode($message) : '');
     }
