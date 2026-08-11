@@ -308,5 +308,8 @@ Kod hazır; kapatılması gereken içerik eksikleri:
 | Ayar değişikliği görünmüyor | Config önbelleği eski → `php artisan optimize:clear` |
 | `Class not found` | `composer install` çalışmamış → `.cpanel.yml`'deki composer yolu |
 | `Access denied ... @'127.0.0.1'` | `DB_HOST=127.0.0.1` yazılmış; cPanel yetkiyi `@localhost` verir → `DB_HOST=localhost` |
+| Görseller 404, URL doğru | `public_html/storage` sembolik bağı sunucuda takip edilmiyor → gerçek klasör yapın + `FILESYSTEM_PUBLIC_ROOT` |
+| `.env` değişikliği hiç okunmuyor | Config önbellekte; `env()` config dosyaları DIŞINDA null döner → değeri `config/` altına taşıyın |
+| Deploy "başarılı" ama hiçbir şey değişmiyor | `.cpanel.yml` geçersiz YAML olabilir (metinlerde `iki nokta + boşluk`); cPanel son BAŞARILI commit'i göstermeye devam eder |
 | `require a PHP version >= 8.4` | `vendor` başka PHP sürümüyle kurulmuş → `composer.json` içindeki `config.platform.php` sunucununkiyle aynı olmalı |
 | Panel açılmıyor | `filament:optimize` sonrası → `php artisan filament:optimize-clear` |
