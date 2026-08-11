@@ -26,17 +26,17 @@ Doğru yerleşim:
 └── public_html/          ← ana alan adı burayı gösteriyorsa 3-B'ye bakın
 ```
 
-## 1. Depoyu hazırla (yerelde)
+## 1. Depo
 
-Uzak depo henüz yok. GitHub'da **private** bir depo açıp bağlayın:
+Depo hazır ve **private**:
 
-```bash
-git remote add origin git@github.com:KULLANICI/ayparcasi.git
-git push -u origin main
+```
+https://github.com/ahmeterhancy-cpu/ayparcasi
 ```
 
-`vendor/` ve `node_modules/` depoya girmez; `public/build` **bilerek girer**
-(sunucuda node yok). Ön yüzü her değiştirişinizde:
+Varsayılan dal `main`. `vendor/` ve `node_modules/` depoya girmez;
+`public/build` **bilerek girer** (sunucuda node yok).
+Ön yüzü her değiştirişinizde:
 
 ```bash
 npm run build
