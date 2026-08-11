@@ -23,6 +23,11 @@
 # reddediyor; cPanel deploy'u anında düşürüyor ve "Last Deployed" son
 # başarılı commit'te donuyor. Bu yüzden echo metinlerinde `=` var.
 #
+# VERİTABANINI SIFIRLAMA: .env içine DEPLOY_FRESH=true yazarsanız bir sonraki
+# deploy migrate:fresh çalıştırır — BÜTÜN TABLOLARI SİLER. Yarım kalmış bir
+# kurulumu temizlemek için. İşlem bitince o satırı .env'den KALDIRIN, yoksa
+# her deploy veriyi siler.
+#
 # Ayrıntılı anlatım: DEPLOY.md
 deployment:
   tasks:
@@ -60,6 +65,7 @@ deployment:
     - echo "--- 6/7 composer ---" >> $LOG 2>&1
     - cd $APPPATH && command -v composer >/dev/null 2>&1 && composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader >> $LOG 2>&1 || echo "COMPOSER BULUNAMADI - bkz DEPLOY.md 2-E" >> $LOG 2>&1
     - echo "--- 7/7 gocler, onbellek, yonetici ---" >> $LOG 2>&1
+    - cd $APPPATH && /bin/grep -q "^DEPLOY_FRESH=true" .env && echo "DEPLOY_FRESH acik - veritabani sifirlaniyor" >> $LOG 2>&1 && $PHPBIN artisan migrate:fresh --force >> $LOG 2>&1 || true
     - cd $APPPATH && $PHPBIN artisan migrate --force >> $LOG 2>&1 || echo "MIGRATE ATLANDI - .env ve vendor var mi?" >> $LOG 2>&1
     - cd $APPPATH && $PHPBIN artisan optimize:clear >> $LOG 2>&1 || true
     - cd $APPPATH && $PHPBIN artisan optimize >> $LOG 2>&1 || true
@@ -83,7 +89,7 @@ deployment:
     - /usr/bin/tail -25 $LOG >> $DURUM 2>&1 || echo "(deploy gunlugu yok)" >> $DURUM 2>&1
     - echo "--- migrate durumu ---" >> $DURUM 2>&1
     - cd $APPPATH && $PHPBIN artisan migrate --force >> $DURUM 2>&1 || echo "(migrate hata verdi - ustteki mesaja bakin)" >> $DURUM 2>&1
-    - echo "--- tablo sayisi ---" >> $DURUM 2>&1
-    - cd $APPPATH && $PHPBIN artisan db:table --json >> $DURUM 2>&1 || echo "(db:table calismadi)" >> $DURUM 2>&1
+    - echo "--- goc durumu ---" >> $DURUM 2>&1
+    - cd $APPPATH && $PHPBIN artisan migrate:status >> $DURUM 2>&1 || echo "(migrate:status calismadi)" >> $DURUM 2>&1
     - echo "--- laravel.log (son 15) ---" >> $DURUM 2>&1
     - /usr/bin/tail -5 $APPPATH/storage/logs/laravel.log >> $DURUM 2>&1 || echo "(laravel.log yok - uygulama hic acilmamis)" >> $DURUM 2>&1
