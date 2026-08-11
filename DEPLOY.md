@@ -77,37 +77,30 @@ cPanel → **MySQL® Veritabanları**:
 2. Kullanıcı oluştur, güçlü bir parola ver
 3. Kullanıcıyı veritabanına ekle, **ALL PRIVILEGES** seç
 
-### 2-B. Depoyu klonla (bu hesapta SSH yok)
+### 2-B. Depoyu klonla
 
-Depo **private** ve cPanel'de *SSH Access* bulunmuyor, yani anahtar
-üretilemiyor. Kalan tek yol: klon adresine **salt okunur bir GitHub
-jetonu** gömmek.
+Depo **public**. cPanel adres içinde parola kabul etmiyor ("The clone URL
+cannot include a password") ve bu hesapta *SSH Access* olmadığı için deploy
+key de üretilemiyor — private depoyu klonlamanın yolu kalmamıştı. Bu yüzden
+depo herkese açık.
 
-1. GitHub → sağ üst avatar → *Settings* → *Developer settings* →
-   **Personal access tokens** → *Fine-grained tokens* → **Generate new token**
-2. Ayarlar:
-   - **Repository access**: *Only select repositories* → `ayparcasi`
-   - **Permissions** → *Repository permissions* → **Contents: Read-only**
-     (başka hiçbir izin vermeyin)
-   - **Expiration**: 1 yıl
-3. Üretilen jetonu (`github_pat_...`) kopyalayın — bir daha gösterilmez.
-
-Sonra cPanel → **Git Version Control** → *Create*:
+cPanel → **Git Version Control** → *Create*:
 
 - **Clone a Repository**: açık
-- **Clone URL**:
-  ```
-  https://JETON@github.com/ahmeterhancy-cpu/ayparcasi.git
-  ```
-  `JETON` yerine kopyaladığınız değeri yazın.
+- **Clone URL**: `https://github.com/ahmeterhancy-cpu/ayparcasi.git`
 - **Repository Path**: `repositories/ayparcasi`
 - **Repository Name**: `ayparcasi`
 
-> Jeton sunucuda `repositories/ayparcasi/.git/config` içinde düz metin
-> durur. O dizin `public_html` dışında olduğu için web'den okunamaz.
-> Yine de jetonu **yalnız bu depoya** ve **salt okunur** verin; sızarsa
-> yapabileceği tek şey kaynak kodu okumaktır. Şüphelenirseniz GitHub'dan
-> iptal edip yenisini üretin, Clone URL'yi güncelleyin.
+Önceki denemelerden kalan bir `repositories/ayparcasi` klasörü varsa önce
+silin — cPanel dolu bir dizine klonlamaz.
+
+> **Depo açık olduğu için:** kaynak koda hiçbir parola, anahtar ya da
+> müşteri verisi girmemeli. `.env` zaten `.gitignore`'da ve geçmişte de hiç
+> commit'lenmedi (doğrulandı). Seeder'daki demo parolaları da kaldırıldı.
+>
+> Ama **git geçmişi de okunabilir**: eski commit'lerde geçen `ayparcasi2026`
+> artık yanmış sayılır, canlıda kullanmayın. Yereldeki kurulum için zararsız
+> (yalnız 127.0.0.1'den erişiliyor).
 
 ### 2-C. `.cpanel.yml` dosyasını kendi hesabınıza göre düzeltin
 
