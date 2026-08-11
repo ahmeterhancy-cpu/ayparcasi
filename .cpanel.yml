@@ -81,5 +81,9 @@ deployment:
     - /usr/bin/tail -15 $APPPATH/error_log >> $DURUM 2>&1 || echo "(error_log yok)" >> $DURUM 2>&1
     - echo "--- deploy gunlugu (son 25) ---" >> $DURUM 2>&1
     - /usr/bin/tail -25 $LOG >> $DURUM 2>&1 || echo "(deploy gunlugu yok)" >> $DURUM 2>&1
+    - echo "--- migrate durumu ---" >> $DURUM 2>&1
+    - cd $APPPATH && $PHPBIN artisan migrate --force >> $DURUM 2>&1 || echo "(migrate hata verdi - ustteki mesaja bakin)" >> $DURUM 2>&1
+    - echo "--- tablo sayisi ---" >> $DURUM 2>&1
+    - cd $APPPATH && $PHPBIN artisan db:table --json >> $DURUM 2>&1 || echo "(db:table calismadi)" >> $DURUM 2>&1
     - echo "--- laravel.log (son 15) ---" >> $DURUM 2>&1
     - /usr/bin/tail -5 $APPPATH/storage/logs/laravel.log >> $DURUM 2>&1 || echo "(laravel.log yok - uygulama hic acilmamis)" >> $DURUM 2>&1
