@@ -18,12 +18,9 @@ class MaintenanceTest extends TestCase
         $this->seed(DemoSeeder::class);
     }
 
-    private function closeShop(string $key = 'gizlianahtar'): void
+    private function closeShop(): void
     {
-        Setting::putMany([
-            'maintenance_enabled' => '1',
-            'maintenance_bypass_key' => $key,
-        ]);
+        Setting::put('maintenance_enabled', '1');
     }
 
     public function test_ayar_kapaliyken_vitrin_normal_acilir(): void
@@ -74,26 +71,6 @@ class MaintenanceTest extends TestCase
         $this->actingAs(User::factory()->create(['role' => 'customer']))
             ->get('/')
             ->assertStatus(503);
-    }
-
-    public function test_onizleme_anahtari_perdeyi_gecer(): void
-    {
-        $this->closeShop('acikkapi');
-
-        // Anahtar oturuma yazılır ve temiz adrese yönlendirilir
-        $this->get('/?anahtar=acikkapi')
-            ->assertRedirect(url('/'))
-            ->assertSessionHas('maintenance_bypass', 'acikkapi');
-
-        $this->get('/')->assertOk();
-        $this->get('/magaza')->assertOk();
-    }
-
-    public function test_yanlis_anahtar_perdeyi_gecmez(): void
-    {
-        $this->closeShop('acikkapi');
-
-        $this->get('/?anahtar=yanlis')->assertStatus(503);
     }
 
     public function test_panel_kapaliyken_uyari_seridini_gosterir(): void

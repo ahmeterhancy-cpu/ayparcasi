@@ -7,7 +7,6 @@ use App\Models\Setting;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -18,13 +17,11 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use UnitEnum;
 
 /**
@@ -63,17 +60,11 @@ class SiteSettings extends Page implements HasSchemas
         'about_title', 'about_text', 'about_image',
         'footer_text',
         'maintenance_enabled', 'maintenance_title', 'maintenance_message',
-        'maintenance_until', 'maintenance_bypass_key',
+        'maintenance_until',
     ];
 
     public function mount(): void
     {
-        // Önizleme anahtarı olmadan perde açıldığında dükkân sahibi kendi
-        // sitesini göremez; ilk açılışta bir kez üretilip sabitlenir.
-        if (blank(Setting::get('maintenance_bypass_key'))) {
-            Setting::put('maintenance_bypass_key', self::freshBypassKey());
-        }
-
         $values = [];
 
         foreach (self::KEYS as $key) {
@@ -81,11 +72,6 @@ class SiteSettings extends Page implements HasSchemas
         }
 
         $this->form->fill($values);
-    }
-
-    private static function freshBypassKey(): string
-    {
-        return Str::lower(Str::random(14));
     }
 
     public function form(Schema $schema): Schema
@@ -283,7 +269,7 @@ class SiteSettings extends Page implements HasSchemas
                                 Toggle::make('maintenance_enabled')
                                     ->label('Siteyi yapım aşamasına al')
                                     ->live()
-                                    ->helperText('Açtığınızda vitrin kapanır. Panel, süren ödemeler ve mevcut sipariş sayfaları açık kalır; ekip hesabıyla girmişseniz siteyi normal görmeye devam edersiniz.'),
+                                    ->helperText('Açtığınızda vitrin ziyaretçilere kapanır. Panel, süren ödemeler ve mevcut sipariş sayfaları açık kalır. Siz ve ekibiniz panel hesabıyla giriş yaptığınız sürece siteyi normal görmeye devam edersiniz — başka bir şey yapmanız gerekmez.'),
                             ]),
 
                             Section::make('Ziyaretçiye gösterilecek sayfa')
@@ -304,25 +290,6 @@ class SiteSettings extends Page implements HasSchemas
                                         ->helperText('Serbest metin. Boş bırakırsanız bu satır hiç görünmez.'),
                                 ]),
 
-                            Section::make('Önizleme bağlantısı')
-                                ->description('Bu adresi açan kişi, giriş yapmadan da siteyi kapalıyken gezebilir. Anahtar tarayıcıda saklanır.')
-                                ->schema([
-                                    TextInput::make('maintenance_bypass_key')
-                                        ->label('Önizleme anahtarı')
-                                        ->live(onBlur: true)
-                                        ->required()
-                                        ->hintAction(
-                                            Action::make('yeni_anahtar')
-                                                ->label('Yeni anahtar')
-                                                ->icon('heroicon-m-arrow-path')
-                                                ->action(fn (Set $set) => $set('maintenance_bypass_key', self::freshBypassKey()))
-                                        )
-                                        ->helperText('Değiştirdiğinizde eski bağlantı çalışmaz.'),
-
-                                    Placeholder::make('onizleme_baglantisi')
-                                        ->label('Bağlantı')
-                                        ->content(fn (Get $get) => url('/?anahtar='.trim((string) $get('maintenance_bypass_key')))),
-                                ]),
                         ]),
                 ]),
             ]);

@@ -42,22 +42,10 @@ class MaintenanceMode
             return $next($request);
         }
 
-        // Ekip, site kapalıyken de vitrini normal şekilde gezebilir.
+        // Perdeyi geçmenin TEK yolu ekip hesabıyla giriş yapmış olmak.
+        // Daha önce ayrı bir "önizleme anahtarı" da vardı; yönetilecek
+        // ikinci bir sır olmasın diye kaldırıldı.
         if ($request->user()?->isStaff()) {
-            return $next($request);
-        }
-
-        $key = trim((string) setting('maintenance_bypass_key', ''));
-
-        if ($key !== '' && $request->query('anahtar') === $key) {
-            // Anahtar bir kez okunur, oturuma yazılır; adres çubuğunda
-            // dolaşmasın diye temiz adrese geri gönderiyoruz.
-            $request->session()->put('maintenance_bypass', $key);
-
-            return redirect()->to($request->url());
-        }
-
-        if ($key !== '' && $request->session()->get('maintenance_bypass') === $key) {
             return $next($request);
         }
 
