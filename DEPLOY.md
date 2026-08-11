@@ -52,7 +52,7 @@ silmeyin — Vite varlık listesi (`build/manifest.json`) oradan okunuyor.
 
 ## 1. Depo
 
-Depo hazır ve **private**:
+Depo hazır ve **public** (nedeni 2-B'de):
 
 ```
 https://github.com/ahmeterhancy-cpu/ayparcasi
