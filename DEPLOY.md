@@ -187,6 +187,7 @@ açık olsun. `public_html/ayparcasi_app/` klasörüne girin:
 APP_URL=https://ayparcasicicekci.com
 APP_KEY=base64:BURAYA-ANAHTAR
 
+DB_HOST=localhost
 DB_DATABASE=aypa8479_ayparcasi
 DB_USERNAME=aypa8479_ayparcasi
 DB_PASSWORD=veritabanı-parolanız
@@ -306,4 +307,6 @@ Kod hazır; kapatılması gereken içerik eksikleri:
 | `public_html` boş kaldı | Yalnız klonlandı, **Deploy HEAD Commit** çalıştırılmadı (2-D) |
 | Ayar değişikliği görünmüyor | Config önbelleği eski → `php artisan optimize:clear` |
 | `Class not found` | `composer install` çalışmamış → `.cpanel.yml`'deki composer yolu |
+| `Access denied ... @'127.0.0.1'` | `DB_HOST=127.0.0.1` yazılmış; cPanel yetkiyi `@localhost` verir → `DB_HOST=localhost` |
+| `require a PHP version >= 8.4` | `vendor` başka PHP sürümüyle kurulmuş → `composer.json` içindeki `config.platform.php` sunucununkiyle aynı olmalı |
 | Panel açılmıyor | `filament:optimize` sonrası → `php artisan filament:optimize-clear` |
