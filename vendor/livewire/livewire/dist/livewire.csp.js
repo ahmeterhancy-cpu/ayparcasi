@@ -1678,7 +1678,8 @@
           return acc;
         }, {});
       }
-      function initInterceptors(data2) {
+      function initInterceptors(data2, cleanup = () => {
+      }) {
         let isObject22 = (val) => typeof val === "object" && !Array.isArray(val) && val !== null;
         let recurse = (obj, basePath = "") => {
           Object.entries(Object.getOwnPropertyDescriptors(obj)).forEach(([key, { value, enumerable }]) => {
@@ -1688,7 +1689,7 @@
               return;
             let path = basePath === "" ? key : `${basePath}.${key}`;
             if (typeof value === "object" && value !== null && value._x_interceptor) {
-              obj[key] = value.initialize(data2, path, key);
+              obj[key] = value.initialize(data2, path, key, cleanup);
             } else {
               if (isObject22(value) && value !== obj && !(value instanceof Element)) {
                 recurse(value, path);
@@ -1703,18 +1704,18 @@
         let obj = {
           initialValue: void 0,
           _x_interceptor: true,
-          initialize(data2, path, key) {
-            return callback(this.initialValue, () => get(data2, path), (value) => set(data2, path, value), path, key);
+          initialize(data2, path, key, cleanup) {
+            return callback(this.initialValue, () => get(data2, path), (value) => set(data2, path, value), path, key, cleanup);
           }
         };
         mutateObj(obj);
         return (initialValue) => {
           if (typeof initialValue === "object" && initialValue !== null && initialValue._x_interceptor) {
             let initialize = obj.initialize.bind(obj);
-            obj.initialize = (data2, path, key) => {
-              let innerValue = initialValue.initialize(data2, path, key);
+            obj.initialize = (data2, path, key, cleanup) => {
+              let innerValue = initialValue.initialize(data2, path, key, cleanup);
               obj.initialValue = innerValue;
-              return initialize(data2, path, key);
+              return initialize(data2, path, key, cleanup);
             };
           } else {
             obj.initialValue = initialValue;
@@ -2636,8 +2637,10 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
           }
         } else if (el.tagName === "SELECT") {
           updateSelect(el, value);
+        } else if (el.tagName === "OPTION") {
+          bindAttribute(el, "value", value);
         } else {
-          if (el.value === value)
+          if (el.value === value && (typeof value !== "object" || value === null))
             return;
           el.value = value === void 0 ? "" : value;
         }
@@ -2662,6 +2665,8 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
         } else {
           if (isBooleanAttr(name))
             value = name;
+          if (isObjectAttr(value))
+            value = JSON.stringify(value);
           setIfChanged(el, name, value);
         }
       }
@@ -2732,6 +2737,9 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       }
       function attributeShouldntBePreservedIfFalsy(name) {
         return !["aria-pressed", "aria-checked", "aria-expanded", "aria-selected"].includes(name);
+      }
+      function isObjectAttr(value) {
+        return typeof value === "object" && value !== null;
       }
       function getBinding(el, name, fallback2) {
         if (el._x_bindings && el._x_bindings[name] !== void 0)
@@ -2835,7 +2843,12 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
           return stores[name];
         }
         stores[name] = value;
-        initInterceptors(stores[name]);
+        if (typeof value === "object" && value !== null && value._x_interceptor) {
+          stores[name] = value.initialize(stores, name, name, () => {
+          });
+        } else {
+          initInterceptors(stores[name]);
+        }
         if (typeof value === "object" && value !== null && value.hasOwnProperty("init") && typeof value.init === "function") {
           stores[name].init();
         }
@@ -2923,7 +2936,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
         get transaction() {
           return transaction;
         },
-        version: "3.15.12",
+        version: "3.16.0",
         flushAndStopDeferringMutations,
         dontAutoEvaluateFunctions,
         disableEffectScheduling,
@@ -4317,6 +4330,13 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
             }
           });
         };
+        if (el.tagName === "SELECT") {
+          let observer2 = new MutationObserver(() => {
+            el._x_forceModelUpdate(getValue());
+          });
+          observer2.observe(el, { childList: true });
+          cleanup(() => observer2.disconnect());
+        }
         effect3(() => {
           let value = getValue();
           if (modifiers.includes("unintrusive") && document.activeElement.isSameNode(el))
@@ -4464,8 +4484,12 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
         el._x_keyExpression = expression;
       }
       addRootSelector(() => `[${prefix("data")}]`);
+      var dataForReconciliation = Symbol();
       directive2("data", (el, { expression }, { cleanup }) => {
         if (shouldSkipRegisteringDataDuringClone(el))
+          return;
+        let dataToReconcile = el[dataForReconciliation];
+        if ((dataToReconcile == null ? void 0 : dataToReconcile.expression) === expression)
           return;
         expression = expression === "" ? "{}" : expression;
         let magicContext = {};
@@ -4476,15 +4500,51 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
         if (data2 === void 0 || data2 === true)
           data2 = {};
         injectMagics(data2, el);
-        let reactiveData = reactive(data2);
-        initInterceptors(reactiveData);
+        let reactiveData;
+        if (dataToReconcile == null ? void 0 : dataToReconcile.reactiveData) {
+          reactiveData = dataToReconcile.reactiveData;
+          reconcileData(reactiveData, data2);
+          let initialized = { expression };
+          el[dataForReconciliation] = initialized;
+          queueMicrotask(() => {
+            if (el[dataForReconciliation] === initialized) {
+              delete el[dataForReconciliation];
+            }
+          });
+        } else {
+          reactiveData = reactive(data2);
+        }
+        initInterceptors(reactiveData, cleanup);
         let undo = addScopeToNode(el, reactiveData);
         reactiveData["init"] && evaluate2(el, reactiveData["init"]);
         cleanup(() => {
           reactiveData["destroy"] && evaluate2(el, reactiveData["destroy"]);
           undo();
+          let removed = { reactiveData };
+          el[dataForReconciliation] = removed;
+          queueMicrotask(() => {
+            if (el[dataForReconciliation] === removed) {
+              delete el[dataForReconciliation];
+            }
+          });
         });
       });
+      function reconcileData(target, source) {
+        Object.keys(source).forEach((key) => {
+          let descriptor = Object.getOwnPropertyDescriptor(source, key);
+          let existingDescriptor = Object.getOwnPropertyDescriptor(target, key);
+          if (descriptor.get || descriptor.set || (existingDescriptor == null ? void 0 : existingDescriptor.get) || (existingDescriptor == null ? void 0 : existingDescriptor.set)) {
+            if (existingDescriptor)
+              delete target[key];
+            if (!existingDescriptor)
+              target[key] = void 0;
+            descriptor.get || descriptor.set ? Object.defineProperty(target, key, descriptor) : target[key] = source[key];
+          } else {
+            target[key] = source[key];
+          }
+        });
+        Object.keys(target).filter((key) => !Object.prototype.hasOwnProperty.call(source, key)).forEach((key) => delete target[key]);
+      }
       interceptClone((from, to) => {
         if (from._x_dataStack) {
           to._x_dataStack = from._x_dataStack;
@@ -4547,7 +4607,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
           firstTime = false;
         }));
       });
-      directive2("for", (el, { expression }, { effect: effect3, cleanup }) => {
+      directive2("for", skipDuringClone((el, { expression }, { effect: effect3, cleanup }) => {
         let iteratorNames = parseForExpression(expression);
         let evaluateItems = evaluateLater(el, iteratorNames.items);
         let evaluateKey = evaluateLater(
@@ -4564,8 +4624,9 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
             })
           );
           delete el._x_lookup;
+          delete el._x_lastRenderedEl;
         });
-      });
+      }));
       function refreshScope(scope2) {
         return (newScope) => {
           Object.entries(newScope).forEach(([key, value]) => {
@@ -4638,7 +4699,12 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
               prev.after(clone22);
               prev = clone22;
             });
-            skipDuringClone(() => added.forEach((clone22) => initTree(clone22)))();
+            added.forEach((clone22) => initTree(clone22));
+            if (prev !== templateEl) {
+              templateEl._x_lastRenderedEl = prev;
+            } else {
+              delete templateEl._x_lastRenderedEl;
+            }
           });
         });
       }
@@ -4703,7 +4769,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
         cleanup(() => delete root._x_refs[expression]);
       };
       directive2("ref", handler3);
-      directive2("if", (el, { expression }, { effect: effect3, cleanup }) => {
+      directive2("if", skipDuringClone((el, { expression }, { effect: effect3, cleanup }) => {
         if (el.tagName.toLowerCase() !== "template")
           warn("x-if can only be used on a <template> tag", el);
         let evaluate22 = evaluateLater(el, expression);
@@ -4714,15 +4780,17 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
           addScopeToNode(clone22, {}, el);
           mutateDom(() => {
             el.after(clone22);
-            skipDuringClone(() => initTree(clone22))();
+            initTree(clone22);
           });
           el._x_currentIfEl = clone22;
+          el._x_lastRenderedEl = clone22;
           el._x_undoIf = () => {
             mutateDom(() => {
               destroyTree(clone22);
               clone22.remove();
             });
             delete el._x_currentIfEl;
+            delete el._x_lastRenderedEl;
           };
           return clone22;
         };
@@ -4736,7 +4804,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
           value ? show() : hide();
         }));
         cleanup(() => el._x_undoIf && el._x_undoIf());
-      });
+      }));
       directive2("id", (el, { expression }, { evaluate: evaluate22 }) => {
         let names = evaluate22(expression);
         names.forEach((name) => setIdRoot(el, name));
@@ -5832,7 +5900,8 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       if (isRenderless) {
         action.metadata.renderless = true;
       }
-      let message = messageBus2.activeMessageMatchingScope(action);
+      let activeMessages = messageBus2.activeMessagesMatchingScope(action);
+      let message = activeMessages[0];
       if (message) {
         if (message.isAsync() || action.isAsync())
           return;
@@ -5846,8 +5915,10 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
         if (bothAreModelLive) {
           let incomingHasBoundChildren = componentHasBoundChildren(action.component);
           let outgoingHasBoundChildren = Array.from(message.actions).some((activeAction) => componentHasBoundChildren(activeAction.component));
-          if (!incomingHasBoundChildren && !outgoingHasBoundChildren)
+          if (!incomingHasBoundChildren && !outgoingHasBoundChildren) {
+            activeMessages.filter((message2) => Array.from(message2.actions).every((action2) => action2.metadata.type === "model.live")).forEach((message2) => action.supersedes.add(message2));
             return;
+          }
         }
         action.defer();
         message.addInterceptor(({ onFinish }) => {
@@ -6222,7 +6293,10 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       });
     }
     activeMessageMatchingScope(action) {
-      return Array.from(this.activeMessages).find((message) => this.matchesScope(message, action));
+      return this.activeMessagesMatchingScope(action)[0];
+    }
+    activeMessagesMatchingScope(action) {
+      return Array.from(this.activeMessages).filter((message) => this.matchesScope(message, action));
     }
     matchesScope(message, action) {
       return message.scope === scopeSymbolFromAction(action);
@@ -6250,6 +6324,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
     interceptors = [];
     cancelled = false;
     skipped = false;
+    superseded = false;
     request = null;
     _scope = null;
     get scope() {
@@ -6454,6 +6529,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
   // js/request/action.js
   var Action = class {
     squashedActions = /* @__PURE__ */ new Set();
+    supersedes = /* @__PURE__ */ new Set();
     onSendCallbacks = [];
     onCancelCallbacks = [];
     onSuccessCallbacks = [];
@@ -6952,6 +7028,12 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
             ) && window.location.reload();
             return;
           }
+          if (response.ok && responseBody.trim() === "") {
+            confirm(
+              "The server returned an empty response.\nWould you like to refresh the page?"
+            ) && window.location.reload();
+            return;
+          }
           if (response.aborted)
             return;
           showHtmlModal(responseBody);
@@ -6980,6 +7062,9 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
                 return;
               if (payload.skip) {
                 if (payload.id === message.component.id) {
+                  if (discardIfSuperseded(message))
+                    return;
+                  supersedeOlderMessages(message);
                   message.responsePayload = payload;
                   message.markSkipped();
                   message.invokeOnSkipped();
@@ -6991,10 +7076,14 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
               let { snapshot: snapshotEncoded, effects } = payload;
               let snapshot = JSON.parse(snapshotEncoded);
               if (snapshot.memo.id === message.component.id) {
+                if (discardIfSuperseded(message))
+                  return;
+                supersedeOlderMessages(message);
                 message.responsePayload = { snapshot, effects };
                 message.invokeOnSuccess();
                 if (message.isCancelled())
                   return;
+                let morphed = false;
                 Alpine.transaction(async () => {
                   message.component.mergeNewSnapshot(snapshotEncoded, effects, message.updates);
                   message.invokeOnSync();
@@ -7005,7 +7094,8 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
                   if (message.isCancelled())
                     return;
                   await message.invokeOnMorph();
-                }).then(() => {
+                  morphed = true;
+                }).finally(() => {
                   if (!message.isCancelled()) {
                     message.resolveActionPromises(
                       message.pendingReturns,
@@ -7013,6 +7103,8 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
                     );
                     message.invokeOnFinish();
                   }
+                  if (!morphed)
+                    return;
                   requestAnimationFrame(() => {
                     if (message.isCancelled())
                       return;
@@ -7024,6 +7116,18 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
           });
         }
       });
+    });
+  }
+  function discardIfSuperseded(message) {
+    if (!message.superseded)
+      return false;
+    message.resolveActionPromises([], []);
+    message.invokeOnFinish();
+    return true;
+  }
+  function supersedeOlderMessages(message) {
+    message.actions.forEach((action) => {
+      action.supersedes.forEach((olderMessage) => olderMessage.superseded = true);
     });
   }
   async function sendRequest(request, handlers) {
@@ -7060,6 +7164,11 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
     }
     if (response.redirected) {
       handlers.redirect(response.url);
+      handlers.finish();
+      return;
+    }
+    if (responseBody.trim() === "") {
+      handlers.error({ response, responseBody });
       handlers.finish();
       return;
     }
@@ -7824,7 +7933,6 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       this.$wire = generateWireObject(this, this.reactive);
       el.$wire = this.$wire;
       this.cleanups = [];
-      this.processEffects(this.effects);
     }
     addActionContext(context) {
       if (context.el || context.directive) {
@@ -8165,6 +8273,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
     let cleanup = (i) => component.addCleanup(i);
     trigger("component.init", { component, cleanup });
     components[component.id] = component;
+    component.processEffects(component.effects);
     return component;
   }
   function destroyComponent(id) {
@@ -9966,15 +10075,16 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
           setItem: dummy.set.bind(dummy)
         };
       }
-      return Alpine25.interceptor((initialValue, getter, setter, path, key) => {
+      return Alpine25.interceptor((initialValue, getter, setter, path, key, cleanup) => {
         let lookup = alias || `_x_${path}`;
         let initial = storageHas(lookup, storage) ? storageGet(lookup, storage) : initialValue;
         setter(initial);
-        Alpine25.effect(() => {
+        let effect = Alpine25.effect(() => {
           let value = getter();
           storageSet(lookup, value, storage);
           setter(value);
         });
+        cleanup(() => Alpine25.release(effect));
         return initial;
       }, (func) => {
         func.as = (key) => {
@@ -10018,7 +10128,8 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       let evaluate2 = evaluateLater(expression);
       let options = {
         rootMargin: getRootMargin(modifiers),
-        threshold: getThreshold(modifiers)
+        threshold: getThreshold(modifiers),
+        root: modifiers.includes("parent") ? el.parentElement : null
       };
       let observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -13986,7 +14097,8 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
     }, errorCallback);
   }
   function performFetch(uri, callback, errorCallback) {
-    sendNavigateRequest(uri, callback, errorCallback);
+    sendNavigateRequest(uri, callback, errorCallback).catch(() => {
+    });
   }
 
   // js/plugins/navigate/prefetch.js
@@ -13996,13 +14108,16 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
     let uri = getUriStringFromUrlObject(destination);
     if (prefetches[uri])
       return;
-    prefetches[uri] = { finished: false, html: null, whenFinished: () => setTimeout(() => delete prefetches[uri], cacheDuration) };
+    prefetches[uri] = { finished: false, html: null, whenFinished: () => setTimeout(() => delete prefetches[uri], cacheDuration), whenFailed: () => {
+    } };
     performFetch(uri, (html, routedUri, status) => {
       storeCurrentPageStatus(status);
       callback(html, routedUri);
     }, () => {
+      let whenFailed = prefetches[uri].whenFailed;
       delete prefetches[uri];
       errorCallback();
+      whenFailed();
     });
   }
   function storeThePrefetchedHtmlForWhenALinkIsClicked(html, destination, finalDestination) {
@@ -14028,6 +14143,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
         delete prefetches[uri];
         receive(html, finalDestination);
       };
+      prefetches[uri].whenFailed = ifNoPrefetchExists;
     }
   }
 
@@ -14518,8 +14634,13 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
             });
           });
         });
-      }, () => {
+      }, (error2) => {
         showProgressBar && finishAndHideProgressBar();
+        if (requestWasCancelled(error2))
+          return;
+        if (navigator.onLine)
+          return;
+        window.location.href = destination.href;
       });
     }
     whenTheBackOrForwardButtonIsClicked(
@@ -14583,6 +14704,9 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
     getPretchedHtmlOr(fromDestination, callback, () => {
       fetchHtml(fromDestination, callback, errorCallback);
     });
+  }
+  function requestWasCancelled(error2) {
+    return error2?.name === "AbortError";
   }
   function preventAlpineFromPickingUpDomChanges(Alpine25, callback) {
     Alpine25.stopObservingMutations();
@@ -15064,6 +15188,9 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
         }
         let currentFromNext = currentFrom && getNextSibling(from, currentFrom);
         context.patch(currentFrom, currentTo);
+        if (currentFrom._x_lastRenderedEl) {
+          currentFromNext = getNextSibling(from, currentFrom._x_lastRenderedEl);
+        }
         currentTo = currentTo && getNextSibling(to, currentTo);
         currentFrom = currentFromNext;
       }
@@ -15238,6 +15365,10 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
           }
           let updater = el._x_forceModelUpdate;
           el._x_forceModelUpdate = (value2) => {
+            if (value2 === void 0) {
+              lastInputValue = "";
+              return updater(value2);
+            }
             value2 = String(value2);
             let template = templateFn(value2);
             if (template && template !== "false") {
@@ -15505,12 +15636,16 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
   function evaluateExpression(el, expression, options = {}) {
     if (!expression || expression.trim() === "")
       return;
-    let result = import_alpinejs7.default.evaluateRaw(el, expression, options);
-    if (result instanceof Promise) {
-      result.catch(() => {
-      });
+    try {
+      let result = import_alpinejs7.default.evaluateRaw(el, expression, options);
+      if (result instanceof Promise) {
+        result.catch(() => {
+        });
+      }
+      return result;
+    } catch (error2) {
+      reportExpressionError(error2, expression, el);
     }
-    return result;
   }
   function evaluateActionExpression(el, expression, options = {}) {
     if (!expression || expression.trim() === "")
@@ -15524,11 +15659,14 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       }
       return result;
     } catch (error2) {
-      console.warn(`Livewire Expression Error: ${error2.message}
+      reportExpressionError(error2, expression, el);
+    }
+  }
+  function reportExpressionError(error2, expression, el) {
+    console.warn(`Livewire Expression Error: ${error2.message}
 
 ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
-      console.error(error2);
-    }
+    console.error(error2);
   }
   function contextualizeExpression(expression, el) {
     let SKIP = ["JSON", "true", "false", "null", "undefined", "this", "$wire", "$event"];
@@ -17044,7 +17182,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       expression.startsWith("$parent") ? component.$wire.$parent.$commit() : component.$wire.$commit();
     };
     let debouncedUpdate = update;
-    if (shouldSendNetwork && !hasNetworkTriggers && isRealtimeInput(el) || isDebounced) {
+    if (shouldSendNetwork && !hasNetworkTriggers && isRealtimeInput(el) && !isDebounced && !isThrottled || isDebounced) {
       debouncedUpdate = debounce(debouncedUpdate, parseModifierDuration(networkModifiers, "debounce") || 150);
     }
     if (isThrottled) {

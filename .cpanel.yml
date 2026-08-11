@@ -28,7 +28,8 @@ deployment:
   tasks:
     - export WEBROOT=/home/aypa8479/public_html
     - export APPPATH=/home/aypa8479/public_html/ayparcasi_app
-    - export PHPBIN=/opt/cpanel/ea-php83/root/usr/bin/php
+    - export PHPBIN=$(command -v php || echo /opt/cpanel/ea-php83/root/usr/bin/php)
+    - echo "PHPBIN=$PHPBIN" >> /home/aypa8479/deploy-son.log 2>&1
     - export LOG=/home/aypa8479/deploy-son.log
     - date > $LOG 2>&1
     - echo "APPPATH=$APPPATH WEBROOT=$WEBROOT" >> $LOG 2>&1

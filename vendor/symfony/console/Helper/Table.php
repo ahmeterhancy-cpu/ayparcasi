@@ -14,7 +14,6 @@ namespace Symfony\Component\Console\Helper;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Formatter\OutputFormatterInterface;
 use Symfony\Component\Console\Formatter\WrappableOutputFormatterInterface;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -49,6 +48,7 @@ class Table
     private TableStyle $style;
     private array $columnStyles = [];
     private array $columnWidths = [];
+    private array $configuredColumnWidths = [];
     private array $columnMaxWidths = [];
     private bool $rendered = false;
     private string $displayOrientation = self::DISPLAY_ORIENTATION_DEFAULT;
@@ -135,6 +135,7 @@ class Table
     public function setColumnWidth(int $columnIndex, int $width): static
     {
         $this->columnWidths[$columnIndex] = $width;
+        $this->configuredColumnWidths[$columnIndex] = $width;
 
         return $this;
     }
@@ -147,6 +148,7 @@ class Table
     public function setColumnWidths(array $widths): static
     {
         $this->columnWidths = [];
+        $this->configuredColumnWidths = [];
         foreach ($widths as $index => $width) {
             $this->setColumnWidth($index, $width);
         }
@@ -701,13 +703,18 @@ class Table
                             $this->columnWidths[$item['column']] = $minWidthColumn;
                             $columnsMinWidthProcessed[$item['column']] = true;
                             $cellWidth -= $minWidthColumn + $lengthColumnBorder;
+                        } elseif ('min' === $item['type'] && ($this->configuredColumnWidths[$item['column']] ?? 0) > 0) {
+                            // this column already covers part of the cell, so share only the rest
+                            $columnsMinWidthProcessed[$item['column']] = true;
+                            $cellWidth -= $this->configuredColumnWidths[$item['column']] + $lengthColumnBorder;
                         }
                     }
                     for ($i = $column; $i < ($column + $colspan); ++$i) {
                         if (isset($columnsMinWidthProcessed[$i])) {
                             continue;
                         }
-                        $this->columnWidths[$i] = $cellWidth + $lengthColumnBorder;
+                        // a width set through setColumnWidth() is a minimum, unlike one computed for an earlier row
+                        $this->columnWidths[$i] = max($this->configuredColumnWidths[$i] ?? 0, $cellWidth + $lengthColumnBorder);
                     }
                 }
                 if (!str_contains($cell ?? '', "\n")) {
@@ -886,45 +893,32 @@ class Table
      */
     private function calculateColumnsWidth(iterable $groups): void
     {
-        $formatter = $this->output->getFormatter();
+        for ($column = 0; $column < $this->numberOfColumns; ++$column) {
+            $lengths = [];
+            foreach ($groups as $group) {
+                foreach ($group as $row) {
+                    if ($row instanceof TableSeparator) {
+                        continue;
+                    }
 
-        // Initialize max widths for all columns
-        $maxColumnWidths = array_fill(0, $this->numberOfColumns, 0);
-
-        // Single pass through all rows to calculate all column widths at once
-        foreach ($groups as $group) {
-            foreach ($group as $row) {
-                if ($row instanceof TableSeparator) {
-                    continue;
-                }
-
-                // Process TableCell colspan splitting once per row
-                foreach ($row as $i => $cell) {
-                    if ($cell instanceof TableCell && $cell->getColspan() > 1) {
-                        $textContent = Helper::removeDecoration($formatter, $cell);
-                        $textLength = Helper::width($textContent);
-                        if ($textLength > 0) {
-                            $contentColumns = mb_str_split($textContent, (int) ceil($textLength / $cell->getColspan()));
-                            foreach ($contentColumns as $position => $content) {
-                                $row[$i + $position] = $content;
+                    foreach ($row as $i => $cell) {
+                        if ($cell instanceof TableCell) {
+                            $textContent = Helper::removeDecoration($this->output->getFormatter(), $cell);
+                            $textLength = Helper::width($textContent);
+                            if ($textLength > 0) {
+                                $contentColumns = mb_str_split($textContent, ceil($textLength / $cell->getColspan()));
+                                foreach ($contentColumns as $position => $content) {
+                                    $row[$i + $position] = $content;
+                                }
                             }
                         }
                     }
-                }
 
-                // Calculate width for each column in this row
-                for ($column = 0; $column < $this->numberOfColumns; ++$column) {
-                    $cellWidth = $this->getCellWidth($row, $column, $formatter);
-                    if ($cellWidth > $maxColumnWidths[$column]) {
-                        $maxColumnWidths[$column] = $cellWidth;
-                    }
+                    $lengths[] = $this->getCellWidth($row, $column);
                 }
             }
-        }
 
-        $cellContentFormatWidth = Helper::width($this->style->getCellRowContentFormat()) - 2;
-        for ($column = 0; $column < $this->numberOfColumns; ++$column) {
-            $this->effectiveColumnWidths[$column] = $maxColumnWidths[$column] + $cellContentFormatWidth;
+            $this->effectiveColumnWidths[$column] = max($lengths) + Helper::width($this->style->getCellRowContentFormat()) - 2;
         }
     }
 
@@ -933,13 +927,13 @@ class Table
         return Helper::width(\sprintf($this->style->getBorderFormat(), $this->style->getBorderChars()[3]));
     }
 
-    private function getCellWidth(array $row, int $column, OutputFormatterInterface $formatter): int
+    private function getCellWidth(array $row, int $column): int
     {
         $cellWidth = 0;
 
         if (isset($row[$column])) {
             $cell = $row[$column];
-            $cellWidth = Helper::width(Helper::removeDecoration($formatter, $cell));
+            $cellWidth = Helper::width(Helper::removeDecoration($this->output->getFormatter(), $cell));
         }
 
         $columnWidth = $this->columnWidths[$column] ?? 0;
