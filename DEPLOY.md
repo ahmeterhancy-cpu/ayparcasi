@@ -142,22 +142,31 @@ klonlanan dalın `main` olduğundan emin olun (*Manage* → *Basic Information*)
 `/home/aypa8479/.cpanel/logs/` altına yazılır. Görevler `=== 1/7 ... ===`
 diye numaralı, nerede durduğu oradan okunur.
 
-### 2-E. Composer sunucuda yoksa
+### 2-E. vendor/ neden depoda
 
-Deploy günlüğünde **`COMPOSER BULUNAMADI`** yazıyorsa sunucuda composer
-yok demektir; `vendor/` dizinini depoya koymak gerekir. Yerelde:
+Bu sunucuda **composer yok** ve SSH de olmadığı için kurulamıyor. O yüzden
+`vendor/` dizini depoya alındı; deploy onu olduğu gibi kopyalıyor.
+
+`.gitignore` içinde `/vendor` satırı **duruyor** — dizin `git add -f` ile
+zorla eklendi. Bunun faydası: yerelde `composer install` çalıştırıp
+geliştirme paketlerini geri aldığınızda o dosyalar yok sayılıyor, depoya
+sızmıyor.
+
+**Bağımlılık değiştirdiğinizde** (composer.json'a paket ekleyip çıkardığınızda)
+şu sırayı izleyin:
 
 ```bash
-composer install --no-dev --optimize-autoloader   # dev paketleri çıkar
-# .gitignore içindeki "/vendor" satırını silin
-git add -f vendor && git commit -m "chore: vendor'ı depoya al (sunucuda composer yok)"
+composer update            # ya da require/remove
+composer install --no-dev --optimize-autoloader
+git add -f vendor && git commit -m "chore: vendor güncelle"
 git push
-composer install                                   # yerelde dev paketleri geri al
+composer install           # yerelde dev paketlerini geri al
 ```
 
-Bu yol çalışır ama bedeli var: depo şişer ve her paket güncellemesinde
-`--no-dev` ile kurup yeniden commit'lemeniz gerekir. Önce composer'ın
-gerçekten yok olduğundan emin olun — hosting desteğine sormaya değer.
+Son satırı atlarsanız testler çalışmaz (phpunit ve pint dev paketidir).
+
+Hosting desteği composer kurabilirse bu yükten kurtulursunuz: `.cpanel.yml`
+zaten `composer install` deniyor, bulursa onu kullanır.
 
 ## 3. Sunucuda tek seferlik ayarlar (terminal olmadan)
 
