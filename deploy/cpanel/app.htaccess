@@ -1,0 +1,26 @@
+# public_html/ayparcasi_app/.htaccess
+#
+# Uygulama public_html'in İÇİNDE duruyor (paket kök dizin değiştirmeye
+# izin vermiyor). Bu dosya olmazsa .env, vendor/ ve tüm kaynak kod
+# tarayıcıdan okunabilir. Deploy her seferinde bu dosyayı yeniden koyar.
+#
+# Kurulumdan sonra doğrulayın — 403 dönmeli:
+#   curl -I https://ALANADI/ayparcasi_app/.env
+
+<IfModule mod_authz_core.c>
+    # Apache 2.4 / LiteSpeed
+    Require all denied
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    # Apache 2.2
+    Order allow,deny
+    Deny from all
+</IfModule>
+
+# Sunucu .htaccess'i yok sayarsa bile PHP çalıştırılmasın
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+Options -Indexes -ExecCGI

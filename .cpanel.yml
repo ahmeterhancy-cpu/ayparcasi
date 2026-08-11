@@ -2,35 +2,57 @@
 # cPanel → Git Version Control → "Deploy HEAD Commit" bu dosyayı çalıştırır.
 # Komutlar cPanel kullanıcısı olarak, deponun kök dizininde koşar.
 #
-# İLK KURULUMDAN ÖNCE iki satırı kendi hesabınıza göre düzeltin:
-#   DEPLOYPATH  → uygulamanın duracağı dizin (public_html'in DIŞINDA)
-#   PHPBIN      → PHP 8.3+ ikilisi (cPanel'de "MultiPHP" sürümüyle aynı olmalı)
+# YERLEŞİM: bu pakette alan adının kök dizini değiştirilemiyor, yani her şey
+# public_html içinde olmak zorunda. Uygulama public_html/ayparcasi_app/ altına,
+# Laravel'in public/ içeriği doğrudan public_html'e gidiyor.
+# ayparcasi_app/.htaccess klasörü web'e kapatır — o dosya olmazsa .env okunur.
+#
+# İLK KURULUMDAN ÖNCE üç satırı kendi hesabınıza göre düzeltin:
+#   WEBROOT / APPPATH  → KULLANICI yerine cPanel kullanıcı adınız
+#   PHPBIN             → MultiPHP'de seçtiğiniz sürümün ikilisi (PHP 8.3+)
 #
 # Ayrıntılı anlatım: DEPLOY.md
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/KULLANICI/ayparcasi
+    - export WEBROOT=/home/KULLANICI/public_html
+    - export APPPATH=/home/KULLANICI/public_html/ayparcasi_app
     - export PHPBIN=/opt/cpanel/ea-php83/root/usr/bin/php
 
-    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/mkdir -p $APPPATH
 
-    # Kodu kopyala. .env ve storage BİLEREK hariç: biri sunucuya özel
-    # ayarlar, öteki yüklenen görseller ve günlükler — deploy onları silmemeli.
+    # 1) Uygulama dosyaları. public/ de kopyalanır — Vite manifest'i oradan
+    #    okunur. .env ve storage/ hariç: biri sunucuya özel ayar, öteki
+    #    yüklenen görseller ve günlükler; deploy ikisini de silmemeli.
     - /usr/bin/rsync -a --delete
         --exclude '.git'
         --exclude '.env'
         --exclude 'storage/'
         --exclude 'node_modules/'
         --exclude 'tests/'
-        ./ $DEPLOYPATH/
+        ./ $APPPATH/
 
-    - cd $DEPLOYPATH && /usr/local/bin/composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+    # 2) Klasörü web'e kapat. Bu satır kaybolursa .env dışarıdan okunur.
+    - /bin/cp deploy/cpanel/app.htaccess $APPPATH/.htaccess
 
-    - cd $DEPLOYPATH && $PHPBIN artisan migrate --force
-    - cd $DEPLOYPATH && $PHPBIN artisan storage:link
+    # 3) public/ içeriği web köküne. --delete YOK: public_html'de bu projeye
+    #    ait olmayan dosyalar da olabilir, onları silmeyelim.
+    - /usr/bin/rsync -a --exclude 'storage' --exclude 'build' --exclude 'hot' ./public/ $WEBROOT/
 
-    # Önbellekleri tazele. optimize:clear önce çalışır ki eski config
-    # önbelleği yeni .env'i gölgelemesin.
-    - cd $DEPLOYPATH && $PHPBIN artisan optimize:clear
-    - cd $DEPLOYPATH && $PHPBIN artisan optimize
-    - cd $DEPLOYPATH && $PHPBIN artisan filament:optimize
+    #    build/ tamamen bize ait, orada --delete güvenli — eski varlık birikmesin
+    - /usr/bin/rsync -a --delete ./public/build/ $WEBROOT/build/
+
+    # 4) Giriş dosyası ve yönlendirme kuralları
+    - /bin/cp deploy/cpanel/index.php $WEBROOT/index.php
+    - /bin/cp public/.htaccess $WEBROOT/.htaccess
+
+    # 5) Yüklenen görseller için sembolik bağ. `artisan storage:link`
+    #    KULLANILMAZ — o bağı uygulamanın kendi public/ dizinine kurar,
+    #    burada web kökü orası değil.
+    - test -L $WEBROOT/storage || /bin/ln -s $APPPATH/storage/app/public $WEBROOT/storage
+
+    # 6) Bağımlılıklar, göçler, önbellek
+    - cd $APPPATH && /usr/local/bin/composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+    - cd $APPPATH && $PHPBIN artisan migrate --force
+    - cd $APPPATH && $PHPBIN artisan optimize:clear
+    - cd $APPPATH && $PHPBIN artisan optimize
+    - cd $APPPATH && $PHPBIN artisan filament:optimize

@@ -10,21 +10,45 @@ Yükleme öncesi kapatılması gereken içerik eksikleri için sonundaki
 
 ## 0. Neyin nerede durduğu
 
-Paylaşımlı sunucuda uygulamanın **tamamı** `public_html` içine konmaz —
-`.env`, veritabanı ayarları ve kodun kendisi dışarıdan okunabilir hâle gelir.
-Doğru yerleşim:
+Bu pakette alan adının kök dizini değiştirilemiyor: her şey `public_html`
+içinde olmak zorunda. Yerleşim buna göre kuruldu.
 
 ```
 /home/KULLANICI/
-├── ayparcasi/            ← uygulama (deploy buraya yazar)
-│   ├── app/  config/  routes/  vendor/ ...
-│   ├── .env              ← elle oluşturulur, git'e girmez
-│   ├── storage/          ← yüklenen görseller, günlükler (deploy dokunmaz)
-│   └── public/           ← alan adının kök dizini BURAYI göstermeli
 ├── repositories/
-│   └── ayparcasi/        ← cPanel'in klonladığı depo
-└── public_html/          ← ana alan adı burayı gösteriyorsa 3-B'ye bakın
+│   └── ayparcasi/            ← cPanel'in klonladığı depo (deploy buradan çalışır)
+└── public_html/              ← alan adının kök dizini
+    ├── index.php             ← deploy/cpanel/index.php'nin kopyası
+    ├── .htaccess             ← Laravel'in yönlendirme kuralları
+    ├── build/ img/ css/ js/ fonts/ favicon.ico ...   ← public/ içeriği
+    ├── storage → ayparcasi_app/storage/app/public    ← sembolik bağ
+    └── ayparcasi_app/        ← uygulamanın tamamı
+        ├── .htaccess         ← KLASÖRÜ WEB'E KAPATIR (aşağıyı okuyun)
+        ├── .env              ← elle oluşturulur, git'e girmez
+        ├── storage/          ← yüklenen görseller, günlükler (deploy dokunmaz)
+        └── app/ config/ routes/ vendor/ public/ ...
 ```
+
+> ### ⚠ Bunu atlarsanız site sızdırır
+>
+> `ayparcasi_app/` klasörü `public_html` içinde olduğu için tarayıcıdan
+> erişilebilir bir adrestedir. İçindeki `.htaccess` klasörü tamamen kapatır;
+> o dosya olmazsa **`.env` dosyanız — veritabanı parolanız, e-posta parolanız,
+> `APP_KEY` — düz metin olarak indirilebilir.**
+>
+> Deploy her seferinde bu dosyayı yeniden koyar (`.cpanel.yml`, 2. adım).
+> **Kurulumdan sonra bir kez elle doğrulayın**, 403 dönmeli:
+>
+> ```bash
+> curl -I https://ALANADI/ayparcasi_app/.env
+> ```
+>
+> 200 dönerse siteyi hemen kapatın (Ayarlar → Yapım aşamasında), sunucunun
+> `.htaccess` dosyalarını okuduğundan emin olun, sonra `APP_KEY` ile bütün
+> parolaları değiştirin.
+
+Uygulamanın kendi `public/` dizini de `ayparcasi_app` altında duruyor;
+silmeyin — Vite varlık listesi (`build/manifest.json`) oradan okunuyor.
 
 ## 1. Depo
 
@@ -66,10 +90,11 @@ genel anahtarı GitHub'da **Deploy keys** olarak ekleyin (salt okunur yeter).
 
 ### 2-C. `.cpanel.yml` dosyasını kendi hesabınıza göre düzeltin
 
-Depodaki `.cpanel.yml` içinde iki satır var:
+Depodaki `.cpanel.yml` içinde üç satır var:
 
 ```yaml
-- export DEPLOYPATH=/home/KULLANICI/ayparcasi
+- export WEBROOT=/home/KULLANICI/public_html
+- export APPPATH=/home/KULLANICI/public_html/ayparcasi_app
 - export PHPBIN=/opt/cpanel/ea-php83/root/usr/bin/php
 ```
 
@@ -92,17 +117,33 @@ sonraki adımda düzeltiyoruz.
 SSH ya da cPanel → **Terminal**:
 
 ```bash
-cd ~/ayparcasi
+cd ~/public_html/ayparcasi_app
 cp .env.production.example .env
 nano .env          # veritabanı, e-posta ve APP_URL'i doldurun
 php artisan key:generate
 php artisan migrate --force
-php artisan storage:link
 php artisan optimize
 ```
 
 > `php` komutu eski sürüm veriyorsa `.cpanel.yml`'deki tam yolu kullanın:
 > `/opt/cpanel/ea-php83/root/usr/bin/php artisan ...`
+
+**`storage:link` çalıştırmayın.** O komut bağı uygulamanın kendi `public/`
+dizinine kurar; burada web kökü orası değil. Doğru bağı deploy zaten
+kuruyor — kontrol etmek isterseniz:
+
+```bash
+ls -l ~/public_html/storage
+# storage -> /home/KULLANICI/public_html/ayparcasi_app/storage/app/public
+```
+
+### 3-0. Güvenlik kontrolü (atlamayın)
+
+```bash
+curl -I https://ALANADI/ayparcasi_app/.env
+```
+
+**403 Forbidden** dönmeli. 200 dönerse 0. bölümdeki uyarıyı okuyun.
 
 ### 3-A. Yönetici hesabı
 
@@ -121,38 +162,25 @@ App\Models\User::create([
 ]);
 ```
 
-### 3-B. Alan adının kök dizini
-
-cPanel → **Domains** → alan adının *Document Root* alanını
-`/home/KULLANICI/ayparcasi/public` yapın.
-
-Ana alan adında bu alan kilitliyse (bazı paketlerde öyle), `public_html`
-içine tek bir yönlendirici koyun — `public_html/index.php`:
-
-```php
-<?php
-$app = '/home/KULLANICI/ayparcasi';
-require $app.'/public/index.php';
-```
-
-ve `public/.htaccess` dosyasını `public_html/.htaccess` olarak kopyalayın.
-Bu yol işe yarar ama **birinci seçenek daima daha temizdir**.
-
-### 3-C. Görseller
+### 3-B. Görseller
 
 `storage/app/public` git'te **yok**. Ürün fotoğrafları, hero görselleri ve
 tanıtım videosu yerelden ayrıca taşınır:
 
-- cPanel → *Dosya Yöneticisi* ile `~/ayparcasi/storage/app/public/` altına yükleyin
-- ya da: `scp -r storage/app/public/* KULLANICI@sunucu:~/ayparcasi/storage/app/public/`
+- cPanel → *Dosya Yöneticisi* ile
+  `public_html/ayparcasi_app/storage/app/public/` altına yükleyin
+- ya da:
+  ```bash
+  scp -r storage/app/public/* KULLANICI@sunucu:~/public_html/ayparcasi_app/storage/app/public/
+  ```
 
-`php artisan storage:link` bir kez çalıştıysa dosyalar `/storage/...`
-adresinden görünür.
+Sembolik bağ kurulu olduğu için dosyalar `/storage/...` adresinden görünür.
 
-### 3-D. İzinler
+### 3-C. İzinler
 
 ```bash
-chmod -R 775 ~/ayparcasi/storage ~/ayparcasi/bootstrap/cache
+cd ~/public_html/ayparcasi_app
+chmod -R 775 storage bootstrap/cache
 ```
 
 ## 4. Zamanlanmış görev — şimdilik gerek yok
@@ -165,7 +193,7 @@ istek sırasında doğrudan gönderiliyor. Yani şu an cron kurmanıza gerek yok
 cPanel → **Cron Jobs** → dakikada bir:
 
 ```
-* * * * * /opt/cpanel/ea-php83/root/usr/bin/php /home/KULLANICI/ayparcasi/artisan schedule:run >> /dev/null 2>&1
+* * * * * /opt/cpanel/ea-php83/root/usr/bin/php /home/KULLANICI/public_html/ayparcasi_app/artisan schedule:run >> /dev/null 2>&1
 ```
 
 > **E-posta uyarısı:** gönderim eşzamanlı olduğu için SMTP yavaşlarsa
@@ -204,9 +232,11 @@ Kod hazır; kapatılması gereken içerik eksikleri:
 
 | Belirti | Sebep |
 |---|---|
+| **`.env` tarayıcıdan iniyor** | `ayparcasi_app/.htaccess` yok ya da sunucu okumuyor → 0. bölüm |
 | 500, boş sayfa | `.env` yok ya da `APP_KEY` boş → `php artisan key:generate` |
 | Stiller gelmiyor | `public/build` commit'lenmemiş → `npm run build` + commit |
-| Görseller kırık | `storage:link` çalışmamış ya da dosyalar yüklenmemiş (3-C) |
+| Görseller kırık | `public_html/storage` bağı yok ya da dosyalar yüklenmemiş (3-B) |
+| Ana sayfa açılıyor, alt sayfalar 404 | `public_html/.htaccess` kopyalanmamış ya da `mod_rewrite` kapalı |
 | Ayar değişikliği görünmüyor | Config önbelleği eski → `php artisan optimize:clear` |
 | `Class not found` | `composer install` çalışmamış → `.cpanel.yml`'deki composer yolu |
 | Panel açılmıyor | `filament:optimize` sonrası → `php artisan filament:optimize-clear` |
