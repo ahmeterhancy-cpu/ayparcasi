@@ -76,5 +76,9 @@ deployment:
     - test -L $WEBROOT/storage && echo "STORAGE BAGI=VAR" >> $DURUM 2>&1 || echo "STORAGE BAGI=YOK" >> $DURUM 2>&1
     - echo "APPPATH:" >> $DURUM 2>&1
     - /bin/ls -1 $APPPATH >> $DURUM 2>&1
-    - echo "SON HATA:" >> $DURUM 2>&1
+    - echo "--- php error_log (son 15) ---" >> $DURUM 2>&1
+    - /usr/bin/tail -15 $APPPATH/error_log >> $DURUM 2>&1 || echo "(error_log yok)" >> $DURUM 2>&1
+    - echo "--- deploy gunlugu (son 25) ---" >> $DURUM 2>&1
+    - /usr/bin/tail -25 $LOG >> $DURUM 2>&1 || echo "(deploy gunlugu yok)" >> $DURUM 2>&1
+    - echo "--- laravel.log (son 15) ---" >> $DURUM 2>&1
     - /usr/bin/tail -5 $APPPATH/storage/logs/laravel.log >> $DURUM 2>&1 || echo "(laravel.log yok - uygulama hic acilmamis)" >> $DURUM 2>&1
