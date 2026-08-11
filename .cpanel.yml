@@ -60,3 +60,16 @@ deployment:
     - cd $APPPATH && $PHPBIN artisan filament:optimize >> $LOG 2>&1 || true
     - cd $APPPATH && $PHPBIN artisan admin:olustur >> $LOG 2>&1 || true
     - echo "=== DEPLOY BITTI ===" >> $LOG 2>&1
+    - echo "--- durum dosyasi (gecici teshis) ---" >> $LOG 2>&1
+    - export DURUM=$WEBROOT/deploy-durum.txt
+    - date > $DURUM 2>&1
+    - echo "php=$($PHPBIN -v 2>&1 | head -1)" >> $DURUM 2>&1
+    - echo "composer=$(command -v composer)" >> $DURUM 2>&1
+    - test -f $APPPATH/.env && echo "ENV: VAR" >> $DURUM 2>&1 || echo "ENV: YOK" >> $DURUM 2>&1
+    - test -f $APPPATH/vendor/autoload.php && echo "VENDOR: VAR" >> $DURUM 2>&1 || echo "VENDOR: YOK" >> $DURUM 2>&1
+    - test -f $APPPATH/artisan && echo "ARTISAN: VAR" >> $DURUM 2>&1 || echo "ARTISAN: YOK" >> $DURUM 2>&1
+    - test -L $WEBROOT/storage && echo "STORAGE BAGI: VAR" >> $DURUM 2>&1 || echo "STORAGE BAGI: YOK" >> $DURUM 2>&1
+    - echo "APPPATH:" >> $DURUM 2>&1
+    - /bin/ls -1 $APPPATH >> $DURUM 2>&1
+    - echo "SON HATA:" >> $DURUM 2>&1
+    - /usr/bin/tail -5 $APPPATH/storage/logs/laravel.log >> $DURUM 2>&1 || echo "(laravel.log yok - uygulama hic acilmamis)" >> $DURUM 2>&1

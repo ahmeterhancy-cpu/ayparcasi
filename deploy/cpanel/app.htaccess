@@ -5,7 +5,11 @@
 # tarayıcıdan okunabilir. Deploy her seferinde bu dosyayı yeniden koyar.
 #
 # Kurulumdan sonra doğrulayın — 403 dönmeli:
-#   curl -I https://ALANADI/ayparcasi_app/.env
+#   https://ALANADI/ayparcasi_app/.env
+#
+# BİLEREK SADE: daha önce burada php_flag ve -ExecCGI de vardı. LiteSpeed
+# bunları desteklemeyip 500 üretebiliyor, o da "kapalı mı yoksa bozuk mu"
+# ayrımını imkânsız hale getiriyordu. Erişimi kapatmak için Require yeter.
 
 <IfModule mod_authz_core.c>
     # Apache 2.4 / LiteSpeed
@@ -18,9 +22,4 @@
     Deny from all
 </IfModule>
 
-# Sunucu .htaccess'i yok sayarsa bile PHP çalıştırılmasın
-<IfModule mod_php.c>
-    php_flag engine off
-</IfModule>
-
-Options -Indexes -ExecCGI
+Options -Indexes
