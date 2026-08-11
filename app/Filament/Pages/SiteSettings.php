@@ -277,16 +277,16 @@ class SiteSettings extends Page implements HasSchemas
                                 ->schema([
                                     TextInput::make('maintenance_title')
                                         ->label('Başlık')
-                                        ->placeholder('Vitrinimizi yeniliyoruz'),
+                                        ->placeholder('Kısa bir ara veriyoruz'),
 
                                     Textarea::make('maintenance_message')
                                         ->label('Açıklama')
                                         ->rows(4)
-                                        ->placeholder('Sitemiz kısa bir süreliğine kapalı. Çiçekleriniz için WhatsApp’tan yazabilirsiniz.'),
+                                        ->placeholder('Sitemizde küçük bir düzenleme yapıyoruz, birazdan yeniden buradayız. Çiçek göndermek isterseniz beklemenize gerek yok: WhatsApp’tan yazın ya da telefonla arayın.'),
 
                                     TextInput::make('maintenance_until')
                                         ->label('Ne zaman açılacak')
-                                        ->placeholder('Cuma sabahı yeniden buradayız')
+                                        ->placeholder('Bugün 16:00 gibi yeniden açılıyoruz')
                                         ->helperText('Serbest metin. Boş bırakırsanız bu satır hiç görünmez.'),
                                 ]),
 

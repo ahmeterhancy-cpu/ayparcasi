@@ -7,8 +7,8 @@
 --}}
 @php
     $shop = setting('shop_name', 'Ay Parçası');
-    $title = setting('maintenance_title', 'Vitrinimizi yeniliyoruz');
-    $message = setting('maintenance_message', 'Sitemiz kısa bir süreliğine kapalı. Çiçekleriniz için WhatsApp’tan yazabilir ya da telefonla arayabilirsiniz — siparişleriniz her zamanki gibi hazırlanıyor.');
+    $title = setting('maintenance_title', 'Kısa bir ara veriyoruz');
+    $message = setting('maintenance_message', 'Sitemizde küçük bir düzenleme yapıyoruz, birazdan yeniden buradayız. Çiçek göndermek isterseniz beklemenize gerek yok: WhatsApp’tan yazın ya da telefonla arayın, buketinizi her zamanki gibi elde hazırlayalım.');
     $until = setting('maintenance_until');
     $phone = setting('phone');
     $instagram = setting('instagram');
