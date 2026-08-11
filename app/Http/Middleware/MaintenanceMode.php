@@ -49,8 +49,17 @@ class MaintenanceMode
             return $next($request);
         }
 
+        /*
+         * Perde ASLA önbelleğe alınmamalı. Sunucudaki LiteSpeed önbelleği ya
+         * da tarayıcı bu 503'ü saklarsa, ekip hesabıyla giriş yapmış olsanız
+         * bile size saklanmış perde dönüyor — site açıldıktan sonra bile
+         * ziyaretçiye kapalı görünebiliyor.
+         */
         return response()
             ->view('maintenance', status: Response::HTTP_SERVICE_UNAVAILABLE)
-            ->header('Retry-After', '3600');
+            ->header('Retry-After', '3600')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('X-LiteSpeed-Cache-Control', 'no-cache');
     }
 }

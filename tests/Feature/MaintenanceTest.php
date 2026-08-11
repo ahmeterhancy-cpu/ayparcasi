@@ -51,6 +51,18 @@ class MaintenanceTest extends TestCase
         $this->get('/iletisim')->assertStatus(503);
     }
 
+    public function test_perde_onbellege_alinmaz(): void
+    {
+        $this->closeShop();
+
+        // Sunucu ya da tarayıcı perdeyi saklarsa, ekip girişi yapıldıktan
+        // sonra bile saklanmış kapalı sayfa dönüyor.
+        $this->get('/')
+            ->assertStatus(503)
+            ->assertHeader('Cache-Control', 'max-age=0, must-revalidate, no-cache, no-store, private')
+            ->assertHeader('X-LiteSpeed-Cache-Control', 'no-cache');
+    }
+
     public function test_ekip_hesabi_kapali_siteyi_gezebilir(): void
     {
         $this->closeShop();
