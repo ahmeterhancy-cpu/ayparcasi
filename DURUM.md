@@ -12,13 +12,18 @@ npm run start          # php artisan serve :8126 + vite, birlikte
 
 | | |
 |---|---|
-| Vitrin | http://localhost:8126 |
-| Panel | http://localhost:8126/admin |
-| Panel girişi | `admin@ayparcasicicekci.com` / `ayparcasi2026` |
-| Demo müşteri | `musteri@ornek.com` / `musteri2026` |
+| Vitrin | http://127.0.0.1:8126 |
+| Panel | http://127.0.0.1:8126/admin |
+| Panel girişi | `admin@ayparcasicicekci.com` — parola için aşağıya bakın |
+| Demo müşteri | `musteri@ornek.com` — parola için aşağıya bakın |
 | Testler | `./vendor/bin/phpunit` — **77/77, 284 doğrulama** |
 | Biçimlendirme | `./vendor/bin/pint` |
 | Sıfırlama | `php artisan migrate:fresh --seed` |
+
+> **Parolalar depoda yazmaz** (depo herkese açık). `db:seed` çalıştırınca
+> rastgele üretilip ekrana basılır; kendi parolanızı vermek isterseniz
+> `.env` içine `SEED_ADMIN_PASSWORD` ve `SEED_CUSTOMER_PASSWORD` yazın.
+> Canlıdaki yönetici hesabı `php artisan admin:olustur` ile açılır.
 
 ## Yığın
 
