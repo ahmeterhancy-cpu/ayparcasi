@@ -14,7 +14,7 @@ Bu pakette alan adının kök dizini değiştirilemiyor: her şey `public_html`
 içinde olmak zorunda. Yerleşim buna göre kuruldu.
 
 ```
-/home/KULLANICI/
+/home/aypa8479/
 ├── repositories/
 │   └── ayparcasi/            ← cPanel'in klonladığı depo (deploy buradan çalışır)
 └── public_html/              ← alan adının kök dizini
@@ -79,26 +79,35 @@ cPanel → **MySQL® Veritabanları**:
 
 ### 2-B. Depoyu klonla
 
-cPanel → **Git Version Control** → *Create*:
+Depo **private**. cPanel klonlarken parola soramaz, o yüzden HTTPS adresi
+çalışmaz — SSH anahtarı gerekir. Sıra şöyle:
+
+1. cPanel → **SSH Access** → *Manage SSH Keys* → **Generate a New Key**
+   (parola/passphrase **boş** bırakın; cPanel'in git'i passphrase soramaz)
+2. Üretilen anahtarı **Authorize** edin
+3. *View/Download* ile **genel** anahtarı (`.pub`) kopyalayın
+4. GitHub → depo → *Settings* → **Deploy keys** → *Add deploy key* →
+   yapıştırın. **Allow write access KAPALI** kalsın — sunucunun yazmasına
+   gerek yok.
+
+Sonra cPanel → **Git Version Control** → *Create*:
 
 - **Clone a Repository**: açık
-- **Clone URL**: GitHub deposunun SSH adresi
+- **Clone URL**: `git@github.com:ahmeterhancy-cpu/ayparcasi.git`
 - **Repository Path**: `repositories/ayparcasi`
-
-SSH anahtarı istenirse cPanel → *SSH Access* → *Manage SSH Keys* ile üretip
-genel anahtarı GitHub'da **Deploy keys** olarak ekleyin (salt okunur yeter).
+- **Repository Name**: `ayparcasi`
 
 ### 2-C. `.cpanel.yml` dosyasını kendi hesabınıza göre düzeltin
 
 Depodaki `.cpanel.yml` içinde üç satır var:
 
 ```yaml
-- export WEBROOT=/home/KULLANICI/public_html
-- export APPPATH=/home/KULLANICI/public_html/ayparcasi_app
+- export WEBROOT=/home/aypa8479/public_html
+- export APPPATH=/home/aypa8479/public_html/ayparcasi_app
 - export PHPBIN=/opt/cpanel/ea-php83/root/usr/bin/php
 ```
 
-- `KULLANICI` → cPanel kullanıcı adınız
+- `aypa8479` → cPanel kullanıcı adı (bu hesapta doğrulandı)
 - `PHPBIN` → cPanel → *MultiPHP Manager*'da seçtiğiniz sürümün ikilisi.
   PHP 8.4 seçtiyseniz `ea-php84` yazın. **Proje PHP 8.3 ve üstünü ister.**
 
@@ -134,7 +143,7 @@ kuruyor — kontrol etmek isterseniz:
 
 ```bash
 ls -l ~/public_html/storage
-# storage -> /home/KULLANICI/public_html/ayparcasi_app/storage/app/public
+# storage -> /home/aypa8479/public_html/ayparcasi_app/storage/app/public
 ```
 
 ### 3-0. Güvenlik kontrolü (atlamayın)
@@ -171,7 +180,7 @@ tanıtım videosu yerelden ayrıca taşınır:
   `public_html/ayparcasi_app/storage/app/public/` altına yükleyin
 - ya da:
   ```bash
-  scp -r storage/app/public/* KULLANICI@sunucu:~/public_html/ayparcasi_app/storage/app/public/
+  scp -r storage/app/public/* aypa8479@sunucu:~/public_html/ayparcasi_app/storage/app/public/
   ```
 
 Sembolik bağ kurulu olduğu için dosyalar `/storage/...` adresinden görünür.
@@ -193,7 +202,7 @@ istek sırasında doğrudan gönderiliyor. Yani şu an cron kurmanıza gerek yok
 cPanel → **Cron Jobs** → dakikada bir:
 
 ```
-* * * * * /opt/cpanel/ea-php83/root/usr/bin/php /home/KULLANICI/public_html/ayparcasi_app/artisan schedule:run >> /dev/null 2>&1
+* * * * * /opt/cpanel/ea-php83/root/usr/bin/php /home/aypa8479/public_html/ayparcasi_app/artisan schedule:run >> /dev/null 2>&1
 ```
 
 > **E-posta uyarısı:** gönderim eşzamanlı olduğu için SMTP yavaşlarsa

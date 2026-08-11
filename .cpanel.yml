@@ -7,15 +7,14 @@
 # Laravel'in public/ içeriği doğrudan public_html'e gidiyor.
 # ayparcasi_app/.htaccess klasörü web'e kapatır — o dosya olmazsa .env okunur.
 #
-# İLK KURULUMDAN ÖNCE üç satırı kendi hesabınıza göre düzeltin:
-#   WEBROOT / APPPATH  → KULLANICI yerine cPanel kullanıcı adınız
-#   PHPBIN             → MultiPHP'de seçtiğiniz sürümün ikilisi (PHP 8.3+)
+# Yollar bu hesaba göre yazıldı (cPanel kullanıcısı: aypa8479).
+# PHPBIN satırını MultiPHP'de seçtiğiniz sürümle eşleyin — proje PHP 8.3+ ister.
 #
 # Ayrıntılı anlatım: DEPLOY.md
 deployment:
   tasks:
-    - export WEBROOT=/home/KULLANICI/public_html
-    - export APPPATH=/home/KULLANICI/public_html/ayparcasi_app
+    - export WEBROOT=/home/aypa8479/public_html
+    - export APPPATH=/home/aypa8479/public_html/ayparcasi_app
     - export PHPBIN=/opt/cpanel/ea-php83/root/usr/bin/php
 
     - /bin/mkdir -p $APPPATH
