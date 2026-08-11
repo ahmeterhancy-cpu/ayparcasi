@@ -477,26 +477,10 @@
                     </p>
                 </div>
 
-                <div class="route__zones" data-stagger="70">
-                    {{-- Sıra hattakiyle aynı: önce güzergâh durakları, sonra
-                         ada geneli. "Ana bölge" rozeti kaldırıldı — ana bölge
-                         tek bir köy değil, güzergâhın tamamı; rozet ilk kartı
-                         (Alsancak) yanlış biçimde öne çıkarıyordu. --}}
-                    @foreach ($zones as $zone)
-                        <div class="zone-card">
-                            <span class="zone-card__name">{{ $zone->name }}</span>
-                            <span class="zone-card__fee">
-                                {{ (float) $zone->fee > 0 ? money($zone->fee) : 'Ücretsiz' }}
-                            </span>
-                            <span class="zone-card__note">
-                                {{ $zone->same_day ? 'Aynı gün teslim' : 'Ertesi gün teslim' }}
-                                @if ($zone->free_over)
-                                    · {{ money($zone->free_over) }} üzeri ücretsiz
-                                @endif
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
+                {{-- Bölge fiyat kartları ana sayfadan KALDIRILDI. Yedi bölgenin
+                     ücretini yan yana sıralamak ana sayfanın işi değil; müşteri
+                     zaten kasada bölgesini seçince kendi ücretini görüyor.
+                     Tam liste Teslimat sayfasında duruyor. --}}
             </div>
         </section>
     @endif
