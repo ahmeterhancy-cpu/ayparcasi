@@ -9,7 +9,8 @@
 #
 # GÜNLÜK: her adım /home/aypa8479/deploy-son.log dosyasına yazar. Deploy
 # takılırsa o dosyayı Dosya Yöneticisi'nden açıp nerede durduğuna bakın;
-# cPanel'in kendi günlüğünü aramaya gerek yok.
+# cPanel'in kendi günlüğünü aramaya gerek yok. (Kurulum sırasında web köküne
+# de bir teşhis dosyası yazılıyordu; site açıldığı için kaldırıldı.)
 #
 # Kopyalama /bin/cp ile ve dizinler TEK TEK sayılarak yapılıyor: rsync bu
 # sunucuda yok, tar da cPanel'in dar PATH'inde bulunamadı. Joker, find ya da
@@ -23,10 +24,9 @@
 # reddediyor; cPanel deploy'u anında düşürüyor ve "Last Deployed" son
 # başarılı commit'te donuyor. Bu yüzden echo metinlerinde `=` var.
 #
-# VERİTABANINI SIFIRLAMA: .env içine DEPLOY_FRESH=true yazarsanız bir sonraki
-# deploy migrate:fresh çalıştırır — BÜTÜN TABLOLARI SİLER. Yarım kalmış bir
-# kurulumu temizlemek için. İşlem bitince o satırı .env'den KALDIRIN, yoksa
-# her deploy veriyi siler.
+# Veritabanı sıfırlama görevi BİLEREK KALDIRILDI: canlıda gerçek sipariş
+# verisi olacak, tek bir yanlış satır her şeyi silebilirdi. Sıfırlama
+# gerekirse phpMyAdmin'den elle yapılır.
 #
 # Ayrıntılı anlatım: DEPLOY.md
 deployment:
@@ -65,31 +65,10 @@ deployment:
     - echo "--- 6/7 composer ---" >> $LOG 2>&1
     - cd $APPPATH && command -v composer >/dev/null 2>&1 && composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader >> $LOG 2>&1 || echo "COMPOSER BULUNAMADI - bkz DEPLOY.md 2-E" >> $LOG 2>&1
     - echo "--- 7/7 gocler, onbellek, yonetici ---" >> $LOG 2>&1
-    - cd $APPPATH && /bin/grep -q "^DEPLOY_FRESH=true" .env && echo "DEPLOY_FRESH acik - veritabani sifirlaniyor" >> $LOG 2>&1 && $PHPBIN artisan migrate:fresh --force >> $LOG 2>&1 || true
     - cd $APPPATH && $PHPBIN artisan migrate --force >> $LOG 2>&1 || echo "MIGRATE ATLANDI - .env ve vendor var mi?" >> $LOG 2>&1
     - cd $APPPATH && $PHPBIN artisan optimize:clear >> $LOG 2>&1 || true
     - cd $APPPATH && $PHPBIN artisan optimize >> $LOG 2>&1 || true
     - cd $APPPATH && $PHPBIN artisan filament:optimize >> $LOG 2>&1 || true
     - cd $APPPATH && $PHPBIN artisan admin:olustur >> $LOG 2>&1 || true
     - echo "=== DEPLOY BITTI ===" >> $LOG 2>&1
-    - echo "--- durum dosyasi (gecici teshis) ---" >> $LOG 2>&1
-    - export DURUM=$WEBROOT/deploy-durum.txt
-    - date > $DURUM 2>&1
-    - echo "php=$($PHPBIN -v 2>&1 | head -1)" >> $DURUM 2>&1
-    - echo "composer=$(command -v composer)" >> $DURUM 2>&1
-    - test -f $APPPATH/.env && echo "ENV=VAR" >> $DURUM 2>&1 || echo "ENV=YOK" >> $DURUM 2>&1
-    - test -f $APPPATH/vendor/autoload.php && echo "VENDOR=VAR" >> $DURUM 2>&1 || echo "VENDOR=YOK" >> $DURUM 2>&1
-    - test -f $APPPATH/artisan && echo "ARTISAN=VAR" >> $DURUM 2>&1 || echo "ARTISAN=YOK" >> $DURUM 2>&1
-    - test -L $WEBROOT/storage && echo "STORAGE BAGI=VAR" >> $DURUM 2>&1 || echo "STORAGE BAGI=YOK" >> $DURUM 2>&1
-    - echo "APPPATH:" >> $DURUM 2>&1
-    - /bin/ls -1 $APPPATH >> $DURUM 2>&1
-    - echo "--- php error_log (son 15) ---" >> $DURUM 2>&1
-    - /usr/bin/tail -15 $APPPATH/error_log >> $DURUM 2>&1 || echo "(error_log yok)" >> $DURUM 2>&1
-    - echo "--- deploy gunlugu (son 25) ---" >> $DURUM 2>&1
-    - /usr/bin/tail -25 $LOG >> $DURUM 2>&1 || echo "(deploy gunlugu yok)" >> $DURUM 2>&1
-    - echo "--- migrate durumu ---" >> $DURUM 2>&1
-    - cd $APPPATH && $PHPBIN artisan migrate --force >> $DURUM 2>&1 || echo "(migrate hata verdi - ustteki mesaja bakin)" >> $DURUM 2>&1
-    - echo "--- goc durumu ---" >> $DURUM 2>&1
-    - cd $APPPATH && $PHPBIN artisan migrate:status >> $DURUM 2>&1 || echo "(migrate:status calismadi)" >> $DURUM 2>&1
-    - echo "--- laravel.log (son 15) ---" >> $DURUM 2>&1
-    - /usr/bin/tail -5 $APPPATH/storage/logs/laravel.log >> $DURUM 2>&1 || echo "(laravel.log yok - uygulama hic acilmamis)" >> $DURUM 2>&1
+    - /bin/rm -f $WEBROOT/deploy-durum.txt

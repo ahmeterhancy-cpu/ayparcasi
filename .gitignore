@@ -31,3 +31,7 @@ Thumbs.db
 # Yerel geliştirme veritabanı — seeder her şeyi yeniden üretir
 /database/*.sqlite
 /database/*.sqlite-journal
+
+# Kuruluma özel üretilen paketler — depoya girmez
+/ayparcasi-kurulum.sql
+/ayparcasi-gorseller.zip
