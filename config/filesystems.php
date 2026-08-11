@@ -38,9 +38,16 @@ return [
             'report' => false,
         ],
 
+        /*
+         * Yüklenen görseller. Kök dizin BİLEREK ayarlanabilir: paylaşımlı
+         * sunucuda uygulama public_html'in içinde duruyor ve web kökündeki
+         * `storage` sembolik bağı sunucu tarafından takip edilmeyebiliyor
+         * (404). FILESYSTEM_PUBLIC_ROOT verilirse dosyalar doğrudan web'in
+         * gördüğü klasöre yazılır, bağa hiç ihtiyaç kalmaz.
+         */
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => env('FILESYSTEM_PUBLIC_ROOT') ?: storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
