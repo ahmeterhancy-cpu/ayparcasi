@@ -103,6 +103,14 @@ class MaintenanceTest extends TestCase
         // Panel girişi açık kalır
         $this->get('/admin/login')->assertOk();
 
+        // Filament Livewire'ı rastgele önekle servis ediyor
+        // (/livewire-172643c6/update). Bu yol perdeye takılırsa panelin
+        // giriş formu sunucuya hiç ulaşmıyor ve ekranda hata da çıkmıyor.
+        // Önemli olan 503 DÖNMEMESİ; kurulumdaki önek farklı olduğu için
+        // testte 404 dönüyor, ama perdeye takılmıyor.
+        $this->assertNotSame(503, $this->post('/livewire-172643c6/update', [])->status());
+        $this->assertNotSame(503, $this->get('/livewire-172643c6/livewire.min.js')->status());
+
         // Süren ödemenin bildirimi düşmemeli: perde 503 döndürmez,
         // istek gerçek denetleyiciye ulaşır (imzasız veriyle reddedilir).
         $this->post('/odeme/bildirim', [])->assertStatus(400);

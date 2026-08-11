@@ -25,7 +25,15 @@ class MaintenanceMode
         'admin',
         'admin/*',
         'up',
-        'livewire/*',
+
+        /*
+         * Livewire uçlarının tamamı. Yıldız BAŞTA değil sonda: Filament,
+         * Livewire'ı rastgele bir önekle servis ediyor
+         * (/livewire-172643c6/update). Burada 'livewire/*' yazıyordu ve o
+         * adresle eşleşmiyordu; perde açıkken panelin giriş formu sunucuya
+         * hiç ulaşamıyor, ekranda da hata görünmüyordu.
+         */
+        'livewire*',
         'odeme/*',
         'siparis/*',
         'cikis',
