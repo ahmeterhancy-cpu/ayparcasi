@@ -1,14 +1,17 @@
 ---
-# cPanel → Git Version Control → "Deploy HEAD Commit" bu dosyayı çalıştırır.
-# Komutlar cPanel kullanıcısı olarak, deponun kök dizininde koşar.
+# cPanel → Git Version Control → Manage → "Deploy HEAD Commit" bunu çalıştırır.
+# Klonlamak dosyaları public_html'e KOYMAZ; taşıyan adım budur.
 #
 # YERLEŞİM: bu pakette alan adının kök dizini değiştirilemiyor, yani her şey
 # public_html içinde olmak zorunda. Uygulama public_html/ayparcasi_app/ altına,
 # Laravel'in public/ içeriği doğrudan public_html'e gidiyor.
 # ayparcasi_app/.htaccess klasörü web'e kapatır — o dosya olmazsa .env okunur.
 #
-# Yollar bu hesaba göre yazıldı (cPanel kullanıcısı: aypa8479).
-# PHPBIN satırını MultiPHP'de seçtiğiniz sürümle eşleyin — proje PHP 8.3+ ister.
+# Yollar hesap aypa8479'a göre yazıldı. PHPBIN satırını MultiPHP'de seçili
+# sürümle eşleyin — proje PHP 8.3+ ister.
+#
+# Her görev TEK SATIR: cPanel'in YAML ayrıştırıcısı çok satırlı komutlarda
+# takılabiliyor. Uzun görünseler de bölmeyin.
 #
 # Ayrıntılı anlatım: DEPLOY.md
 deployment:
@@ -16,58 +19,25 @@ deployment:
     - export WEBROOT=/home/aypa8479/public_html
     - export APPPATH=/home/aypa8479/public_html/ayparcasi_app
     - export PHPBIN=/opt/cpanel/ea-php83/root/usr/bin/php
-
     - /bin/mkdir -p $APPPATH
-
-    # 1) Uygulama dosyaları. public/ de kopyalanır — Vite manifest'i oradan
-    #    okunur. .env ve storage/ hariç: biri sunucuya özel ayar, öteki
-    #    yüklenen görseller ve günlükler; deploy ikisini de silmemeli.
-    - /usr/bin/rsync -a --delete
-        --exclude '.git'
-        --exclude '.env'
-        --exclude 'storage/'
-        --exclude 'node_modules/'
-        --exclude 'tests/'
-        ./ $APPPATH/
-
-    # 2) Klasörü web'e kapat. Bu satır kaybolursa .env dışarıdan okunur.
+    - echo "=== 1/7 uygulama dosyalari ==="
+    - /usr/bin/rsync -a --delete --exclude '.git' --exclude '.env' --exclude 'storage/' --exclude 'node_modules/' --exclude 'tests/' ./ $APPPATH/
+    - echo "=== 2/7 klasoru webe kapat ==="
     - /bin/cp deploy/cpanel/app.htaccess $APPPATH/.htaccess
-
-    # 3) public/ içeriği web köküne. --delete YOK: public_html'de bu projeye
-    #    ait olmayan dosyalar da olabilir, onları silmeyelim.
+    - echo "=== 3/7 public icerigi web kokune ==="
     - /usr/bin/rsync -a --exclude 'storage' --exclude 'build' --exclude 'hot' ./public/ $WEBROOT/
-
-    #    build/ tamamen bize ait, orada --delete güvenli — eski varlık birikmesin
     - /usr/bin/rsync -a --delete ./public/build/ $WEBROOT/build/
-
-    # 4) Giriş dosyası ve yönlendirme kuralları
+    - echo "=== 4/7 giris dosyasi ve htaccess ==="
     - /bin/cp deploy/cpanel/index.php $WEBROOT/index.php
     - /bin/cp public/.htaccess $WEBROOT/.htaccess
-
-    # 5) Yüklenen görseller için sembolik bağ. `artisan storage:link`
-    #    KULLANILMAZ — o bağı uygulamanın kendi public/ dizinine kurar,
-    #    burada web kökü orası değil.
+    - echo "=== 5/7 storage bagi ==="
     - test -L $WEBROOT/storage || /bin/ln -s $APPPATH/storage/app/public $WEBROOT/storage
-
-    # 6) Bağımlılıklar. Sunucuda SSH yok, composer'ın nerede olduğunu
-    #    önceden bilemiyoruz; birkaç bilinen yolu deneyip bulamazsak
-    #    deploy'u KIRMADAN günlüğe not düşüyoruz (|| true). Günlükte
-    #    "COMPOSER BULUNAMADI" görürseniz DEPLOY.md → 2-E'ye bakın.
-    - cd $APPPATH && (
-        COMPOSER=$(command -v composer || echo /usr/local/bin/composer);
-        if [ -x "$COMPOSER" ]; then
-          $PHPBIN $COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader;
-        else
-          echo "COMPOSER BULUNAMADI — vendor/ depoya eklenmeli (DEPLOY.md 2-E)";
-        fi ) || true
-
-    # 7) Göçler ve önbellek. autoload yoksa bunlar da çalışmaz; zinciri
-    #    kırmasın diye || true — asıl hata yukarıdaki adımda görünür.
-    - cd $APPPATH && $PHPBIN artisan migrate --force || true
+    - echo "=== 6/7 composer ==="
+    - cd $APPPATH && command -v composer >/dev/null 2>&1 && composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader || echo "COMPOSER BULUNAMADI - bkz DEPLOY.md 2-E"
+    - echo "=== 7/7 gocler, onbellek, yonetici ==="
+    - cd $APPPATH && $PHPBIN artisan migrate --force || echo "MIGRATE ATLANDI - .env ve vendor var mi?"
     - cd $APPPATH && $PHPBIN artisan optimize:clear || true
     - cd $APPPATH && $PHPBIN artisan optimize || true
     - cd $APPPATH && $PHPBIN artisan filament:optimize || true
-
-    # 8) Yönetici hesabı. .env'de ADMIN_EMAIL/ADMIN_PASSWORD varsa açar,
-    #    hesap zaten varsa dokunmaz — SSH olmadan tinker çalıştıramıyoruz.
     - cd $APPPATH && $PHPBIN artisan admin:olustur || true
+    - echo "=== DEPLOY BITTI ==="

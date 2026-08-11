@@ -123,10 +123,24 @@ sonraki deploy üzerine yazar.
 
 ### 2-D. İlk deploy
 
-Git Version Control → deponun yanındaki **Manage** → **Deploy HEAD Commit**.
+**Klonlamak dosyaları `public_html`'e koymaz.** Klon yalnız
+`repositories/ayparcasi` altına iner; taşıma işini deploy yapar.
+
+Git Version Control → deponun satırındaki **Manage** → *Pull or Deploy*
+sekmesi → **Deploy HEAD Commit**.
+
+Deploy bitince `public_html` içinde şunlar olmalı: `index.php`, `.htaccess`,
+`build/`, `img/`, `storage` (bağ) ve `ayparcasi_app/` klasörü.
 
 İlk deploy `.env` olmadığı için `artisan` adımlarını atlayacak — normal,
 3. bölümde `.env`'i oluşturup deploy'u tekrarlıyoruz.
+
+**Deploy düğmesi görünmüyorsa** depoda `.cpanel.yml` görünmüyor demektir:
+klonlanan dalın `main` olduğundan emin olun (*Manage* → *Basic Information*).
+
+**Günlük:** deploy çıktısı aynı ekranda görünür; ayrıca
+`/home/aypa8479/.cpanel/logs/` altına yazılır. Görevler `=== 1/7 ... ===`
+diye numaralı, nerede durduğu oradan okunur.
 
 ### 2-E. Composer sunucuda yoksa
 
@@ -279,6 +293,8 @@ Kod hazır; kapatılması gereken içerik eksikleri:
 | Stiller gelmiyor | `public/build` commit'lenmemiş → `npm run build` + commit |
 | Görseller kırık | `public_html/storage` bağı yok ya da dosyalar yüklenmemiş (3-B) |
 | Ana sayfa açılıyor, alt sayfalar 404 | `public_html/.htaccess` kopyalanmamış ya da `mod_rewrite` kapalı |
+| Hosting'in karşılama sayfası çıkıyor | `public_html/index.html` duruyor; Apache onu `index.php`'den önce servis ediyor → Dosya Yöneticisi'nden silin |
+| `public_html` boş kaldı | Yalnız klonlandı, **Deploy HEAD Commit** çalıştırılmadı (2-D) |
 | Ayar değişikliği görünmüyor | Config önbelleği eski → `php artisan optimize:clear` |
 | `Class not found` | `composer install` çalışmamış → `.cpanel.yml`'deki composer yolu |
 | Panel açılmıyor | `filament:optimize` sonrası → `php artisan filament:optimize-clear` |
