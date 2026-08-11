@@ -152,18 +152,39 @@ zorla eklendi. Bunun faydası: yerelde `composer install` çalıştırıp
 geliştirme paketlerini geri aldığınızda o dosyalar yok sayılıyor, depoya
 sızmıyor.
 
-**Bağımlılık değiştirdiğinizde** (composer.json'a paket ekleyip çıkardığınızda)
-şu sırayı izleyin:
+### vendor'ın altı oynak dosyası
+
+`vendor/composer/` altındaki şu altı dosya dev ve üretim kurulumunda farklıdır:
+`autoload_classmap.php`, `autoload_files.php`, `autoload_psr4.php`,
+`autoload_static.php`, `installed.json`, `installed.php`.
+
+Yerelde `composer install` çalıştırdığınızda bunlar dev sürümüne dönüyor ve
+her seferinde "değişmiş" görünüyordu. Bu yüzden **skip-worktree** ile
+işaretlendiler: depoda üretim sürümü duruyor, yereldeki dev sürümü git
+tarafından yok sayılıyor.
+
+Yeni bir makinede çalışacaksanız aynı işaretlemeyi bir kez yapın:
 
 ```bash
-composer update            # ya da require/remove
-composer install --no-dev --optimize-autoloader
-git add -f vendor && git commit -m "chore: vendor güncelle"
-git push
-composer install           # yerelde dev paketlerini geri al
+git update-index --skip-worktree   vendor/composer/autoload_classmap.php vendor/composer/autoload_files.php   vendor/composer/autoload_psr4.php vendor/composer/autoload_static.php   vendor/composer/installed.json vendor/composer/installed.php
 ```
 
-Son satırı atlarsanız testler çalışmaz (phpunit ve pint dev paketidir).
+**Bağımlılık değiştirdiğinizde** (composer.json'a paket ekleyip çıkardığınızda)
+şu sırayı izleyin — işaretlemeyi geçici olarak kaldırmak şart, yoksa yeni
+`vendor` depoya girmez:
+
+```bash
+composer update                                   # ya da require/remove
+composer install --no-dev --optimize-autoloader   # üretim sürümü
+git update-index --no-skip-worktree vendor/composer/*.php vendor/composer/installed.json
+git add -f vendor && git commit -m "chore: vendor güncelle"
+git push
+composer install                                  # yerelde dev paketlerini geri al
+git update-index --skip-worktree   vendor/composer/autoload_classmap.php vendor/composer/autoload_files.php   vendor/composer/autoload_psr4.php vendor/composer/autoload_static.php   vendor/composer/installed.json vendor/composer/installed.php
+```
+
+Son iki satırı atlarsanız testler çalışmaz (phpunit ve pint dev paketidir) ve
+`git status` sürekli kirli görünür.
 
 Hosting desteği composer kurabilirse bu yükten kurtulursunuz: `.cpanel.yml`
 zaten `composer install` deniyor, bulursa onu kullanır.
