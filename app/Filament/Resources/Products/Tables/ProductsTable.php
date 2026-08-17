@@ -72,11 +72,11 @@ class ProductsTable
                     ->sortable()
                     ->type('number')
                     ->rules(['numeric', 'min:0'])
-                    // DİKKAT: `extraInputAttributes` iç <input>'a gidiyor,
-                    // görünen çerçeve ise ayrı bir div.fi-input-wrp — oraya
-                    // yazılan max-width kutuyu HİÇ daraltmıyordu. Görünen
-                    // genişliği belirleyen tek şey hücre: `width()`.
-                    ->width('6.5rem')
+                    // Filament satır içi girdilere sabit `min-width: 12rem`
+                    // veriyor; o taban marka katmanında kaldırılıyor (bkz.
+                    // theme.blade.php), yoksa buradaki genişlik hiç tutmuyor.
+                    // 8rem = "2400.00" + artır/azalt oku + iç boşluklar.
+                    ->width('8rem')
                     // Boy seçeneği olan üründe fiyat boylardan gelir
                     ->disabled(fn ($record) => (bool) $record?->has_variants),
 
@@ -114,6 +114,7 @@ class ProductsTable
                     // Gerçek rozetler kısa ("Çok satan", "Klasik"); 40 karakter
                     // sınırına göre genişlik ayarlamak sütunu boş yere şişiriyordu.
                     // Uzun metin girilirse alanın içinde kayar, kırpılmaz.
+                    // Fiyatla aynı taban kaldırma gerekiyor (theme.blade.php).
                     ->width('8rem')
                     ->toggleable(),
 

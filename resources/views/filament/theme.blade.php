@@ -60,6 +60,37 @@
     }
 
     /* ----------------------------------------------------------------------
+       Ürün listesindeki satır içi alanlar (fiyat, rozet)
+
+       Bu alanlar bir türlü daralmıyordu. ASIL ENGEL: Filament
+       `.fi-ta-text-input` üzerine sabit `min-width: 12rem` (192px) koyuyor.
+       Bir min-width'i ne <th> genişliği ne de max-width yenebilir, o yüzden
+       alan hep aynı kalıyordu.
+
+       İki yanlış deneme de bu yüzden etkisizdi ve ikisi de temizlendi:
+       - `extraInputAttributes` iç <input>'a gidiyor; görünen çerçeve ayrı bir
+         div.fi-input-wrp, oraya yazılmayan max-width kutuyu daraltmıyor.
+       - Sütuna tek başına width() vermek min-width'in altında kalıyor.
+
+       Sütun genişlikleri ProductsTable'daki width() ile veriliyor; burada
+       yalnız o taban kaldırılıyor. `min-width: 0` <input>'a da gerekiyor:
+       sarmalayıcı flex ve flex öğeleri varsayılan `min-width: auto` ile
+       doğal genişliğinin altına sıkışmaz.
+
+       Ürün adı sütununa DOKUNULMUYOR — onun geniş kalması isteniyor.
+       ---------------------------------------------------------------------- */
+
+    .fi-ta-cell-price .fi-ta-text-input,
+    .fi-ta-cell-badge .fi-ta-text-input {
+        min-width: 0;
+    }
+
+    .fi-ta-cell-price .fi-input-wrp input,
+    .fi-ta-cell-badge .fi-input-wrp input {
+        min-width: 0;
+    }
+
+    /* ----------------------------------------------------------------------
        Giriş / parola ekranları (fi-simple-*)
        ---------------------------------------------------------------------- */
 
