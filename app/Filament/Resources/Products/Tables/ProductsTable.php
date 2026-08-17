@@ -22,6 +22,8 @@ class ProductsTable
         return $table
             ->defaultSort('position')
             ->reorderable('position')
+            // Sütunu elle gizleyip gösterme kararı yenilemeden sonra da dursun.
+            ->persistColumnsInSession()
             ->columns([
                 ImageColumn::make('hero_image')
                     ->label('')
@@ -45,15 +47,20 @@ class ProductsTable
                         }
                     }),
 
-                // Bir ürün 10'dan fazla kategoriye bağlı olabiliyor; hepsini
-                // yan yana dizmek tabloyu ekrandan taşırıyordu. İlk ikisi
-                // görünüyor, kalanı "+N" olarak toplanıyor ve tıklanınca açılıyor.
+                // Kategorilerin HEPSİ görünür — liste kısıtlaması yok. Bir ürün
+                // 10'dan fazla kategoriye bağlı olabiliyor ve rozet kabı `flex`
+                // olduğu için hepsi tek satıra dizilip tabloyu ekrandan
+                // taşırıyordu. Taşımayı önleyen `wrap()`: kaba `flex-wrap`
+                // ekleyip rozetleri alt satıra sarıyor. `width()` şart —
+                // otomatik tablo düzeni hücrenin genişliğini "tek satırdaki
+                // tüm rozetler" olarak hesapladığı için üst sınır olmadan
+                // sarma hiç devreye girmiyor.
                 TextColumn::make('categories.name')
                     ->label('Kategori')
                     ->badge()
                     ->color('gray')
-                    ->limitList(2)
-                    ->expandableLimitedList()
+                    ->wrap()
+                    ->width('16rem')
                     ->toggleable(),
 
                 TextInputColumn::make('price')
@@ -79,16 +86,19 @@ class ProductsTable
                 ToggleColumn::make('is_active')
                     ->label('Satışta'),
 
+                // Bu ikisi varsayılan GÖRÜNÜR. Önceden gizliydi; sütun
+                // yöneticisinden açılsa da tablo `persistColumnsInSession()`
+                // kullanmadığı için her yenilemede geri kayboluyordu.
                 IconColumn::make('is_featured')
                     ->label('Öne çıkan')
                     ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
 
                 TextColumn::make('badge')
                     ->label('Rozet')
                     ->badge()
                     ->color('warning')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
 
                 TextColumn::make('updated_at')
                     ->label('Güncellendi')

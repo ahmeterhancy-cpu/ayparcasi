@@ -246,24 +246,25 @@ class ProductAddingTest extends TestCase
         $this->assertSame('Bambaşka bir ad', $draft->name);
     }
 
-    public function test_urun_listesinde_kategori_sutunu_kisaltilir(): void
+    public function test_urun_listesinde_kategori_sutunu_kisaltilmaz(): void
     {
-        // Bir ürün 10'dan fazla kategoriye bağlı olabiliyor; hepsi yan yana
-        // dizilince tablo ekrandan taşıyordu.
+        // Bir ürün 10'dan fazla kategoriye bağlı olabiliyor. Önceden ilk ikisi
+        // gösterilip kalanı "+N" arkasına saklanıyordu; kullanıcı hepsinin
+        // görünmesini istedi. Taşma artık kırpma ile değil, rozetleri alt
+        // satıra saran `wrap()` ile önleniyor.
         $product = Product::active()->firstOrFail();
         $product->categories()->sync(Category::limit(5)->pluck('id'));
 
         // Basılan HTML'e bakmak kırılgan (kategori adları filtre menüsünde de
-        // geçiyor, kısaltma etiketi de Filament'in iç çevirisine bağlı).
-        // Sütunun kendi ayarını doğruluyoruz.
+        // geçiyor). Sütunun kendi ayarını doğruluyoruz.
         $column = Livewire::actingAs($this->admin)
             ->test(ListProducts::class)
             ->instance()
             ->getTable()
             ->getColumn('categories.name');
 
-        $this->assertSame(2, $column->getListLimit());
-        $this->assertTrue($column->isLimitedListExpandable());
+        $this->assertNull($column->getListLimit(), 'Kategori listesi kırpılmamalı.');
+        $this->assertTrue($column->canWrap(), 'Kırpma yoksa taşmayı yalnız wrap() önler.');
     }
 
     public function test_urun_formunda_sablon_secilince_boylar_kopyalanir(): void
