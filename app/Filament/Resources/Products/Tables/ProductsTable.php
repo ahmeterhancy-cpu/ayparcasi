@@ -35,6 +35,7 @@ class ProductsTable
                     ->searchable()
                     ->sortable()
                     ->rules(['required', 'max:190'])
+                    ->extraInputAttributes(['style' => 'min-width:14rem'])
                     ->beforeStateUpdated(function ($record, $state) {
                         // Taslağın adı değişince bağlantı adresi de düzelsin.
                         // Yayına girmiş üründe adres sabit kalır — paylaşılmış
@@ -44,10 +45,15 @@ class ProductsTable
                         }
                     }),
 
+                // Bir ürün 10'dan fazla kategoriye bağlı olabiliyor; hepsini
+                // yan yana dizmek tabloyu ekrandan taşırıyordu. İlk ikisi
+                // görünüyor, kalanı "+N" olarak toplanıyor ve tıklanınca açılıyor.
                 TextColumn::make('categories.name')
                     ->label('Kategori')
                     ->badge()
                     ->color('gray')
+                    ->limitList(2)
+                    ->expandableLimitedList()
                     ->toggleable(),
 
                 TextInputColumn::make('price')
@@ -55,6 +61,7 @@ class ProductsTable
                     ->sortable()
                     ->type('number')
                     ->rules(['numeric', 'min:0'])
+                    ->extraInputAttributes(['style' => 'max-width:7rem'])
                     // Boy seçeneği olan üründe fiyat boylardan gelir
                     ->disabled(fn ($record) => (bool) $record?->has_variants),
 
@@ -74,13 +81,14 @@ class ProductsTable
 
                 IconColumn::make('is_featured')
                     ->label('Öne çıkan')
-                    ->boolean(),
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('badge')
                     ->label('Rozet')
                     ->badge()
                     ->color('warning')
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('updated_at')
                     ->label('Güncellendi')
