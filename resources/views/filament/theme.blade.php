@@ -72,17 +72,29 @@
          div.fi-input-wrp, oraya yazılmayan max-width kutuyu daraltmıyor.
        - Sütuna tek başına width() vermek min-width'in altında kalıyor.
 
-       Sütun genişlikleri ProductsTable'daki width() ile veriliyor; burada
-       yalnız o taban kaldırılıyor. `min-width: 0` <input>'a da gerekiyor:
-       sarmalayıcı flex ve flex öğeleri varsayılan `min-width: auto` ile
-       doğal genişliğinin altına sıkışmaz.
+       DİKKAT — bu taban SIFIRLANMAZ, DÜŞÜRÜLÜR. Bir denemede `min-width: 0`
+       yazıldı ve sütunlar içeriğin altına çöktü: fiyat "2400.00" yerine "24",
+       rozet "Çç" görünüyordu, kaybettikleri genişlik de grow() yüzünden ürün
+       adı sütununa gidip onu şişirmişti. Tablo düzeninde tutan şey min-width
+       olduğu için (12rem'in tutma sebebi de buydu) doğru kaldıraç onu
+       istenen ölçüye çekmek.
 
-       Ürün adı sütununa DOKUNULMUYOR — onun geniş kalması isteniyor.
+       8rem nereden geliyor: hücre iç boşluğu 0, `.fi-ta-text-input`
+       0.75rem×2, `.fi-input` 0.75rem×2, sayı girdisinde artır/azalt oku
+       ~16px, artı "2400.00" metni. Daha aşağısı yazıyı kırpıyor.
+
+       İçteki <input>'a `min-width: 0` yine gerekiyor: sarmalayıcı flex ve
+       flex öğeleri varsayılan `min-width: auto` ile kutuya sığmaz.
+
+       Ürün adı sütununa DOKUNULMUYOR — artan genişliği o emiyor (grow()).
        ---------------------------------------------------------------------- */
 
+    /* min-width taban, max-width tavan: ikisi birlikte kutuyu tam 8rem'de
+       sabitliyor. Yalnız taban verilirse artan boşluk kutuyu yine şişirir. */
     .fi-ta-cell-price .fi-ta-text-input,
     .fi-ta-cell-badge .fi-ta-text-input {
-        min-width: 0;
+        min-width: 8rem;
+        max-width: 8rem;
     }
 
     .fi-ta-cell-price .fi-input-wrp input,
