@@ -31,10 +31,15 @@ class ProductsTable
 
                 // Ad ve fiyat satır içinde düzenlenebilir: toplu fotoğraftan
                 // açılan taslakları form açmadan doldurmak için.
+                // Artan genişliği BU sütun emsin. Sabit genişlikli sütunların
+                // toplamı tabloyu doldurmadığında tarayıcı boşluğu hücrelere
+                // dağıtıyor; emici belirtilmezse boşluk fiyat/rozet gibi küçük
+                // alanlara gidip onları şişiriyor.
                 TextInputColumn::make('name')
                     ->label('Ürün')
                     ->searchable()
                     ->sortable()
+                    ->grow()
                     ->rules(['required', 'max:190'])
                     ->extraInputAttributes(['style' => 'min-width:14rem'])
                     ->beforeStateUpdated(function ($record, $state) {
@@ -67,9 +72,11 @@ class ProductsTable
                     ->sortable()
                     ->type('number')
                     ->rules(['numeric', 'min:0'])
-                    // "2400.00" + artır/azalt oku ~6rem'e sığıyor; 7rem'de
-                    // bir rem boşu duruyordu.
-                    ->extraInputAttributes(['style' => 'max-width:6rem'])
+                    // DİKKAT: `extraInputAttributes` iç <input>'a gidiyor,
+                    // görünen çerçeve ise ayrı bir div.fi-input-wrp — oraya
+                    // yazılan max-width kutuyu HİÇ daraltmıyordu. Görünen
+                    // genişliği belirleyen tek şey hücre: `width()`.
+                    ->width('6.5rem')
                     // Boy seçeneği olan üründe fiyat boylardan gelir
                     ->disabled(fn ($record) => (bool) $record?->has_variants),
 
@@ -107,7 +114,7 @@ class ProductsTable
                     // Gerçek rozetler kısa ("Çok satan", "Klasik"); 40 karakter
                     // sınırına göre genişlik ayarlamak sütunu boş yere şişiriyordu.
                     // Uzun metin girilirse alanın içinde kayar, kırpılmaz.
-                    ->extraInputAttributes(['style' => 'max-width:7rem'])
+                    ->width('8rem')
                     ->toggleable(),
 
                 TextColumn::make('updated_at')
