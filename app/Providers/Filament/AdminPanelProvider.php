@@ -134,6 +134,10 @@ class AdminPanelProvider extends PanelProvider
             // Vitrin kapalıyken unutulmasın diye her sayfanın tepesinde durur
             ->renderHook(PanelsRenderHook::TOPBAR_AFTER, fn () => view('filament.maintenance-banner'))
             ->maxContentWidth(Width::Full)
+            // Filament varsayılanı 20rem — en uzun etiket ("Ürün şablonları")
+            // bunun yarısını doldurmuyordu, tablo genişliğinden çalıyordu.
+            // Boşluk düzeltmeleri filament/theme.blade.php içinde.
+            ->sidebarWidth('15rem')
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
                 'Satış',

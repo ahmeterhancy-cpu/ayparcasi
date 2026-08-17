@@ -33,6 +33,33 @@
     }
 
     /* ----------------------------------------------------------------------
+       Kenar çubuğu — Filament varsayılanı fazla seyrek duruyordu.
+       Genişlik CSS'ten DEĞİL, panel yapılandırmasındaki sidebarWidth()'ten
+       geliyor (--sidebar-width); buradakiler yalnız boşluklar.
+       Filament varsayılanları: gruplar arası 1.75rem, dikey iç boşluk 2rem,
+       yatay 1.5rem, öğe iç boşluğu 0.5rem.
+       Bu blok HEAD_END'de basıldığı için Filament'in tabakasından SONRA gelir
+       — eşit özgüllükte sonraki kazanır, !important gerekmiyor.
+       ---------------------------------------------------------------------- */
+
+    .fi-sidebar-nav {
+        row-gap: 1.15rem;
+        padding-block: 1.1rem;
+        padding-inline: 0.8rem;
+    }
+
+    .fi-sidebar-item-btn {
+        padding-block: 0.4rem;
+        padding-inline: 0.55rem;
+    }
+
+    /* Grup başlığı (Satış / Katalog / Teslimat) 1.5rem satır yüksekliğiyle
+       geliyordu; başlık ile ilk öğe arasını gereksiz açıyordu. */
+    .fi-sidebar-group-label {
+        line-height: 1.3rem;
+    }
+
+    /* ----------------------------------------------------------------------
        Giriş / parola ekranları (fi-simple-*)
        ---------------------------------------------------------------------- */
 
