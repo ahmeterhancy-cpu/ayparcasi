@@ -31,17 +31,17 @@ class ProductsTable
 
                 // Ad ve fiyat satır içinde düzenlenebilir: toplu fotoğraftan
                 // açılan taslakları form açmadan doldurmak için.
-                // Artan genişliği BU sütun emsin. Sabit genişlikli sütunların
-                // toplamı tabloyu doldurmadığında tarayıcı boşluğu hücrelere
-                // dağıtıyor; emici belirtilmezse boşluk fiyat/rozet gibi küçük
-                // alanlara gidip onları şişiriyor.
+                // Sabit genişlik: ürün adları ("Beyaz Falenopsis Orkide")
+                // 18rem'e rahat sığıyor. Emici sütun artık bu DEĞİL — artan
+                // genişliği kategori alıyor, yoksa bu alan tabloyu yiyordu.
+                // İç `min-width` bilerek yok: genişliği tek yerden, sütundan
+                // yönetiyoruz (taban olarak Filament'in 12rem'i yeterli).
                 TextInputColumn::make('name')
                     ->label('Ürün')
                     ->searchable()
                     ->sortable()
-                    ->grow()
+                    ->width('18rem')
                     ->rules(['required', 'max:190'])
-                    ->extraInputAttributes(['style' => 'min-width:14rem'])
                     ->beforeStateUpdated(function ($record, $state) {
                         // Taslağın adı değişince bağlantı adresi de düzelsin.
                         // Yayına girmiş üründe adres sabit kalır — paylaşılmış
@@ -52,19 +52,23 @@ class ProductsTable
                     }),
 
                 // Kategorilerin HEPSİ görünür — liste kısıtlaması yok. Bir ürün
-                // 10'dan fazla kategoriye bağlı olabiliyor ve rozet kabı `flex`
-                // olduğu için hepsi tek satıra dizilip tabloyu ekrandan
-                // taşırıyordu. Taşımayı önleyen `wrap()`: kaba `flex-wrap`
-                // ekleyip rozetleri alt satıra sarıyor. `width()` şart —
-                // otomatik tablo düzeni hücrenin genişliğini "tek satırdaki
-                // tüm rozetler" olarak hesapladığı için üst sınır olmadan
-                // sarma hiç devreye girmiyor.
+                // 10'dan fazla kategoriye bağlı olabiliyor; taşmayı `wrap()`
+                // önlüyor (kaba `flex-wrap` ekleyip rozetleri alt satıra sarar).
+                //
+                // Artan genişliği BU sütun emiyor (`grow()`). Sabit genişlikli
+                // sütunların toplamı tabloyu doldurmadığında tarayıcı boşluğu
+                // hücrelere dağıtıyor; emici belirtilmezse boşluk fiyat/rozet
+                // gibi küçük alanlara gidip onları şişiriyor. 16rem sabitken
+                // rozetler tek tek alt satıra iniyor ve satırlar uzuyordu —
+                // yer açmak sarma sayısını, dolayısıyla satır yüksekliğini
+                // düşürüyor. `grow()` yalnız `width()` boşken devreye girer,
+                // o yüzden sabit genişlik kaldırıldı.
                 TextColumn::make('categories.name')
                     ->label('Kategori')
                     ->badge()
                     ->color('gray')
                     ->wrap()
-                    ->width('16rem')
+                    ->grow()
                     ->toggleable(),
 
                 TextInputColumn::make('price')
