@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Products\Tables;
 
+use App\Models\Category;
 use App\Models\Product;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
@@ -147,6 +150,39 @@ class ProductsTable
                     ->falseLabel('Öne çıkmayanlar'),
             ])
             ->recordActions([
+                // Kategori ekle/çıkar — ürün formunu açmadan.
+                //
+                // Neden satır eylemi ve neden hücreye tıklama DEĞİL: Filament'in
+                // `Column::action()`'ı bir Action nesnesi kabul ediyor gibi
+                // görünse de `callTableColumnAction` yalnız Closure çalıştırıyor,
+                // Action nesnesinde sessizce null dönüyor — tıklama hiçbir şey
+                // yapmaz. Kip (modal) açmanın çalışan yolu satır eylemi.
+                //
+                // `relationship()` yerine `options()` + elle `sync()`: eylem
+                // formlarında ilişki kaydetme otomatik çalışmıyor, yalnız
+                // doldurma çalışıyor. Yükleme `fillForm` ile.
+                Action::make('kategoriler')
+                    ->label('Kategoriler')
+                    ->modalHeading('Kategorileri düzenle')
+                    ->modalSubmitActionLabel('Kaydet')
+                    ->fillForm(fn (Product $record): array => [
+                        'categories' => $record->categories->pluck('id')->all(),
+                    ])
+                    ->schema([
+                        Select::make('categories')
+                            ->label('Kategoriler')
+                            ->options(fn (): array => Category::orderBy('name')->pluck('name', 'id')->all())
+                            ->multiple()
+                            ->searchable()
+                            // Formdaki kuralla aynı: ürün kategorisiz kalmasın,
+                            // yoksa mağaza filtrelerinden düşer.
+                            ->required()
+                            ->native(false),
+                    ])
+                    ->action(function (Product $record, array $data): void {
+                        $record->categories()->sync($data['categories'] ?? []);
+                    }),
+
                 EditAction::make()->label('Düzenle'),
             ])
             ->toolbarActions([

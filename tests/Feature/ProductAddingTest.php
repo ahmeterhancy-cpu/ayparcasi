@@ -13,6 +13,7 @@ use App\Models\ProductTemplate;
 use App\Models\User;
 use App\Services\BulkPhotoDrafts;
 use Database\Seeders\DemoSeeder;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -244,6 +245,50 @@ class ProductAddingTest extends TestCase
         $list->call('updateTableColumnState', 'name', (string) $draft->id, 'Bambaşka bir ad');
         $this->assertSame('papatya-demeti-42', $draft->refresh()->slug);
         $this->assertSame('Bambaşka bir ad', $draft->name);
+    }
+
+    public function test_urun_listesinden_kategori_eklenip_cikarilir(): void
+    {
+        // Ürün formunu açmadan kategori ekle/çıkar.
+        $product = Product::firstOrFail();
+        $product->categories()->sync(Category::orderBy('name')->limit(2)->pluck('id'));
+
+        $genis = Category::orderBy('name')->limit(4)->pluck('id')->sort()->values()->all();
+
+        $list = Livewire::actingAs($this->admin)->test(ListProducts::class);
+
+        // Ekleme
+        $list->callAction(
+            TestAction::make('kategoriler')->table($product),
+            ['categories' => $genis],
+        )->assertHasNoActionErrors();
+
+        $this->assertSame(
+            $genis,
+            $product->refresh()->categories->pluck('id')->sort()->values()->all()
+        );
+
+        // Çıkarma — tek kategoriye indir
+        $tek = [$genis[0]];
+
+        $list->callAction(
+            TestAction::make('kategoriler')->table($product),
+            ['categories' => $tek],
+        )->assertHasNoActionErrors();
+
+        $this->assertSame(
+            $tek,
+            $product->refresh()->categories->pluck('id')->sort()->values()->all()
+        );
+
+        // Hepsini boşaltmak reddedilir: kategorisiz ürün mağaza filtrelerinden
+        // düşer, bu yüzden formdaki gibi burada da zorunlu.
+        $list->callAction(
+            TestAction::make('kategoriler')->table($product),
+            ['categories' => []],
+        )->assertHasActionErrors(['categories']);
+
+        $this->assertCount(1, $product->refresh()->categories);
     }
 
     public function test_urun_listesinde_one_cikan_ve_rozet_satir_ici_duzenlenir(): void
