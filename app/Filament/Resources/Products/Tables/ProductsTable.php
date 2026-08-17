@@ -31,16 +31,15 @@ class ProductsTable
 
                 // Ad ve fiyat satır içinde düzenlenebilir: toplu fotoğraftan
                 // açılan taslakları form açmadan doldurmak için.
-                // Sabit genişlik: ürün adları ("Beyaz Falenopsis Orkide")
-                // 18rem'e rahat sığıyor. Emici sütun artık bu DEĞİL — artan
-                // genişliği kategori alıyor, yoksa bu alan tabloyu yiyordu.
-                // İç `min-width` bilerek yok: genişliği tek yerden, sütundan
-                // yönetiyoruz (taban olarak Filament'in 12rem'i yeterli).
+                // Emici sütun artık bu DEĞİL — artan genişliği kategori alıyor.
+                // Genişliği burada `width()` ile vermek İŞE YARAMAZ: emici sütun
+                // width:100% olduğu için diğerlerini min-content'e doğru
+                // sıkıştırıyor ve adlar kırpılıyordu. Tutan tek şey min-width,
+                // o taban marka katmanında (theme.blade.php, 16rem).
                 TextInputColumn::make('name')
                     ->label('Ürün')
                     ->searchable()
                     ->sortable()
-                    ->width('18rem')
                     ->rules(['required', 'max:190'])
                     ->beforeStateUpdated(function ($record, $state) {
                         // Taslağın adı değişince bağlantı adresi de düzelsin.

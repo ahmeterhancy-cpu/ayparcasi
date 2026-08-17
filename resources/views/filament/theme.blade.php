@@ -97,6 +97,16 @@
         max-width: 8rem;
     }
 
+    /* Ürün adı — burada da tutan şey min-width. Sütuna `width()` vermek
+       yetmiyor: kategori emici sütun (width:100%) olduğu için diğerlerini
+       min-content'e doğru sıkıştırıyor, ürün Filament'in 12rem tabanına
+       çöküp "Beyaz Falenopsis Orkid…" diye kırpılıyordu.
+       16rem = en uzun ad ("Beyaz Falenopsis Orkide") + iç boşluklar.
+       Tavan YOK: kategoriden artan yer olursa bu alan rahatça genişlesin. */
+    .fi-ta-cell-name .fi-ta-text-input {
+        min-width: 16rem;
+    }
+
     .fi-ta-cell-price .fi-input-wrp input,
     .fi-ta-cell-badge .fi-input-wrp input {
         min-width: 0;
