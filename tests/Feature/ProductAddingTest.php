@@ -246,6 +246,31 @@ class ProductAddingTest extends TestCase
         $this->assertSame('Bambaşka bir ad', $draft->name);
     }
 
+    public function test_urun_listesinde_one_cikan_ve_rozet_satir_ici_duzenlenir(): void
+    {
+        // Vitrinde en sık oynanan iki alan; ürün formunu açmadan değişsin.
+        $product = Product::firstOrFail();
+        $product->update(['is_featured' => false, 'badge' => null]);
+
+        $list = Livewire::actingAs($this->admin)
+            ->test(ListProducts::class)
+            ->assertCanRenderTableColumn('is_featured')
+            ->assertCanRenderTableColumn('badge');
+
+        $list->call('updateTableColumnState', 'is_featured', (string) $product->id, true);
+        $this->assertTrue($product->refresh()->is_featured);
+
+        $list->call('updateTableColumnState', 'badge', (string) $product->id, 'Çok satan');
+        $this->assertSame('Çok satan', $product->refresh()->badge);
+
+        // Boş bırakmak rozeti kaldırır
+        $list->call('updateTableColumnState', 'badge', (string) $product->id, '');
+        $this->assertEmpty($product->refresh()->badge);
+
+        $list->call('updateTableColumnState', 'is_featured', (string) $product->id, false);
+        $this->assertFalse($product->refresh()->is_featured);
+    }
+
     public function test_urun_listesinde_kategori_sutunu_kisaltilmaz(): void
     {
         // Bir ürün 10'dan fazla kategoriye bağlı olabiliyor. Önceden ilk ikisi

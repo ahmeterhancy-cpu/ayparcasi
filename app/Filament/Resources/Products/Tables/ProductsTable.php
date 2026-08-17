@@ -6,7 +6,6 @@ use App\Models\Product;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\TextInputColumn;
@@ -89,15 +88,21 @@ class ProductsTable
                 // Bu ikisi varsayılan GÖRÜNÜR. Önceden gizliydi; sütun
                 // yöneticisinden açılsa da tablo `persistColumnsInSession()`
                 // kullanmadığı için her yenilemede geri kayboluyordu.
-                IconColumn::make('is_featured')
+                //
+                // İkisi de satır içinde düzenlenir — vitrinde en sık oynanan
+                // alanlar bunlar, ürün formunu açmaya değmiyor.
+                ToggleColumn::make('is_featured')
                     ->label('Öne çıkan')
-                    ->boolean()
                     ->toggleable(),
 
-                TextColumn::make('badge')
+                // Rozet formda da serbest metin (ProductForm'da TextInput,
+                // en fazla 40 karakter) — burada da öyle kalsın ki panelden
+                // yeni bir rozet adı yazılabilsin. Boş bırakmak rozeti kaldırır.
+                TextInputColumn::make('badge')
                     ->label('Rozet')
-                    ->badge()
-                    ->color('warning')
+                    ->placeholder('Çok satan')
+                    ->rules(['nullable', 'max:40'])
+                    ->extraInputAttributes(['style' => 'max-width:9rem'])
                     ->toggleable(),
 
                 TextColumn::make('updated_at')
