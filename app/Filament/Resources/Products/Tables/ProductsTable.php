@@ -67,7 +67,9 @@ class ProductsTable
                     ->sortable()
                     ->type('number')
                     ->rules(['numeric', 'min:0'])
-                    ->extraInputAttributes(['style' => 'max-width:7rem'])
+                    // "2400.00" + artır/azalt oku ~6rem'e sığıyor; 7rem'de
+                    // bir rem boşu duruyordu.
+                    ->extraInputAttributes(['style' => 'max-width:6rem'])
                     // Boy seçeneği olan üründe fiyat boylardan gelir
                     ->disabled(fn ($record) => (bool) $record?->has_variants),
 
@@ -102,7 +104,10 @@ class ProductsTable
                     ->label('Rozet')
                     ->placeholder('Çok satan')
                     ->rules(['nullable', 'max:40'])
-                    ->extraInputAttributes(['style' => 'max-width:9rem'])
+                    // Gerçek rozetler kısa ("Çok satan", "Klasik"); 40 karakter
+                    // sınırına göre genişlik ayarlamak sütunu boş yere şişiriyordu.
+                    // Uzun metin girilirse alanın içinde kayar, kırpılmaz.
+                    ->extraInputAttributes(['style' => 'max-width:7rem'])
                     ->toggleable(),
 
                 TextColumn::make('updated_at')
