@@ -101,10 +101,12 @@
        yetmiyor: kategori emici sütun (width:100%) olduğu için diğerlerini
        min-content'e doğru sıkıştırıyor, ürün Filament'in 12rem tabanına
        çöküp "Beyaz Falenopsis Orkid…" diye kırpılıyordu.
-       16rem = en uzun ad ("Beyaz Falenopsis Orkide") + iç boşluklar.
+       16rem en uzun adı ("Beyaz Falenopsis Orkide") tam sığdırıyordu ama nefes
+       payı bırakmıyordu; 18rem istendi. Kategori emici olduğu için farkı o
+       veriyor ve üç rozetli satırlar hâlâ yan yana sığıyor.
        Tavan YOK: kategoriden artan yer olursa bu alan rahatça genişlesin. */
     .fi-ta-cell-name .fi-ta-text-input {
-        min-width: 16rem;
+        min-width: 18rem;
     }
 
     .fi-ta-cell-price .fi-input-wrp input,
