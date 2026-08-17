@@ -155,9 +155,15 @@ class ProductsTable
                 // gösteriyor (misafir/müşteri için 404 sürüyor). Canlıda
                 // yapım aşamasında perdesi açıkken de çalışır, perdeyi ekip
                 // girişi geçiyor (MaintenanceMode).
+                // Yalnız göz ikonu. `label` SİLİNMEDİ, gizlendi: ikon düğmesi
+                // görünümünde etiket erişilebilirlik adı olarak kullanılıyor,
+                // kaldırılsa ekran okuyucuda adsız düğme kalırdı. Ne yaptığı
+                // fareyle üzerine gelince ipuçlarında yazıyor.
                 Action::make('onizleme')
                     ->label('Önizleme')
                     ->icon('heroicon-m-eye')
+                    ->iconButton()
+                    ->tooltip('Vitrinde önizle')
                     ->url(fn (Product $record): string => route('shop.product', $record->slug))
                     ->openUrlInNewTab(),
 
