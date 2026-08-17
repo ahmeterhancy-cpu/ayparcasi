@@ -150,6 +150,17 @@ class ProductsTable
                     ->falseLabel('Öne çıkmayanlar'),
             ])
             ->recordActions([
+                // Vitrindeki hâlini yeni sekmede açar. Taslaklar da açılır:
+                // ShopController::product yayında olmayan ürünü ekibe
+                // gösteriyor (misafir/müşteri için 404 sürüyor). Canlıda
+                // yapım aşamasında perdesi açıkken de çalışır, perdeyi ekip
+                // girişi geçiyor (MaintenanceMode).
+                Action::make('onizleme')
+                    ->label('Önizleme')
+                    ->icon('heroicon-m-eye')
+                    ->url(fn (Product $record): string => route('shop.product', $record->slug))
+                    ->openUrlInNewTab(),
+
                 // Kategori ekle/çıkar — ürün formunu açmadan.
                 //
                 // Neden satır eylemi ve neden hücreye tıklama DEĞİL: Filament'in

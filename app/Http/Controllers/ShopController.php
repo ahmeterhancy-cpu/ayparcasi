@@ -123,7 +123,11 @@ class ShopController extends Controller
 
     public function product(Request $request, Product $product)
     {
-        abort_unless($product->is_active, 404);
+        // Yayında olmayan ürünü YALNIZ ekip görebilir; panelden gelen
+        // "Önizleme" bağlantısı taslakları da açabilsin diye. Müşteri ve
+        // misafir için 404 aynen sürüyor. Hızlı bakış bilerek gevşetilmedi —
+        // o, vitrin kartının bir parçası.
+        abort_unless($product->is_active || $request->user()?->isStaff(), 404);
 
         $product->load('variants', 'categories');
 

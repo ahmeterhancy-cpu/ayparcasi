@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Product;
+use App\Models\User;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -77,6 +78,27 @@ class StorefrontTest extends TestCase
         $product->update(['is_active' => false]);
 
         $this->get('/urun/'.$product->slug)->assertNotFound();
+    }
+
+    /**
+     * Panelden gelen "Önizleme" bağlantısı taslakları da açmalı, yoksa
+     * önizlemenin en gerekli olduğu yerde 404 verirdi.
+     */
+    public function test_pasif_urunu_yalniz_ekip_onizleyebilir(): void
+    {
+        $product = Product::first();
+        $product->update(['is_active' => false]);
+
+        foreach (['admin', 'staff'] as $role) {
+            $this->actingAs(User::factory()->create(['role' => $role]))
+                ->get('/urun/'.$product->slug)
+                ->assertOk();
+        }
+
+        // Müşteri ve misafir için 404 sürüyor
+        $this->actingAs(User::factory()->create(['role' => 'customer']))
+            ->get('/urun/'.$product->slug)
+            ->assertNotFound();
     }
 
     public function test_stok_sorusu_kaydedilir_ve_whatsapp_baglantisi_doner(): void
