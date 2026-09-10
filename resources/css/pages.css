@@ -2299,4 +2299,11 @@
         /* Logonun kemer motifi — altta yumuşak, üstte düz */
         border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     }
+
+    /* Alçak şeritte `cover` dikey fotoğrafın ortasını alıyor; dükkân
+       fotoğraflarında ilgi çeken şey (tabela, yüz, vitrin) üst yarıda
+       kalıyor. Kadrajı yukarı çekmek onu kurtarıyor. */
+    .mtn__aside img {
+        object-position: center 32%;
+    }
 }

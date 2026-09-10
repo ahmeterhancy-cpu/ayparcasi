@@ -12,7 +12,9 @@
     $until = setting('maintenance_until');
     $phone = setting('phone');
     $instagram = setting('instagram');
-    $image = img_url(setting('hero_image'), asset('img/logo.png'));
+    // Perdenin kendi fotoğrafı varsa o; yoksa vitrinin hero fotoğrafı;
+    // o da yoksa logo. Sayfa hiçbir hâlde görselsiz kalmıyor.
+    $image = img_url(setting('maintenance_image') ?: setting('hero_image'), asset('img/logo.png'));
 @endphp
 <!DOCTYPE html>
 <html lang="tr" class="no-js">

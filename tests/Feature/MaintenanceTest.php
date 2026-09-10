@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Pages\SiteSettings;
 use App\Models\Setting;
 use App\Models\User;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class MaintenanceTest extends TestCase
@@ -94,6 +96,36 @@ class MaintenanceTest extends TestCase
             ->assertOk()
             ->assertSee('ziyaretçiler vitrini göremiyor', false)
             ->assertSee('Site şu anda ziyaretçilere kapalı');
+    }
+
+    public function test_perde_kendi_fotografini_kullanir_yoksa_heroya_duser(): void
+    {
+        $this->closeShop();
+        Setting::put('hero_image', 'demo/shop.jpg');
+
+        // Kendi görseli yokken vitrinin hero fotoğrafı
+        $this->get('/')->assertSee('demo/shop.jpg', false);
+
+        Setting::put('maintenance_image', 'site/dukkan.jpg');
+
+        $this->get('/')
+            ->assertSee('site/dukkan.jpg', false)
+            ->assertDontSee('demo/shop.jpg', false);
+    }
+
+    public function test_fotograf_ayari_panelden_kaydedilir(): void
+    {
+        // Ayar sayfasının anahtar listesine eklenmezse alan ekranda görünür
+        // ama kaydedilmez — sessizce kaybolur.
+        Livewire::actingAs(User::factory()->create(['role' => 'admin']))
+            ->test(SiteSettings::class)
+            // FileUpload durumu uuid ile anahtarlanmış dizi tutar;
+            // düz dize verilirse doğrulama tip hatasıyla patlar.
+            ->fillForm(['maintenance_image' => ['abc123' => 'site/dukkan.jpg']])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertSame('site/dukkan.jpg', Setting::get('maintenance_image'));
     }
 
     public function test_panel_ve_odeme_yollari_perdeden_etkilenmez(): void

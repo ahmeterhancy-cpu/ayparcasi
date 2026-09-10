@@ -60,7 +60,7 @@ class SiteSettings extends Page implements HasSchemas
         'about_title', 'about_text', 'about_image',
         'footer_text',
         'maintenance_enabled', 'maintenance_title', 'maintenance_message',
-        'maintenance_until',
+        'maintenance_until', 'maintenance_image',
     ];
 
     public function mount(): void
@@ -288,6 +288,21 @@ class SiteSettings extends Page implements HasSchemas
                                         ->label('Ne zaman açılacak')
                                         ->placeholder('Bugün 16:00 gibi yeniden açılıyoruz')
                                         ->helperText('Serbest metin. Boş bırakırsanız bu satır hiç görünmez.'),
+
+                                    // Perdenin yan görseli. Boş bırakılırsa
+                                    // vitrinin hero fotoğrafı, o da yoksa logo
+                                    // kullanılır — sayfa hiçbir hâlde boş kalmaz.
+                                    FileUpload::make('maintenance_image')
+                                        ->label('Yandaki fotoğraf')
+                                        ->image()
+                                        ->imageEditor()
+                                        // Fotoğraf sayfanın yarısını dolduruyor;
+                                        // dikey kadraj en iyi oturan oran.
+                                        ->imageEditorAspectRatios([null, '3:4', '9:16', '1:1'])
+                                        ->directory('site')
+                                        ->disk('public')
+                                        ->maxSize(8192)
+                                        ->helperText('Dikey bir fotoğraf en iyi oturur. Telefon ekran görüntüsü yüklerseniz kalem simgesinden kırpıp alt ve üstteki siyah şeritleri atın. Boş bırakırsanız ana sayfanın hero fotoğrafı kullanılır.'),
                                 ]),
 
                         ]),
