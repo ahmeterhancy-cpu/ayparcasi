@@ -18,7 +18,11 @@ use App\Http\Controllers\PrintController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SitemapController;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\AuthenticateSession;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -46,7 +50,28 @@ Route::get('/kasa', [CheckoutController::class, 'index'])->name('checkout.index'
 Route::post('/kasa', [CheckoutController::class, 'store'])->name('checkout.store');
 
 Route::get('/odeme/{order:number}', [PaymentController::class, 'redirect'])->name('payment.redirect');
-Route::get('/odeme/donus/{order:number}', [PaymentController::class, 'handleReturn'])->name('payment.return');
+/*
+ * Tiko dönüş adresi. iFrame'İN İÇİNDEN POST ediliyor.
+ *
+ * Oturum middleware'i BİLEREK kapalı: çerez SameSite=Lax olduğu için
+ * siteler arası POST'ta gelmiyor, StartSession bunu "oturum yok" sanıp
+ * BOŞ bir oturum açar ve müşterinin çerezini ezerdi — sipariş sayfasına
+ * erişimini kaybederdi. Denetleyici de bu yüzden oturuma bakmıyor;
+ * kararı sunucudan sunucuya sorgu veriyor.
+ *
+ * PreventRequestForgery da kapalı. Yolu yalnız muafiyet listesine yazmak
+ * YETMİYOR: muaf yollarda bile yanıta XSRF-TOKEN çerezi eklemeye
+ * çalışıyor ve o iş oturum gerektirdiği için 500 veriyor. İstek zaten
+ * Tiko'nun kendi imzasıyla (Hash) doğrulanıyor.
+ */
+Route::match(['get', 'post'], '/odeme/donus/{order:number}', [PaymentController::class, 'handleReturn'])
+    ->withoutMiddleware([
+        StartSession::class,
+        AuthenticateSession::class,
+        ShareErrorsFromSession::class,
+        PreventRequestForgery::class,
+    ])
+    ->name('payment.return');
 Route::post('/odeme/bildirim', [PaymentController::class, 'callback'])->name('payment.callback');
 
 Route::get('/siparis/{order:number}', [CheckoutController::class, 'show'])->name('order.show');

@@ -105,8 +105,16 @@ sokulamıyor.
    eklendi ve sohbette açıkta geçti.
 2. 🔴 **Teslimat ücretleri placeholder** — 7 bölge de 100 TL / 2.000 TL
    (Girne 150/2.500). Müşteri kasada bu rakamları görüyor.
-3. 🔴 **Tiko kimlik bilgileri** + evrakla alan adı doğrulaması. Gelene kadar
-   `TIKO_ENABLED=false`; havale ve kapıda ödeme çalışıyor.
+3. 🟡 **Tiko kartlı ödeme** — kod belgeye (docs.tikokart.com) göre yazıldı,
+   **3D Secure iFrame** yöntemi seçildi: kart bilgisi bizim sunucumuza hiç
+   düşmüyor. Açmak için `.env`'e `TIKO_MERCHANT_ID` / `TIKO_SECRET` (API
+   Anahtarı) / `TIKO_PASSWORD` (Parola) yazıp `TIKO_ENABLED=true` yapın;
+   üçü dolmadan kasada kart seçeneği görünmez. Önce `TIKO_TEST_MODE=true`
+   ile kum havuzunda deneyin (test kartı 4109 1045 4589 8068, CVV 001,
+   01/29, 3D kodu 111111). **Tiko'ya `https://ayparcasicicekci.com/odeme/bildirim`
+   adresini callback olarak tanımlatmak gerekiyor.** API'den iade
+   (`/payment/cancel`) yazılmadı — Tiko'dan ayrı yetki istiyor, iade şimdilik
+   Tiko panelinden elle yapılır.
 4. 🟡 **Gerçek e-posta kutusu** (`merhaba@ayparcasicicekci.com`), çalışma
    saatleri, adresin kapı numarası.
 5. 🟡 **Gerçek ürün fotoğrafları** — şu an demo görseller.

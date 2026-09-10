@@ -13,9 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Tiko sunucudan sunucuya bildirim gönderir; oturum çerezi taşımaz.
+        // Tiko'nun bildirimi bizim formumuzdan doğmuyor, CSRF jetonu
+        // taşıyamaz; kendi imzasıyla (Hash) doğrulanıyor. iFrame dönüş
+        // yolu ise middleware'i tamamen bırakıyor — bkz. routes/web.php.
         $middleware->validateCsrfTokens(except: [
-            'odeme/bildirim',
+            'odeme/bildirim',   // sunucudan sunucuya JSON bildirim
         ]);
 
         // "Yapım aşamasında" perdesi yalnız vitrini kapatır. Filament paneli

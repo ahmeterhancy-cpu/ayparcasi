@@ -2,62 +2,64 @@
 
 /*
 |--------------------------------------------------------------------------
-| Tiko Sanal POS (Figensoft)
+| Tiko Sanal POS
 |--------------------------------------------------------------------------
-| Tiko'nun herkese açık API dokümanı yoktur; entegrasyon evrakı üye iş yerine
-| özel gönderilir. Aşağıdaki alan adları standart 3D Secure form-POST akışına
-| göre yazıldı. Evrak eldeyken DEĞİŞTİRİLECEK tek yer burasıdır —
-| TikoGateway kodu alan adlarını bu haritadan okur.
+| Kaynak: https://docs.tikokart.com — alanlar ve hash formülleri oradaki
+| belgeye birebir uyar. Belge değişirse TEK düzeltilecek yer burasıdır.
+|
+| Seçilen yöntem: 3D Secure ile iFrame Ödeme (`/gateway/onus3D`).
+| Alternatifi (`/gateway/pay3d`) kart numarasını BİZİM formumuzdan ister;
+| o hâlde kart verisi sunucumuzdan geçer ve PCI-DSS yükümlülüğü büyür.
+| iFrame yönteminde kart bilgisi yalnız Tiko'nun sayfasına giriliyor.
+|
+| Üç kimlik bilgisi var, üçü de Tiko'dan gelir:
+|   MerchantId → üye işyeri numarası
+|   secret     → "API Anahtarı"; HMAC ANAHTARI olarak kullanılır
+|   password   → "Parola"; imzalanacak metnin SONUNA eklenir
 */
 
 return [
     'enabled' => env('TIKO_ENABLED', false),
+
+    // Açıkken kum havuzu adresleri ve IsTest=1 kullanılır.
     'test_mode' => env('TIKO_TEST_MODE', true),
 
     'merchant_id' => env('TIKO_MERCHANT_ID'),
-    'api_key' => env('TIKO_API_KEY'),
     'secret' => env('TIKO_SECRET'),
+    'password' => env('TIKO_PASSWORD'),
 
-    'base_url' => rtrim((string) env('TIKO_BASE_URL', 'https://api.tiko.com.tr'), '/'),
-
-    // 3D Secure formunun POST edileceği uç
-    'endpoint' => env('TIKO_ENDPOINT', '/payment/3d/init'),
-
-    /*
-     | Tiko'ya gönderilen form alanlarının adları.
-     | Sol taraf: bizim iç adımız. Sağ taraf: Tiko'nun beklediği alan adı.
-     */
-    'fields' => [
-        'merchant_id' => 'merchant_id',
-        'order_id' => 'order_id',
-        'amount' => 'amount',
-        'currency' => 'currency',
-        'ok_url' => 'success_url',
-        'fail_url' => 'fail_url',
-        'callback_url' => 'callback_url',
-        'customer_name' => 'customer_name',
-        'customer_email' => 'customer_email',
-        'customer_phone' => 'customer_phone',
-        'test_mode' => 'test_mode',
-        'hash' => 'hash',
-    ],
+    'base_url' => rtrim((string) env('TIKO_BASE_URL', 'https://www.tikokart.com/api-sanalpos'), '/'),
+    'sandbox_base_url' => rtrim((string) env('TIKO_SANDBOX_BASE_URL', 'https://www.tikokart.com/api-sanalpos-sandbox'), '/'),
 
     /*
-     | Tiko'nun geri dönüşünde (callback) okuduğumuz alanlar.
+     | Uç yolları. iFrame yolu belgede canlıda "onus3D", kum havuzunda
+     | "onus3d" yazıyor — büyük/küçük harf farkı büyük ihtimalle dizgi
+     | hatası, ama 404 alırsak düzeltilecek yer burası diye ayrı tutuldu.
      */
-    'callback_fields' => [
-        'order_id' => 'order_id',
-        'status' => 'status',
-        'transaction_id' => 'transaction_id',
-        'amount' => 'amount',
-        'hash' => 'hash',
+    'paths' => [
+        'iframe' => env('TIKO_PATH_IFRAME', '/gateway/onus3D'),
+        'sandbox_iframe' => env('TIKO_PATH_SANDBOX_IFRAME', '/gateway/onus3d'),
+        'status' => '/payment/status',
+        'cancel' => '/payment/cancel',
     ],
-
-    // Callback'te "başarılı" sayılan status değerleri
-    'success_values' => ['success', 'SUCCESS', 'approved', '1'],
-
-    // Tutar kuruş cinsinden mi gönderilecek? (12,50 TL -> 1250)
-    'amount_in_minor_units' => true,
 
     'currency' => 'TRY',
+
+    // Taksit yok. Belgeye göre taksitli işlemde CardType zorunlu ve
+    // bankaya göre alt tutar sınırı var; çiçekçi için gereksiz karmaşa.
+    'installment' => '0',
+
+    // Sunucudan sunucuya isteklerde saniye cinsinden zaman aşımı.
+    'timeout' => 20,
+
+    /*
+     | Ödeme sonuç kodları (belge: Ödeme Sonucu Sorgulama / Callback).
+     | Taşıma katmanının Status'ü ile KARIŞTIRMAYIN: dıştaki 200 "sorgu
+     | başarılı" demek, ödemenin başarılı olduğunu Result.Status söyler.
+     */
+    'result' => [
+        'pending' => '100',
+        'success' => '200',
+        'cancelled' => '201',
+    ],
 ];
