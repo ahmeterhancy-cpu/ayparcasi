@@ -2168,7 +2168,13 @@
 
 .mtn {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* Fotoğraf ekranla birlikte BÜYÜMÜYOR, 30rem'de duruyor. Yarım ekranı
+       kaplarken iki sorun birden çıkıyordu: panelden yüklenen dosya (~740px)
+       büyütülüp yumuşuyor, ve fotoğraf metni eziyordu. */
+    grid-template-columns: 1fr minmax(0, 30rem);
+    /* Geniş ekranda iki sütun birbirinden kopmasın diye bütün ölçülüyor. */
+    max-width: 88rem;
+    margin-inline: auto;
     min-height: 100svh;
     align-items: stretch;
 }
@@ -2280,30 +2286,40 @@
     flex: none;
 }
 
+/* Kenardan kenara akan bir duvar değil, çerçevelenmiş bir fotoğraf:
+   sayfa ölçülü olduğu için tam boy akıtmak sağda kesik bir kenar
+   bırakırdı. */
 .mtn__aside {
-    position: relative;
-    overflow: hidden;
-    background: var(--paper-2);
+    display: flex;
+    align-items: center;
+    padding: var(--gutter) var(--gutter) var(--gutter) 0;
 }
 
 .mtn__aside img {
     width: 100%;
-    height: 100%;
+    height: auto;
+    /* Uzun bir dikey fotoğraf sayfayı taşırmasın; taşan kısmı `cover` kırpar. */
+    max-height: 82svh;
     object-fit: cover;
+    border-radius: var(--radius-lg);
 }
 
 @media (max-width: 900px) {
+    /* Telefonda çerçeve yok: fotoğraf tepede kenardan kenara bir şerit. */
     .mtn__aside {
         order: -1;
         height: clamp(11rem, 32vh, 18rem);
-        /* Logonun kemer motifi — altta yumuşak, üstte düz */
-        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        padding: 0;
     }
 
     /* Alçak şeritte `cover` dikey fotoğrafın ortasını alıyor; dükkân
        fotoğraflarında ilgi çeken şey (tabela, yüz, vitrin) üst yarıda
        kalıyor. Kadrajı yukarı çekmek onu kurtarıyor. */
     .mtn__aside img {
+        height: 100%;
+        max-height: none;
         object-position: center 32%;
+        /* Logonun kemer motifi — altta yumuşak, üstte düz */
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     }
 }
